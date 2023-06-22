@@ -1,7 +1,10 @@
 package com.jumani.rutaseg.domain;
 
+import com.jumani.rutaseg.dto.result.Error;
 import jakarta.persistence.*;
 import lombok.Getter;
+
+import java.util.Optional;
 
 @Getter
 @Entity
@@ -32,6 +35,18 @@ public class TestEntity {
         this.stringField = stringField;
         this.longField = longField;
         this.enumField = enumField;
+    }
+
+    public final Optional<Error> testMethod(long someLong) {
+        Error error = null;
+
+        if (someLong <= 0) {
+            error = new Error("invalid_some_long", "some long must be positive");
+        } else {
+            // do something here...
+        }
+
+        return Optional.ofNullable(error);
     }
 
 }
