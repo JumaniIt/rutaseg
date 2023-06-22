@@ -1,15 +1,18 @@
 package com.jumani.rutaseg.domain;
 
 import com.jumani.rutaseg.dto.result.Error;
+import com.jumani.rutaseg.util.DateGen;
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.Optional;
 
 @Getter
 @Entity
 @Table(name = "test_entities")
-public class TestEntity {
+@Slf4j
+public class TestEntity implements DateGen {
 
     @Id
     // generación autoincremental de la db, lo asigna automáticamente el framework (Hibernate)
@@ -35,6 +38,8 @@ public class TestEntity {
         this.stringField = stringField;
         this.longField = longField;
         this.enumField = enumField;
+
+        log.info(String.format("new test entity created on date %s", this.currentDateUTC()));
     }
 
     public final Optional<Error> testMethod(long someLong) {
