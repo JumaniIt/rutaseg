@@ -13,14 +13,14 @@ public class ControllerExceptionHandler {
 
     @ExceptionHandler(ValidationException.class)
     private ResponseEntity<Error> handleResourceNotFoundException(ValidationException exception) {
-        final Error apiError = new Error(exception.getCode(), exception.getMessage());
-        return ResponseEntity.badRequest().body(apiError);
+        final Error error = new Error(exception.getCode(), exception.getMessage());
+        return ResponseEntity.badRequest().body(error);
     }
 
     @ExceptionHandler(NotFoundException.class)
     private ResponseEntity<Error> handleResourceNotFoundException(NotFoundException exception) {
-        final Error apiError = new Error(exception.getCode(), exception.getMessage());
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(apiError);
+        final Error error = new Error(exception.getCode(), exception.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
     }
 
 }
