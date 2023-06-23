@@ -15,6 +15,7 @@ import java.time.ZonedDateTime;
 
 @Configuration
 public class JacksonConfig {
+
     @Bean
     public Jackson2ObjectMapperBuilderCustomizer jsonCustomizer() {
         return builder -> builder.propertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE)

@@ -1,0 +1,19 @@
+spring:
+  datasource:
+    url:
+    username:
+    password:
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+    generate-ddl: true
+    hibernate:
+      ddl-auto: none
+  profiles:
+    active: ${SCOPE:local}
+
+logging:
+  pattern:
+    file: '%d %p %c{1.} [%t] %m%n'
+    console: '%d{yyyy-MM-dd HH:mm:ss} [%t] %-5p %logger{0} [request_id:%X{requestId}] - %m%n'
