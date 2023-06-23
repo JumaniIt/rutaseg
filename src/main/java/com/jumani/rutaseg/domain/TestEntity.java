@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
+import java.time.ZonedDateTime;
 import java.util.Optional;
 
 @Getter
@@ -30,6 +31,9 @@ public class TestEntity implements DateGen {
     @Enumerated(EnumType.STRING)
     private TestEnum enumField;
 
+    @Column(name = "date_field")
+    private ZonedDateTime dateField;
+
     // Esto lo necesita Hibernate para convertir el registro de la DB en una instancia
     private TestEntity() {
     }
@@ -38,8 +42,7 @@ public class TestEntity implements DateGen {
         this.stringField = stringField;
         this.longField = longField;
         this.enumField = enumField;
-
-        log.info(String.format("new test entity created on date %s", this.currentDateUTC()));
+        this.dateField = this.currentDateUTC();
     }
 
     public final Optional<Error> testMethod(long someLong) {

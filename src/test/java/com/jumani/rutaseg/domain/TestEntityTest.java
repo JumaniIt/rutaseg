@@ -4,11 +4,14 @@ import com.jumani.rutaseg.TestDataGen;
 import com.jumani.rutaseg.dto.result.Error;
 import org.junit.jupiter.api.Test;
 
+import java.time.ZonedDateTime;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class TestEntityTest {
+
+    private static final ZonedDateTime FIXED_CURRENT_DATE = ZonedDateTime.now();
 
     @Test
     void inicializacion_Ok() {
@@ -16,12 +19,13 @@ class TestEntityTest {
         final Long longField = TestDataGen.randomId();
         final TestEnum enumField = TestDataGen.randomEnum(TestEnum.class);
 
-        final TestEntity testEntity = new TestEntity(stringField, longField, enumField);
+        final TestEntity testEntity = new TestEntityForTest(stringField, longField, enumField);
 
         assertAll("Resultado esperado",
                 () -> assertEquals(stringField, testEntity.getStringField()),
                 () -> assertEquals(longField, testEntity.getLongField()),
-                () -> assertEquals(enumField, testEntity.getEnumField())
+                () -> assertEquals(enumField, testEntity.getEnumField()),
+                () -> assertEquals(FIXED_CURRENT_DATE, testEntity.getDateField())
         );
     }
 
@@ -51,5 +55,17 @@ class TestEntityTest {
         final Optional<Error> result = testEntity.testMethod(TestDataGen.randomId());
 
         assertTrue(result.isEmpty());
+    }
+
+    private static final class TestEntityForTest extends TestEntity {
+
+        public TestEntityForTest(String stringField, Long longField, TestEnum enumField) {
+            super(stringField, longField, enumField);
+        }
+
+        @Override
+        public ZonedDateTime currentDateUTC() {
+            return FIXED_CURRENT_DATE;
+        }
     }
 }

@@ -64,7 +64,8 @@ public class TestController {
     }
 
     private TestResponse createResponse(TestEntity entity) {
-        return new TestResponse(entity.getId(), entity.getStringField(), entity.getLongField(), entity.getEnumField());
+        return new TestResponse(entity.getId(), entity.getStringField(), entity.getLongField(),
+                entity.getEnumField(), entity.getDateField());
     }
 
 }
