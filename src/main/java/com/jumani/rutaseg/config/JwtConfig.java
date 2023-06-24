@@ -1,6 +1,8 @@
 package com.jumani.rutaseg.config;
 
 import com.jumani.rutaseg.service.JwtService;
+import com.jumani.rutaseg.service.JwtServiceDev;
+import com.jumani.rutaseg.service.JwtServiceImpl;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,12 +13,12 @@ public class JwtConfig {
     @Bean
     @Profile("!local & !integration_test")
     public JwtService jwtService(@Value("${jwt.secretKey}") String secretKey) {
-        return new JwtService(secretKey);
+        return new JwtServiceImpl(secretKey);
     }
 
     @Bean
     @Profile("local | integration_test")
     public JwtService jwtServiceDev() {
-        return new JwtService("secret-key-dev");
+        return new JwtServiceDev();
     }
 }

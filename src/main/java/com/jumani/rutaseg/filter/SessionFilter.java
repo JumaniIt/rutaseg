@@ -58,8 +58,8 @@ public class SessionFilter extends OncePerRequestFilter {
             throw new InvalidRequestOriginException();
         }
 
-        final String invokedEndpoint = request.getRequestURI();
-        if (SKIPPED_ENDPOINTS.contains(invokedEndpoint)) return;
+        final String endpoint = request.getRequestURI();
+        if (SKIPPED_ENDPOINTS.contains(endpoint)) return;
 
         final String authorizationHeader = request.getHeader(AUTHORIZATION_HEADER);
         if (authorizationHeader == null || !authorizationHeader.startsWith(BEARER_SUFFIX)) {
@@ -71,12 +71,11 @@ public class SessionFilter extends OncePerRequestFilter {
             throw new UnauthorizedException();
         }
 
-        if (ADMIN_ENDPOINTS.stream().anyMatch(invokedEndpoint::startsWith) && !jwtService.isAdminToken(token)) {
+        if (ADMIN_ENDPOINTS.stream().anyMatch(endpoint::startsWith) && !jwtService.isAdminToken(token)) {
             throw new ForbiddenException();
         }
 
         filterChain.doFilter(request, httpServletResponse);
-
     }
 
     private boolean isPreFlight(HttpServletRequest request) {

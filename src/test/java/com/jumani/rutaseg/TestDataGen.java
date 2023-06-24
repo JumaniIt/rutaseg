@@ -31,6 +31,10 @@ public final class TestDataGen {
                 .toString();
     }
 
+    public static boolean randomBoolean() {
+        return pickRandomElement(List.of(true, false));
+    }
+
     public static <T extends Enum<T>> T randomEnum(Class<T> enumClass) {
         final T[] values = enumClass.getEnumConstants();
         return pickRandomElement(Arrays.asList(values));
