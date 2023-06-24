@@ -17,3 +17,9 @@ logging:
   pattern:
     file: '%d %p %c{1.} [%t] %m%n'
     console: '%d{yyyy-MM-dd HH:mm:ss} [%t] %-5p %logger{0} [request_id:%X{requestId}] - %m%n'
+
+jwt:
+  secretKey: ${JWT_SECRET_KEY}
+
+session:
+  knownOrigins: ${KNOWN_ORIGINS:}
