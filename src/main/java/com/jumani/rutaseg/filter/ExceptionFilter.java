@@ -5,12 +5,17 @@ import com.jumani.rutaseg.handler.ControllerExceptionHandler;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.apache.http.entity.ContentType;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.Optional;
 
+@Component
+@Order(1)
 public class ExceptionFilter extends OncePerRequestFilter {
     private final ControllerExceptionHandler exceptionHandler = new ControllerExceptionHandler();
 
@@ -24,6 +29,7 @@ public class ExceptionFilter extends OncePerRequestFilter {
             final ResponseEntity<Error> error = exceptionHandler.handleException(e);
 
             response.setStatus(error.getStatusCode().value());
+            response.setContentType(ContentType.APPLICATION_JSON.getMimeType());
             response.getWriter().write(Optional.ofNullable(error.getBody()).map(Error::serialize).orElse(""));
             response.getWriter().flush();
         }

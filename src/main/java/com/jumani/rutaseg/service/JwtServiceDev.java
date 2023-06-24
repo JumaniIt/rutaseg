@@ -9,6 +9,11 @@ public class JwtServiceDev implements JwtService {
     }
 
     @Override
+    public String extractSubject(String token) {
+        return String.valueOf(token);
+    }
+
+    @Override
     public boolean isTokenValid(String token) {
         return true;
     }

@@ -6,6 +6,7 @@ import com.jumani.rutaseg.dto.request.TestRequest;
 import com.jumani.rutaseg.dto.response.TestResponse;
 import com.jumani.rutaseg.exception.InvalidRequestException;
 import com.jumani.rutaseg.exception.NotFoundException;
+import com.jumani.rutaseg.handler.UserId;
 import com.jumani.rutaseg.repository.TestRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.http.HttpStatus;
@@ -27,7 +28,7 @@ public class TestController {
     }
 
     @PostMapping
-    public ResponseEntity<TestResponse> create(@RequestBody TestRequest request) {
+    public ResponseEntity<TestResponse> create(@RequestBody TestRequest request, @UserId long userId) {
         this.validateCreationRequest(request);
 
         final TestEntity testEntity = new TestEntity(request.getStringField(), request.getLongField(), request.getEnumField());

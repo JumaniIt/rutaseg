@@ -27,6 +27,11 @@ public class JwtServiceImpl implements JwtService, DateGen {
     }
 
     @Override
+    public String extractSubject(String token) {
+        return this.extractAllClaims(token).getSubject();
+    }
+
+    @Override
     public boolean isTokenValid(String token) {
         return !isTokenExpired(token);
     }

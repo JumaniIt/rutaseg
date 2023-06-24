@@ -10,6 +10,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
+import org.springframework.core.annotation.Order;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
@@ -17,6 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+@Order(2)
 @AllArgsConstructor
 public class SessionFilter extends OncePerRequestFilter {
 
@@ -24,7 +26,7 @@ public class SessionFilter extends OncePerRequestFilter {
     private final List<String> knownOrigins;
 
     public static final String ACCESS_CONTROL_REQUEST_HEADERS = "access-control-request-headers";
-    public static final String AUTHORIZATION_HEADER = "Authorization";
+    public static final String AUTHORIZATION_HEADER = "x-auth-token";
     public static final String BEARER_SUFFIX = "Bearer ";
     public static final String ORIGIN_UUID_HEADER = "origin_uuid";
 
