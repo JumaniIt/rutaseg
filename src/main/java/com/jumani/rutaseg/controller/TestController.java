@@ -10,7 +10,7 @@ import com.jumani.rutaseg.exception.NotFoundException;
 import com.jumani.rutaseg.exception.ValidationException;
 import com.jumani.rutaseg.handler.USI;
 import com.jumani.rutaseg.repository.TestRepository;
-import com.jumani.rutaseg.service.file.FileRepository;
+import com.jumani.rutaseg.repository.file.FileRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

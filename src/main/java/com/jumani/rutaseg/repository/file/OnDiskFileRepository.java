@@ -1,4 +1,4 @@
-package com.jumani.rutaseg.service.file;
+package com.jumani.rutaseg.repository.file;
 
 import com.jumani.rutaseg.dto.result.Error;
 import lombok.extern.slf4j.Slf4j;
@@ -15,7 +15,7 @@ import java.util.Optional;
 
 @Slf4j
 @Component
-@Profile("local | integration_tests")
+@Profile("local | integration_test")
 public class OnDiskFileRepository implements FileRepository {
 
     @Value("${files.directory}")

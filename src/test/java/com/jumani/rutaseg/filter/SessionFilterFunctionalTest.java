@@ -2,6 +2,7 @@ package com.jumani.rutaseg.filter;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jumani.rutaseg.RutasegApplicationTests;
 import com.jumani.rutaseg.dto.result.Error;
 import com.jumani.rutaseg.service.auth.JwtService;
 import org.junit.jupiter.api.BeforeEach;
@@ -29,7 +30,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
-class SessionFilterFunctionalTest {
+class SessionFilterFunctionalTest extends RutasegApplicationTests {
     private MockMvc mvc;
 
     @Autowired

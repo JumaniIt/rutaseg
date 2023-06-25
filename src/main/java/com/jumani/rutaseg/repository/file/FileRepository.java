@@ -1,4 +1,4 @@
-package com.jumani.rutaseg.service.file;
+package com.jumani.rutaseg.repository.file;
 
 import com.jumani.rutaseg.dto.result.Error;
 import org.springframework.web.multipart.MultipartFile;
