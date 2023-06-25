@@ -1,6 +1,4 @@
 package com.jumani.rutaseg.service.file;
 
-public interface FileService {
-
-
+public class AwsFileRepository {
 }

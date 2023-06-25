@@ -7,12 +7,15 @@ import com.jumani.rutaseg.dto.response.TestResponse;
 import com.jumani.rutaseg.dto.response.UserSessionInfo;
 import com.jumani.rutaseg.exception.InvalidRequestException;
 import com.jumani.rutaseg.exception.NotFoundException;
+import com.jumani.rutaseg.exception.ValidationException;
 import com.jumani.rutaseg.handler.USI;
 import com.jumani.rutaseg.repository.TestRepository;
+import com.jumani.rutaseg.service.file.FileRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Objects;
 
@@ -24,8 +27,12 @@ public class TestController {
 
     private final TestRepository repo;
 
-    public TestController(TestRepository repo) {
+    private final FileRepository fileRepository;
+
+    public TestController(TestRepository repo,
+                          FileRepository fileRepository) {
         this.repo = repo;
+        this.fileRepository = fileRepository;
     }
 
     @PostMapping
@@ -49,6 +56,20 @@ public class TestController {
         final TestResponse response = this.createResponse(foundEntity);
 
         return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @PostMapping("/file")
+    public ResponseEntity<Boolean> saveFile(@RequestParam(value = "file") MultipartFile mf) {
+        fileRepository.save(System.currentTimeMillis() + "-" + mf.getResource().getFilename(), mf);
+        return ResponseEntity.ok(true);
+    }
+
+    @GetMapping("/file/{key}")
+    public ResponseEntity<String> getFile(@PathVariable("key") String key) {
+        final String link = fileRepository.findLinkToFile(key)
+                .orElseThrow(() -> new ValidationException("not_found", "file not found"));
+
+        return ResponseEntity.ok(link);
     }
 
     private void validateCreationRequest(TestRequest request) {

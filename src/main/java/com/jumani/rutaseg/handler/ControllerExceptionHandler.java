@@ -2,6 +2,7 @@ package com.jumani.rutaseg.handler;
 
 import com.jumani.rutaseg.dto.result.Error;
 import com.jumani.rutaseg.exception.*;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -9,6 +10,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import java.util.Optional;
 
+@Slf4j
 @ControllerAdvice
 public class ControllerExceptionHandler {
 
@@ -42,10 +44,10 @@ public class ControllerExceptionHandler {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error);
     }
 
-
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Error> handleException(Exception exception) {
         return this.handleKnownException(exception).orElseGet(() -> {
+            log.error("Internal error", exception);
             final Error error = new Error("internal_error", exception.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
         });
