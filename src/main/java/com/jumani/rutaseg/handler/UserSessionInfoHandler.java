@@ -1,7 +1,7 @@
 package com.jumani.rutaseg.handler;
 
 import com.jumani.rutaseg.dto.response.UserSessionInfo;
-import com.jumani.rutaseg.service.JwtService;
+import com.jumani.rutaseg.service.auth.JwtService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;

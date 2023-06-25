@@ -1,4 +1,4 @@
-package com.jumani.rutaseg.service;
+package com.jumani.rutaseg.service.auth;
 
 import com.jumani.rutaseg.util.DateGen;
 import io.jsonwebtoken.Claims;

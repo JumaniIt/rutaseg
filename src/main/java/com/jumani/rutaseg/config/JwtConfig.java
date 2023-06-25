@@ -1,8 +1,8 @@
 package com.jumani.rutaseg.config;
 
-import com.jumani.rutaseg.service.JwtService;
-import com.jumani.rutaseg.service.JwtServiceDev;
-import com.jumani.rutaseg.service.JwtServiceImpl;
+import com.jumani.rutaseg.service.auth.JwtService;
+import com.jumani.rutaseg.service.auth.JwtServiceDev;
+import com.jumani.rutaseg.service.auth.JwtServiceImpl;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

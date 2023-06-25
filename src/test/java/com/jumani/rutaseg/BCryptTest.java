@@ -1,4 +1,4 @@
-package com.spochi.service.auth;
+package com.jumani.rutaseg;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -14,11 +14,10 @@ public class BCryptTest {
         final String passwordPlainText = "1234";
 
         // encripto texto plano usando BCrypt
-        // esto nunca deberíamos usarlo porque el admin lo guardamos por fuera, directo contra la BD
         final String passwordEncoded = BCrypt.hashpw(passwordPlainText, BCrypt.gensalt());
 
         // comparo el texto plano contra el password encoded usando BCrypt
-        // el passwordPlainText es lo que recibo por DTO y passwordEncoded es
+        // el passwordPlainText es lo que recibimos en la request y passwordEncoded es
         // lo que tiene guardado el user que recupero de la BD
         assertTrue(BCrypt.checkpw(passwordPlainText, passwordEncoded));
     }

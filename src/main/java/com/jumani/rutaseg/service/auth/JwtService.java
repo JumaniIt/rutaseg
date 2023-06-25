@@ -1,4 +1,4 @@
-package com.jumani.rutaseg.service;
+package com.jumani.rutaseg.service.auth;
 
 public interface JwtService {
     String generateToken(String subject, boolean admin);

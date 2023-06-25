@@ -3,7 +3,7 @@ package com.jumani.rutaseg.filter;
 import com.jumani.rutaseg.exception.ForbiddenException;
 import com.jumani.rutaseg.exception.InvalidRequestOriginException;
 import com.jumani.rutaseg.exception.UnauthorizedException;
-import com.jumani.rutaseg.service.JwtService;
+import com.jumani.rutaseg.service.auth.JwtService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

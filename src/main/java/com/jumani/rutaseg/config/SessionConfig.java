@@ -1,7 +1,7 @@
 package com.jumani.rutaseg.config;
 
 import com.jumani.rutaseg.filter.SessionFilter;
-import com.jumani.rutaseg.service.JwtService;
+import com.jumani.rutaseg.service.auth.JwtService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
