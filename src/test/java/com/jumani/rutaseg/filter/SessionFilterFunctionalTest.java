@@ -19,12 +19,12 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
 import static com.jumani.rutaseg.TestDataGen.randomShortString;
-import static org.apache.commons.lang3.reflect.FieldUtils.*;
+import static org.apache.commons.lang3.reflect.FieldUtils.readStaticField;
+import static org.apache.commons.lang3.reflect.FieldUtils.writeField;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -55,7 +55,7 @@ class SessionFilterFunctionalTest {
     @SuppressWarnings("unchecked")
     @BeforeEach
     void before() throws IllegalAccessException {
-        this.sessionFilter = new SessionFilter(jwtService, List.of(KNOWN_ORIGIN));
+        this.sessionFilter = new SessionFilter(jwtService, List.of(KNOWN_ORIGIN), false);
         final List<String> skippedEndpoints = (List<String>) readStaticField(SessionFilter.class, "SKIPPED_ENDPOINTS", true);
         skippedEndpoints.add(SKIPPED_ENDPOINT);
 
@@ -100,7 +100,7 @@ class SessionFilterFunctionalTest {
     @Test
     void doFilterInternal_SkippedEndpoint_Ok() throws Exception {
         mvc.perform(get(SKIPPED_ENDPOINT)
-                        .header(SessionFilter.ORIGIN_UUID_HEADER, KNOWN_ORIGIN))
+                        .header(SessionFilter.ORIGIN_HEADER, KNOWN_ORIGIN))
                 .andDo(print())
                 .andExpect(status().is(HttpStatus.OK.value()))
                 .andReturn();
@@ -109,7 +109,7 @@ class SessionFilterFunctionalTest {
     @Test
     void doFilterInternal_WithoutAuthorizationHeader_Unauthorized() throws Exception {
         final MvcResult mvcResult = mvc.perform(get("/simple-get")
-                        .header(SessionFilter.ORIGIN_UUID_HEADER, KNOWN_ORIGIN))
+                        .header(SessionFilter.ORIGIN_HEADER, KNOWN_ORIGIN))
                 .andDo(print())
                 .andReturn();
 
@@ -124,7 +124,7 @@ class SessionFilterFunctionalTest {
     @Test
     void doFilterInternal_InvalidAuthorizationHeader_Unauthorized() throws Exception {
         final MvcResult mvcResult = mvc.perform(get("/simple-get")
-                        .header(SessionFilter.ORIGIN_UUID_HEADER, KNOWN_ORIGIN)
+                        .header(SessionFilter.ORIGIN_HEADER, KNOWN_ORIGIN)
                         .header(SessionFilter.AUTHORIZATION_HEADER, "invalid-auth-header"))
                 .andDo(print())
                 .andReturn();
@@ -144,7 +144,7 @@ class SessionFilterFunctionalTest {
         when(jwtService.isTokenValid(token)).thenReturn(false);
 
         final MvcResult mvcResult = mvc.perform(get("/simple-get")
-                        .header(SessionFilter.ORIGIN_UUID_HEADER, KNOWN_ORIGIN)
+                        .header(SessionFilter.ORIGIN_HEADER, KNOWN_ORIGIN)
                         .header(SessionFilter.AUTHORIZATION_HEADER, SessionFilter.BEARER_SUFFIX + token))
                 .andDo(print())
                 .andReturn();
@@ -165,7 +165,7 @@ class SessionFilterFunctionalTest {
         when(jwtService.isAdminToken(token)).thenReturn(false);
 
         final MvcResult mvcResult = mvc.perform(get(ADMIN_ENDPOINT)
-                        .header(SessionFilter.ORIGIN_UUID_HEADER, KNOWN_ORIGIN)
+                        .header(SessionFilter.ORIGIN_HEADER, KNOWN_ORIGIN)
                         .header(SessionFilter.AUTHORIZATION_HEADER, SessionFilter.BEARER_SUFFIX + token))
                 .andDo(print())
                 .andReturn();
@@ -185,7 +185,7 @@ class SessionFilterFunctionalTest {
         when(jwtService.isTokenValid(token)).thenReturn(true);
 
         mvc.perform(get("/simple-get")
-                        .header(SessionFilter.ORIGIN_UUID_HEADER, KNOWN_ORIGIN)
+                        .header(SessionFilter.ORIGIN_HEADER, KNOWN_ORIGIN)
                         .header(SessionFilter.AUTHORIZATION_HEADER, SessionFilter.BEARER_SUFFIX + token))
                 .andDo(print())
                 .andExpect(status().is(HttpStatus.NOT_FOUND.value()))
@@ -200,7 +200,7 @@ class SessionFilterFunctionalTest {
         when(jwtService.isAdminToken(token)).thenReturn(true);
 
         mvc.perform(get(ADMIN_ENDPOINT)
-                        .header(SessionFilter.ORIGIN_UUID_HEADER, KNOWN_ORIGIN)
+                        .header(SessionFilter.ORIGIN_HEADER, KNOWN_ORIGIN)
                         .header(SessionFilter.AUTHORIZATION_HEADER, SessionFilter.BEARER_SUFFIX + token))
                 .andDo(print())
                 .andExpect(status().is(HttpStatus.NOT_FOUND.value()))
@@ -208,8 +208,8 @@ class SessionFilterFunctionalTest {
     }
 
     @Test
-    void doFilterInternal_NoConfiguredKnownOrigins_Ok() throws Exception {
-        writeField(sessionFilter, "knownOrigins", Collections.emptyList(), true);
+    void doFilterInternal_AllowAllOrigins_Ok() throws Exception {
+        writeField(sessionFilter, "allowAllOrigins", true, true);
 
         final String token = randomShortString();
 

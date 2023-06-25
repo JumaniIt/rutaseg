@@ -5,7 +5,6 @@ import com.jumani.rutaseg.service.JwtService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
 
 import java.util.List;
 
@@ -14,7 +13,8 @@ public class SessionConfig {
 
     @Bean
     public SessionFilter sessionFilter(JwtService jwtService,
-                                       @Value("${session.knownOrigins}") List<String> knownOrigins) {
-        return new SessionFilter(jwtService, knownOrigins);
+                                       @Value("${session.knownOrigins}") List<String> knownOrigins,
+                                       @Value("${session.allowAllOrigins}") boolean allowAllOrigins) {
+        return new SessionFilter(jwtService, knownOrigins, allowAllOrigins);
     }
 }

@@ -13,6 +13,5 @@ public class TestResponse {
     private final String stringField;
     private final Long longField;
     private final TestEnum enumField;
-
     private final ZonedDateTime dateField;
 }

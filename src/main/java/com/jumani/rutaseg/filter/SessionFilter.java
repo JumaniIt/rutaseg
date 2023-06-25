@@ -9,7 +9,6 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
-import lombok.NonNull;
 import org.springframework.core.annotation.Order;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -24,11 +23,12 @@ public class SessionFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
     private final List<String> knownOrigins;
+    private final boolean allowAllOrigins;
 
     public static final String ACCESS_CONTROL_REQUEST_HEADERS = "access-control-request-headers";
     public static final String AUTHORIZATION_HEADER = "x-auth-token";
+    public static final String ORIGIN_HEADER = "x-auth-origin";
     public static final String BEARER_SUFFIX = "Bearer ";
-    public static final String ORIGIN_UUID_HEADER = "origin_uuid";
 
     // Endpoints que NO necesitan ser autorizados con JWT
     private static final List<String> SKIPPED_ENDPOINTS;
@@ -50,9 +50,9 @@ public class SessionFilter extends OncePerRequestFilter {
      * Si es válido llama al filterChain.doFilter() lo cual significa seguir el curso natural de la petición (ir al controller)
      */
     @Override
-    protected void doFilterInternal(@NonNull HttpServletRequest request,
-                                    @NonNull HttpServletResponse httpServletResponse,
-                                    @NonNull FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request,
+                                    HttpServletResponse httpServletResponse,
+                                    FilterChain filterChain) throws ServletException, IOException {
 
         if (this.isPreFlight(request)) return;
 
@@ -85,11 +85,7 @@ public class SessionFilter extends OncePerRequestFilter {
     }
 
     private boolean isValidRequestOrigin(HttpServletRequest request) {
-        if (knownOrigins.isEmpty()) {
-            return true;
-        }
-
-        return Optional.ofNullable(request.getHeader(ORIGIN_UUID_HEADER))
+        return allowAllOrigins || Optional.ofNullable(request.getHeader(ORIGIN_HEADER))
                 .map(knownOrigins::contains)
                 .orElse(false);
     }

@@ -1,7 +1,9 @@
 package com.jumani.rutaseg.handler;
 
+import com.jumani.rutaseg.dto.response.UserSessionInfo;
 import com.jumani.rutaseg.service.JwtService;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.AllArgsConstructor;
 import lombok.NonNull;
 import org.springframework.core.MethodParameter;
 import org.springframework.stereotype.Component;
@@ -14,28 +16,29 @@ import static com.jumani.rutaseg.filter.SessionFilter.AUTHORIZATION_HEADER;
 import static com.jumani.rutaseg.filter.SessionFilter.BEARER_SUFFIX;
 
 @Component
-public class UserIdHandler implements HandlerMethodArgumentResolver {
-    private final JwtService jwtService;
+@AllArgsConstructor
+public class UserSessionInfoHandler implements HandlerMethodArgumentResolver {
 
-    public UserIdHandler(JwtService jwtService) {
-        this.jwtService = jwtService;
-    }
+    private final JwtService jwtService;
 
     @Override
     public boolean supportsParameter(MethodParameter methodParameter) {
-        return methodParameter.getParameterAnnotation(UserId.class) != null;
+        return methodParameter.getParameterAnnotation(USI.class) != null;
     }
 
     @Override
-    public Long resolveArgument(@NonNull MethodParameter methodParameter,
-                                ModelAndViewContainer modelAndViewContainer,
-                                NativeWebRequest nativeWebRequest,
-                                WebDataBinderFactory webDataBinderFactory) {
+    public UserSessionInfo resolveArgument(@NonNull MethodParameter methodParameter,
+                                           ModelAndViewContainer modelAndViewContainer,
+                                           NativeWebRequest nativeWebRequest,
+                                           WebDataBinderFactory webDataBinderFactory) {
 
         final HttpServletRequest request = (HttpServletRequest) nativeWebRequest.getNativeRequest();
         final String authorizationHeader = request.getHeader(AUTHORIZATION_HEADER);
         final String token = authorizationHeader.substring(BEARER_SUFFIX.length());
 
-        return Long.parseLong(jwtService.extractSubject(token));
+        final long userId = Long.parseLong(jwtService.extractSubject(token));
+        final boolean admin = jwtService.isAdminToken(token);
+
+        return new UserSessionInfo(userId, admin);
     }
 }
