@@ -31,6 +31,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 class SessionFilterFunctionalTest extends RutasegApplicationTests {
+
     private MockMvc mvc;
 
     @Autowired
