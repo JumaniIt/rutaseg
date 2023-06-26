@@ -3,7 +3,6 @@ package com.jumani.rutaseg;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
-import java.util.concurrent.ThreadLocalRandom;
 
 public final class TestDataGen {
 
@@ -14,7 +13,7 @@ public final class TestDataGen {
     }
 
     public static long randomId() {
-        return ThreadLocalRandom.current().nextLong(1L, 99999999L);
+        return RANDOM.nextLong(1L, 99999999L);
     }
 
     public static String randomShortString() {
@@ -50,6 +49,6 @@ public final class TestDataGen {
     }
 
     public static int randomInt(int origin, int bound) {
-        return ThreadLocalRandom.current().nextInt(origin, bound);
+        return RANDOM.nextInt(origin, bound);
     }
 }
