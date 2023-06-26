@@ -14,14 +14,14 @@ class TestEntityTest {
     private static final ZonedDateTime FIXED_CURRENT_DATE = ZonedDateTime.now();
 
     @Test
-    void inicializacion_Ok() {
+    void initialization_Ok() {
         final String stringField = TestDataGen.randomShortString();
         final Long longField = TestDataGen.randomId();
         final TestEnum enumField = TestDataGen.randomEnum(TestEnum.class);
 
         final TestEntity testEntity = new TestEntityForTest(stringField, longField, enumField);
 
-        assertAll("Resultado esperado",
+        assertAll("Expected result",
                 () -> assertEquals(stringField, testEntity.getStringField()),
                 () -> assertEquals(longField, testEntity.getLongField()),
                 () -> assertEquals(enumField, testEntity.getEnumField()),
