@@ -1,6 +1,7 @@
 package com.jumani.rutaseg.repository.file;
 
 import com.jumani.rutaseg.dto.result.Error;
+import com.jumani.rutaseg.dto.result.Result;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
@@ -15,21 +16,21 @@ import java.util.Optional;
 
 @Slf4j
 @Component
-@Profile("local | integration_test")
+@Profile("local")
 public class OnDiskFileRepository implements FileRepository {
 
     @Value("${files.directory}")
     private String path;
 
     @Override
-    public Optional<String> findLinkToFile(String key) {
+    public Result<Optional<String>> findLinkToFile(String key) {
         FileInputStream fileInputStream = null;
         try {
             final String pathToFile = path + "/" + key;
             fileInputStream = new FileInputStream(pathToFile);
-            return Optional.of(pathToFile);
+            return new Result<>(Optional.of(pathToFile));
         } catch (FileNotFoundException e) {
-            return Optional.empty();
+            return new Result<>(Optional.empty());
 
         } finally {
             try {
@@ -50,5 +51,21 @@ public class OnDiskFileRepository implements FileRepository {
             log.error("could not save file to disk", e);
             return Optional.of(new Error("save_file_to_disk_failed", e.getMessage()));
         }
+    }
+
+    @Override
+    public Optional<Error> delete(String key) {
+        final Result<Optional<String>> result = this.findLinkToFile(key);
+
+        if (result.isSuccessful()) {
+            result.getResponse().ifPresent(linkToFile -> {
+                final File file = new File(linkToFile);
+                file.delete();
+            });
+
+            return Optional.empty();
+        }
+
+        return Optional.of(result.getError());
     }
 }

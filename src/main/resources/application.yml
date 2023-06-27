@@ -13,6 +13,14 @@ spring:
   profiles:
     active: ${SCOPE:local}
 
+aws:
+  credentials:
+    access-key: ${AWS_ACCESS_KEY}
+    secret-key: ${AWS_SECRET_KEY}
+  region: ${AWS_REGION}
+  s3:
+    files-bucket: ${AWS_S3_FILES_BUCKET}
+
 logging:
   pattern:
     file: '%d %p %c{1.} [%t] %m%n'

@@ -5,6 +5,7 @@ import com.jumani.rutaseg.domain.TestEntity;
 import com.jumani.rutaseg.dto.request.TestRequest;
 import com.jumani.rutaseg.dto.response.TestResponse;
 import com.jumani.rutaseg.dto.response.UserSessionInfo;
+import com.jumani.rutaseg.dto.result.Result;
 import com.jumani.rutaseg.exception.InvalidRequestException;
 import com.jumani.rutaseg.exception.NotFoundException;
 import com.jumani.rutaseg.exception.ValidationException;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Objects;
+import java.util.Optional;
 
 @RestController
 // Transactional permite hacer transacciones de escritura a la DB
@@ -65,11 +67,23 @@ public class TestController {
     }
 
     @GetMapping("/file/{key}")
-    public ResponseEntity<String> getFile(@PathVariable("key") String key) {
-        final String link = fileRepository.findLinkToFile(key)
-                .orElseThrow(() -> new ValidationException("not_found", "file not found"));
+    public ResponseEntity<?> getFile(@PathVariable("key") String key) {
+        final Result<Optional<String>> result = fileRepository.findLinkToFile(key);
 
-        return ResponseEntity.ok(link);
+        if (result.isSuccessful()) {
+            return result.getResponse()
+                    .map(ResponseEntity::ok)
+                    .orElseThrow(() -> new NotFoundException(String.format("file with key %s not found", key)));
+        } else {
+            return ResponseEntity.internalServerError().body(result.getError());
+        }
+    }
+
+    @DeleteMapping("/file/{key}")
+    public ResponseEntity<?> deleteFile(@PathVariable("key") String key) {
+        return fileRepository.delete(key)
+                .map(error -> ResponseEntity.internalServerError().body(error))
+                .orElse(ResponseEntity.noContent().build());
     }
 
     private void validateCreationRequest(TestRequest request) {
