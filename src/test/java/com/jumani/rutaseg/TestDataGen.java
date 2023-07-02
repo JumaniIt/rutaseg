@@ -1,5 +1,7 @@
 package com.jumani.rutaseg;
 
+import org.apache.commons.lang3.RandomStringUtils;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
@@ -21,13 +23,7 @@ public final class TestDataGen {
     }
 
     public static String randomString(int length) {
-        final int leftLimit = 48; // número 0
-        final int rightLimit = 122; // letra 'z'
-
-        return RANDOM.ints(leftLimit, rightLimit + 1)
-                .limit(length)
-                .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
-                .toString();
+        return RandomStringUtils.randomAlphabetic(length);
     }
 
     public static boolean randomBoolean() {
