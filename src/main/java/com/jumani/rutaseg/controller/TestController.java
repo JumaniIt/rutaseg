@@ -8,7 +8,6 @@ import com.jumani.rutaseg.dto.response.UserSessionInfo;
 import com.jumani.rutaseg.dto.result.Result;
 import com.jumani.rutaseg.exception.InvalidRequestException;
 import com.jumani.rutaseg.exception.NotFoundException;
-import com.jumani.rutaseg.exception.ValidationException;
 import com.jumani.rutaseg.handler.USI;
 import com.jumani.rutaseg.repository.TestRepository;
 import com.jumani.rutaseg.repository.file.FileRepository;
