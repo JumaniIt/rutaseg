@@ -28,9 +28,9 @@ public class OnDiskFileRepository implements FileRepository {
         try {
             final String pathToFile = path + "/" + key;
             fileInputStream = new FileInputStream(pathToFile);
-            return new Result<>(Optional.of(pathToFile));
+            return Result.response(Optional.of(pathToFile));
         } catch (FileNotFoundException e) {
-            return new Result<>(Optional.empty());
+            return Result.response(Optional.empty());
 
         } finally {
             try {

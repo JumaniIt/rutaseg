@@ -4,14 +4,18 @@ public class Result<T> {
     private final T response;
     private final Error error;
 
-    public Result(T response) {
+    private Result(T response, Error error) {
         this.response = response;
-        this.error = null;
+        this.error = error;
     }
 
-    public Result(Error error) {
-        this.response = null;
-        this.error = error;
+    public static <T> Result<T> response(T response) {
+        return new Result<>(response, null);
+    }
+
+    public static <T> Result<T> error(String code, String message) {
+        final Error error = new Error(code, message);
+        return new Result<>(null, error);
     }
 
     public final boolean isSuccessful() {

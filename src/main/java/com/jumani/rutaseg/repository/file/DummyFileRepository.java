@@ -19,7 +19,7 @@ public class DummyFileRepository implements FileRepository {
         if (links.contains(key)) {
             linkToFile = key;
         }
-        return new Result<>(Optional.ofNullable(linkToFile));
+        return Result.response(Optional.ofNullable(linkToFile));
     }
 
     @Override

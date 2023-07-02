@@ -33,11 +33,11 @@ public class AwsFileRepository implements FileRepository, DateGen {
                 final Date expirationDate = Date.from(this.currentDateUTC().plusDays(3).toInstant());
                 fileLink = client.generatePresignedUrl(bucket, key, expirationDate).toString();
             }
-            return new Result<>(Optional.ofNullable(fileLink));
+            return Result.response(Optional.ofNullable(fileLink));
         } catch (SdkClientException awsEx) {
             final String errorMessage = String.format("could not generate AWS link for file with key [%s]", key);
             log.error(errorMessage, awsEx);
-            return new Result<>(new Error("file_get_error", errorMessage));
+            return Result.error("file_get_error", errorMessage);
         }
     }
 
