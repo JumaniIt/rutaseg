@@ -20,7 +20,7 @@ public class TestEntity implements DateGen {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "string_field")
+    @Column(name = "string_field", unique = true)
     private String stringField;
 
     @Column(name = "long_field")
