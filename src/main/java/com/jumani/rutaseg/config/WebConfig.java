@@ -1,6 +1,6 @@
 package com.jumani.rutaseg.config;
 
-import com.jumani.rutaseg.handler.UserSessionInfoHandler;
+import com.jumani.rutaseg.handler.SessionInfoHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
@@ -13,11 +13,11 @@ import java.util.List;
 public class WebConfig implements WebMvcConfigurer {
 
     @Autowired
-    private UserSessionInfoHandler userSessionInfoHandler;
+    private SessionInfoHandler sessionInfoHandler;
 
     @Override
     public void addArgumentResolvers(List<HandlerMethodArgumentResolver> argumentResolvers) {
-        argumentResolvers.add(userSessionInfoHandler);
+        argumentResolvers.add(sessionInfoHandler);
     }
 
     @Override

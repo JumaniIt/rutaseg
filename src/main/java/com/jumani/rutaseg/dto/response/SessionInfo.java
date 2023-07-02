@@ -1,4 +1,4 @@
 package com.jumani.rutaseg.dto.response;
 
-public record SessionInfo(String jwt, UserSessionInfo user) {
+public record SessionInfo(long id, boolean admin) {
 }

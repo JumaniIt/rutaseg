@@ -4,11 +4,12 @@ import com.amazonaws.util.StringUtils;
 import com.jumani.rutaseg.domain.TestEntity;
 import com.jumani.rutaseg.dto.request.TestRequest;
 import com.jumani.rutaseg.dto.response.TestResponse;
-import com.jumani.rutaseg.dto.response.UserSessionInfo;
+import com.jumani.rutaseg.dto.response.SessionInfo;
 import com.jumani.rutaseg.dto.result.Result;
+import com.jumani.rutaseg.exception.ForbiddenException;
 import com.jumani.rutaseg.exception.InvalidRequestException;
 import com.jumani.rutaseg.exception.NotFoundException;
-import com.jumani.rutaseg.handler.USI;
+import com.jumani.rutaseg.handler.Session;
 import com.jumani.rutaseg.repository.TestRepository;
 import com.jumani.rutaseg.repository.file.FileRepository;
 import jakarta.transaction.Transactional;
@@ -37,7 +38,11 @@ public class TestController {
     }
 
     @PostMapping
-    public ResponseEntity<TestResponse> create(@RequestBody TestRequest request, @USI UserSessionInfo usi) {
+    public ResponseEntity<TestResponse> create(@RequestBody TestRequest request, @Session SessionInfo session) {
+        if (!session.admin()) {
+            throw new ForbiddenException();
+        }
+
         this.validateCreationRequest(request);
 
         final TestEntity testEntity = new TestEntity(request.getStringField(), request.getLongField(), request.getEnumField());

@@ -1,6 +1,6 @@
 package com.jumani.rutaseg.handler;
 
-import com.jumani.rutaseg.dto.response.UserSessionInfo;
+import com.jumani.rutaseg.dto.response.SessionInfo;
 import com.jumani.rutaseg.service.auth.JwtService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
@@ -17,20 +17,20 @@ import static com.jumani.rutaseg.filter.SessionFilter.BEARER_SUFFIX;
 
 @Component
 @AllArgsConstructor
-public class UserSessionInfoHandler implements HandlerMethodArgumentResolver {
+public class SessionInfoHandler implements HandlerMethodArgumentResolver {
 
     private final JwtService jwtService;
 
     @Override
     public boolean supportsParameter(MethodParameter methodParameter) {
-        return methodParameter.getParameterAnnotation(USI.class) != null;
+        return methodParameter.getParameterAnnotation(Session.class) != null;
     }
 
     @Override
-    public UserSessionInfo resolveArgument(@NonNull MethodParameter methodParameter,
-                                           ModelAndViewContainer modelAndViewContainer,
-                                           NativeWebRequest nativeWebRequest,
-                                           WebDataBinderFactory webDataBinderFactory) {
+    public SessionInfo resolveArgument(@NonNull MethodParameter methodParameter,
+                                       ModelAndViewContainer modelAndViewContainer,
+                                       NativeWebRequest nativeWebRequest,
+                                       WebDataBinderFactory webDataBinderFactory) {
 
         final HttpServletRequest request = (HttpServletRequest) nativeWebRequest.getNativeRequest();
         final String authorizationHeader = request.getHeader(AUTHORIZATION_HEADER);
@@ -39,6 +39,6 @@ public class UserSessionInfoHandler implements HandlerMethodArgumentResolver {
         final long userId = Long.parseLong(jwtService.extractSubject(token));
         final boolean admin = jwtService.isAdminToken(token);
 
-        return new UserSessionInfo(userId, admin);
+        return new SessionInfo(userId, admin);
     }
 }
