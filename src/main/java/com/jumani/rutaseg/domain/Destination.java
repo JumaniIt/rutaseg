@@ -1,6 +1,5 @@
 package com.jumani.rutaseg.domain;
 
-public enum Type {
+public enum Destination {
     TRM, TLEA, TLAT
-
 }
