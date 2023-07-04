@@ -36,8 +36,8 @@ public class Order implements DateGen {
         this.port = false;
         this.transport = false;
         this.status = DRAFT;
+        this.createdAt = this.currentDateUTC();
         this.finishedAt =null;
-        this.createdAt = currentDateUTC();
         this.arrivalData = arrivalData;
         this.driverData = driverData;
         this.customsData = customsData;
