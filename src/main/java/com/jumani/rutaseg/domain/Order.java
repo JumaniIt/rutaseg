@@ -31,7 +31,7 @@ public class Order implements DateGen {
     private CustomsData customsData;
 
     //constructor
-    public Order(boolean pema, boolean port, boolean transport, OrderStatus status, ZonedDateTime createdAt, ZonedDateTime finishedAt,  ArrivalData arrivalData, DriverData driverData, CustomsData customsData) {
+    public Order(boolean pema, boolean port, boolean transport  ,  ArrivalData arrivalData, DriverData driverData, CustomsData customsData) {
         this.pema = false;
         this.port = false;
         this.transport = false;
