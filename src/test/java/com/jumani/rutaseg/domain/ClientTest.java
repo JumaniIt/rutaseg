@@ -13,13 +13,9 @@ public class ClientTest {
         String phone = "123456789";
         long CUIT = 1234567890L;
         Consignee consignee = new Consignee("Juancho", CUIT);
-        Client client = new Client(phone, consignee);
+        Client client = new Client(phone);
 
         assertNotNull(client);
         assertEquals(phone, client.getPhone());
-        assertEquals(consignee, client.getConsignee());
     }
-
-
-
 }

@@ -8,34 +8,34 @@ import lombok.extern.slf4j.Slf4j;
 import java.time.ZonedDateTime;
 import java.util.Optional;
 
-@Getter
-public class Client {
-    private String phone;
-    private Consignee consignee;
-    //constructor
-    public Client(String phone, Consignee consignee) {
-        this.phone = phone;
-        this.consignee = consignee;
-    }
-    public Client() {
-    }
-    public void addConsignee(Consignee consignee) throws Exception {
-        if (consignee == null) {
-            throw new Exception("Error: Consignee object cannot be null.");
-        }
+import java.util.ArrayList;
+import java.util.List;
 
+@Getter
+public class Client extends User{
+    private String phone;
+    private List<Consignee> consignees;
+
+    public Client(String phone) {
+        this.phone = phone;
+        this.consignees = new ArrayList<>();
+    }
+
+    public Client() {
+        this.consignees = new ArrayList<>();
+    }
+
+    public Optional<Error> addConsignee(Consignee consignee) {
         String consigneeName = consignee.getName();
         long consigneeCUIT = consignee.getCUIT();
 
-        if (this.consignee != null) {
-            if (this.consignee.getName().equals(consigneeName) || this.consignee.getCUIT() == consigneeCUIT) {
-                throw new Exception("Error: Consignee with the same name or CUIT already exists.");
+        for (Consignee existingConsignee : consignees) {
+            if (existingConsignee.getName().equals(consigneeName) || existingConsignee.getCUIT() == consigneeCUIT) {
+                return Optional.of(new Error("duplicate_consignee", "Consignee with the same name or CUIT already exists."));
             }
         }
-        this.consignee = consignee;
-    }
 
-    public Consignee getConsignee() {
-        return consignee;
+        consignees.add(consignee);
+        return Optional.empty();
     }
 }

@@ -15,14 +15,12 @@ public class User {
     private String password;
     private String email;
     private boolean admin;
-    private Client client;
-    // Constructor
-    public User(String name, String password, String email, boolean admin, Client client) {
+
+    public User(String name, String password, String email, boolean admin) {
         this.name = name;
         this.password = password;
         this.email = email;
         this.admin = admin;
-        this.client = client;
     }
     public User() {
     }

@@ -13,11 +13,11 @@ public class Consignee {
     private String name;
     private long CUIT;
 
-    //constructor
     public Consignee(String name, long CUIT) {
         this.name = name;
         this.CUIT = CUIT;
     }
+
     public Consignee(){
     }
 }

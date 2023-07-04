@@ -19,15 +19,13 @@ public class UserTest {
         String phone = "123456789";
         long CUIT = 1234567890L;
         Consignee consignee = new Consignee("Juancho", CUIT);
-        Client client = new Client(phone, consignee);
 
-        User user = new User(name, password, email, admin, client);
+        User user = new User(name, password, email, admin);
 
         assertNotNull(user);
         assertEquals(name, user.getName());
         assertEquals(password, user.getPassword());
         assertEquals(email, user.getEmail());
         assertEquals(admin, user.isAdmin());
-        assertEquals(client, user.getClient());
     }
 }
