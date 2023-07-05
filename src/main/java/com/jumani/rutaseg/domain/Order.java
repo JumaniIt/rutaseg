@@ -1,11 +1,12 @@
 package com.jumani.rutaseg.domain;
-import com.jumani.rutaseg.dto.result.Error;
+
 import com.jumani.rutaseg.util.DateGen;
-import jakarta.persistence.*;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
+
 import java.time.ZonedDateTime;
-import java.util.Optional;
+
 import static com.jumani.rutaseg.domain.OrderStatus.DRAFT;
 
 @Getter
@@ -31,13 +32,17 @@ public class Order implements DateGen {
     private CustomsData customsData;
 
     //constructor
-    public Order(boolean pema, boolean port, boolean transport  ,  ArrivalData arrivalData, DriverData driverData, CustomsData customsData) {
-        this.pema = false;
-        this.port = false;
-        this.transport = false;
+    public Order(boolean pema, boolean port, boolean transport,
+                 ArrivalData arrivalData,
+                 DriverData driverData,
+                 CustomsData customsData) {
+
+        this.pema = pema;
+        this.port = port;
+        this.transport = transport;
         this.status = DRAFT;
         this.createdAt = this.currentDateUTC();
-        this.finishedAt =null;
+        this.finishedAt = null;
         this.arrivalData = arrivalData;
         this.driverData = driverData;
         this.customsData = customsData;

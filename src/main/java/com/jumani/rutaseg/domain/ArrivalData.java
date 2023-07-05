@@ -1,13 +1,15 @@
 package com.jumani.rutaseg.domain;
+
 import com.jumani.rutaseg.util.DateGen;
 import lombok.Getter;
+
 import java.time.LocalDate;
 import java.time.LocalTime;
 
 @Getter
 public class ArrivalData implements DateGen {
 
-    private LocalDate  arrivalDate;
+    private LocalDate arrivalDate;
 
     private LocalTime arrivalTime;
 
@@ -24,7 +26,8 @@ public class ArrivalData implements DateGen {
     private ArrivalData() {
     }
 
-    public ArrivalData(LocalDate  arrivalDate, LocalTime arrivalTime, String turn, boolean freeLoad, Destination destination, String fob, Currency currency) {
+    public ArrivalData(LocalDate arrivalDate, LocalTime arrivalTime, String turn, boolean freeLoad,
+                       Destination destination, String fob, Currency currency) {
         this.arrivalDate = arrivalDate;
         this.arrivalTime = arrivalTime;
         this.turn = turn;

@@ -1,4 +1,5 @@
 package com.jumani.rutaseg.domain;
+
 import lombok.Getter;
 
 @Getter
