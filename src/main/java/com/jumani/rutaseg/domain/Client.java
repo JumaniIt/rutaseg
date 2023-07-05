@@ -1,28 +1,32 @@
 package com.jumani.rutaseg.domain;
-import com.jumani.rutaseg.dto.result.Error;
-import com.jumani.rutaseg.util.DateGen;
-import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
 
-import java.time.ZonedDateTime;
-import java.util.Optional;
+import com.jumani.rutaseg.dto.result.Error;
+import lombok.Getter;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 @Getter
-public class Client extends User{
+public class Client {
+    private User user;
     private String phone;
+    private Long CUIT;
     private List<Consignee> consignees;
 
-    public Client(String phone) {
+    public Client(User user, String phone, Long CUIT) {
+        this.user = user;
         this.phone = phone;
+        this.CUIT = CUIT;
         this.consignees = new ArrayList<>();
+
+        if (Objects.nonNull(this.user) && Objects.nonNull(this.CUIT)) {
+            consignees.add(new Consignee(this.user.getName(), this.CUIT));
+        }
     }
 
-    public Client() {
-        this.consignees = new ArrayList<>();
+    private Client() {
     }
 
     public Optional<Error> addConsignee(Consignee consignee) {
@@ -31,7 +35,7 @@ public class Client extends User{
 
         for (Consignee existingConsignee : consignees) {
             if (existingConsignee.getName().equals(consigneeName) || existingConsignee.getCUIT() == consigneeCUIT) {
-                return Optional.of(new Error("duplicate_consignee", "Consignee with the same name or CUIT already exists."));
+                return Optional.of(new Error("duplicated_consignee", "consignee with the same name or CUIT already exists"));
             }
         }
 
