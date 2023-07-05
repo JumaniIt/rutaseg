@@ -1,6 +1,7 @@
 package com.jumani.rutaseg.domain;
 
 import com.jumani.rutaseg.dto.result.Error;
+import jakarta.persistence.*;
 import lombok.Getter;
 
 import java.util.ArrayList;
@@ -9,10 +10,26 @@ import java.util.Objects;
 import java.util.Optional;
 
 @Getter
+@Entity
+@Table(name = "clients")
 public class Client {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private long id;
+
+    @OneToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "user_id")
     private User user;
+
+    @Column(name = "phone")
     private String phone;
+    @Column(name = "cuit")
     private Long CUIT;
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "consignees",
+            joinColumns = @JoinColumn(name = "client_id"))
     private List<Consignee> consignees;
 
     public Client(User user, String phone, Long CUIT) {
@@ -41,5 +58,9 @@ public class Client {
 
         consignees.add(consignee);
         return Optional.empty();
+    }
+
+    public Long getUserId() {
+        return Optional.ofNullable(this.user).map(User::getId).orElse(null);
     }
 }
