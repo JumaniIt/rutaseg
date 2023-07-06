@@ -34,14 +34,12 @@ public class UserController {
 
     private final UserRepository repo;
 
-    private final FileRepository fileRepository;
-
     private final PasswordService passwordService;
 
     public UserController(UserRepository repo,
-                          FileRepository fileRepository,PasswordService passwordService) {
+                          PasswordService passwordService) {
+
         this.repo = repo;
-        this.fileRepository = fileRepository;
         this.passwordService = passwordService;
     }
     @PostMapping
@@ -51,7 +49,7 @@ public class UserController {
         }
 
         if (repo.existsByEmail(userRequest.getEmail())) {
-            throw new ValidationException("user_email_exists", "User with the same email already exists.");
+            throw new ValidationException("user_email_exists", "user with the same email already exists");
         }
 
         String encryptedPassword = passwordService.encrypt(userRequest.getPassword());
