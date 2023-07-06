@@ -44,13 +44,13 @@ public class ClientController {
         User user = null;
         final Long userId = request.getUserId();
         if (Objects.nonNull(userId)) {
-            if (clientRepo.findOneByUser_Id(userId).isPresent()) {
-                throw new ValidationException("user_already_taken", "a client with the same user already exists");
-            }
-
             user = userRepo.findById(userId).orElseThrow(() ->
                     new ValidationException("user_not_found", String.format("user with id [%s] not found", userId))
             );
+
+            if (clientRepo.findOneByUser_Id(userId).isPresent()) {
+                throw new ValidationException("user_already_taken", "a client with the same user already exists");
+            }
         }
 
         final Client client = new Client(user, request.getPhone(), request.getCuit());
