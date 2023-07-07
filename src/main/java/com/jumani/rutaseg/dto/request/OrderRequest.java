@@ -6,10 +6,11 @@ import com.jumani.rutaseg.domain.DriverData;
 import com.jumani.rutaseg.domain.OrderStatus;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.ZonedDateTime;
 
-@AllArgsConstructor
+@NoArgsConstructor
 @Getter
 public class OrderRequest {
     private boolean pema;

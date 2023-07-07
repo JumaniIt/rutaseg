@@ -5,11 +5,12 @@ import com.jumani.rutaseg.domain.Destination;
 import jakarta.persistence.Column;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 
-@AllArgsConstructor
+@NoArgsConstructor
 @Getter
 public class ArrivalDataRequest {
 
