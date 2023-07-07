@@ -1,34 +1,51 @@
 package com.jumani.rutaseg.domain;
 
 import com.jumani.rutaseg.util.DateGen;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
+import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 
 import java.time.ZonedDateTime;
 
 import static com.jumani.rutaseg.domain.OrderStatus.DRAFT;
 
 @Getter
+@Entity
+@Table(name = "orders")
+@Slf4j
 public class Order implements DateGen {
 
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(name = "pema")
     private boolean pema;
 
+    @Column(name = "port")
     private boolean port;
 
+    @Column(name = "transport")
     private boolean transport;
 
+    @Column(name = "status")
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
 
+    @Column(name = "created_at")
     private ZonedDateTime createdAt;
 
+    @Column(name = "finished_at")
     private ZonedDateTime finishedAt;
 
+    @Column(name = "arrival_data")
     private ArrivalData arrivalData;
 
+    @Column(name = "driver_data")
     private DriverData driverData;
 
+    @Column(name = "customs_data")
     private CustomsData customsData;
 
     //constructor
