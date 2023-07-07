@@ -39,13 +39,16 @@ public class Order implements DateGen {
     @Column(name = "finished_at")
     private ZonedDateTime finishedAt;
 
-    @Column(name = "arrival_data")
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER, optional = false)
+    @JoinColumn(name = "id")
     private ArrivalData arrivalData;
 
-    @Column(name = "driver_data")
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER, optional = false)
+    @JoinColumn(name = "id")
     private DriverData driverData;
 
-    @Column(name = "customs_data")
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER, optional = false)
+    @JoinColumn(name = "id")
     private CustomsData customsData;
 
     //constructor

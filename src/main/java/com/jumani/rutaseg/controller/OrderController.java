@@ -1,23 +1,22 @@
 package com.jumani.rutaseg.controller;
 
-import com.jumani.rutaseg.dto.request.*;
-import com.jumani.rutaseg.dto.response.*;
-import com.jumani.rutaseg.handler.Session;
-import com.jumani.rutaseg.repository.OrderRepository;
-
-import jakarta.transaction.Transactional;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import com.jumani.rutaseg.domain.Order;
-import com.jumani.rutaseg.exception.ForbiddenException;
 import com.jumani.rutaseg.domain.ArrivalData;
 import com.jumani.rutaseg.domain.CustomsData;
 import com.jumani.rutaseg.domain.DriverData;
-import com.jumani.rutaseg.controller.OrderResponse;
+import com.jumani.rutaseg.domain.Order;
+import com.jumani.rutaseg.dto.request.OrderRequest;
+import com.jumani.rutaseg.dto.response.OrderResponse;
+import com.jumani.rutaseg.dto.response.SessionInfo;
+import com.jumani.rutaseg.handler.Session;
+import com.jumani.rutaseg.repository.OrderRepository;
+import jakarta.transaction.Transactional;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import com.jumani.rutaseg.exception.ValidationException;
 
 @RestController
 @Transactional
@@ -32,16 +31,12 @@ public class OrderController {
 
     @PostMapping
     public ResponseEntity<OrderResponse> createOrder(@RequestBody OrderRequest orderRequest, @Session SessionInfo session) {
-        if (!session.admin()) {
-            throw new ForbiddenException();
-        }
-
 
 
         // Crear objetos ArrivalData, CustomsData y DriverData a partir de los datos de la solicitud
-        ArrivalData arrivalData = createArrivalData(orderRequest.getArrivalData());
-        CustomsData customsData = createCustomsData(orderRequest.getCustomsData());
-        DriverData driverData = createDriverData(orderRequest.getDriverData());
+        ArrivalData arrivalData = orderRequest.getArrivalData() != null ? createArrivalData(orderRequest.getArrivalData()) : null;
+        CustomsData customsData = orderRequest.getCustomsData() != null ? createCustomsData(orderRequest.getCustomsData()) : null;
+        DriverData driverData = orderRequest.getDriverData() != null ? createDriverData(orderRequest.getDriverData()) : null;
 
         // Crear la instancia de Order con los datos proporcionados
         Order order = new Order(
@@ -86,7 +81,7 @@ public class OrderController {
         return new CustomsData(
                 customsDataRequest.getName(),
                 customsDataRequest.getPhone(),
-                customsDataRequest.getCUIT()
+                customsDataRequest.getCuit()
         );
     }
 

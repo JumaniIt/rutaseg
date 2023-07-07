@@ -16,6 +16,6 @@ public class ArrivalDataTest {
         // Assert
         assertEquals(name, customsData.getName());
         assertEquals(phone, customsData.getPhone());
-        assertEquals(CUIT, customsData.getCUIT());
+        assertEquals(CUIT, customsData.getCuit());
     }
 }

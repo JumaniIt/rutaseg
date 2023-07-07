@@ -4,7 +4,6 @@ import com.jumani.rutaseg.domain.ArrivalData;
 import com.jumani.rutaseg.domain.CustomsData;
 import com.jumani.rutaseg.domain.DriverData;
 import com.jumani.rutaseg.domain.OrderStatus;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 

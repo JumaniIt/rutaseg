@@ -6,7 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Getter
 @Entity
-@Table(name ="drivers_data")
+@Table(name = "driver_datas")
 @Slf4j
 public class DriverData {
 

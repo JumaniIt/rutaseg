@@ -16,7 +16,7 @@ public class CustomsDataTest {
         // Assert
         assertEquals(name, customsData.getName());
         assertEquals(phone, customsData.getPhone());
-        assertEquals(CUIT, customsData.getCUIT());
+        assertEquals(CUIT, customsData.getCuit());
     }
 }
 

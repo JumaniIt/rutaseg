@@ -6,7 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Getter
 @Entity
-@Table(name = "customs_data")
+@Table(name = "customs_datas")
 @Slf4j
 public class CustomsData {
 
@@ -21,15 +21,15 @@ public class CustomsData {
     private String phone;
 
 
-    @Column(name = "CUIT")
-    private Long CUIT;
+    @Column(name = "cuit")
+    private Long cuit;
 
     private CustomsData() {
     }
 
-    public CustomsData(String name, String phone, Long CUIT) {
+    public CustomsData(String name, String phone, Long cuit) {
         this.name = name;
         this.phone = phone;
-        this.CUIT = CUIT;
+        this.cuit = cuit;
     }
 }

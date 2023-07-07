@@ -10,7 +10,7 @@ import java.time.LocalTime;
 
 @Getter
 @Entity
-@Table(name ="Arivals_data")
+@Table(name = "Arival_datas")
 @Slf4j
 public class ArrivalData implements DateGen {
 
