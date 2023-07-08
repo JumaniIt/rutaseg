@@ -4,6 +4,9 @@ import com.jumani.rutaseg.domain.ArrivalData;
 import com.jumani.rutaseg.domain.CustomsData;
 import com.jumani.rutaseg.domain.DriverData;
 import com.jumani.rutaseg.domain.Order;
+import com.jumani.rutaseg.dto.request.ArrivalDataRequest;
+import com.jumani.rutaseg.dto.request.CustomsDataRequest;
+import com.jumani.rutaseg.dto.request.DriverDataRequest;
 import com.jumani.rutaseg.dto.request.OrderRequest;
 import com.jumani.rutaseg.dto.response.OrderResponse;
 import com.jumani.rutaseg.dto.response.SessionInfo;
@@ -63,7 +66,7 @@ public class OrderController {
     }
 
 
-    private ArrivalData createArrivalData(ArrivalData arrivalDataRequest) {
+    private ArrivalData createArrivalData(ArrivalDataRequest arrivalDataRequest) {
         // Crear una instancia de ArrivalData a partir de ArrivalDataRequest
         return new ArrivalData(
                 arrivalDataRequest.getArrivalDate(),
@@ -76,7 +79,7 @@ public class OrderController {
         );
     }
 
-    private CustomsData createCustomsData(CustomsData customsDataRequest) {
+    private CustomsData createCustomsData(CustomsDataRequest customsDataRequest) {
         // Crear una instancia de CustomsData a partir de CustomsDataRequest
         return new CustomsData(
                 customsDataRequest.getName(),
@@ -85,7 +88,7 @@ public class OrderController {
         );
     }
 
-    private DriverData createDriverData(DriverData driverDataRequest) {
+    private DriverData createDriverData(DriverDataRequest driverDataRequest) {
         // Crear una instancia de DriverData a partir de DriverDataRequest
         return new DriverData(
                 driverDataRequest.getName(),

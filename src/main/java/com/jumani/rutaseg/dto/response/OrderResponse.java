@@ -24,5 +24,7 @@ public class OrderResponse {
     private DriverDataResponse driverData;
     private CustomsDataResponse customsData;
 
+    public OrderResponse(Long id, boolean pema, boolean port, boolean transport, OrderStatus status, ZonedDateTime createdAt, ZonedDateTime finishedAt, ArrivalData arrivalData, DriverData driverData, CustomsData customsData) {
+    }
 }
 
