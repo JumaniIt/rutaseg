@@ -8,8 +8,7 @@ import com.jumani.rutaseg.dto.request.ArrivalDataRequest;
 import com.jumani.rutaseg.dto.request.CustomsDataRequest;
 import com.jumani.rutaseg.dto.request.DriverDataRequest;
 import com.jumani.rutaseg.dto.request.OrderRequest;
-import com.jumani.rutaseg.dto.response.OrderResponse;
-import com.jumani.rutaseg.dto.response.SessionInfo;
+import com.jumani.rutaseg.dto.response.*;
 import com.jumani.rutaseg.handler.Session;
 import com.jumani.rutaseg.repository.OrderRepository;
 import jakarta.transaction.Transactional;
@@ -98,7 +97,44 @@ public class OrderController {
     }
 
     private OrderResponse createOrderResponse(Order order) {
-        // Crear una instancia de OrderResponse a partir de Order
+        // Crear una instancia de ArrivalDataResponse a partir de ArrivalData
+        ArrivalDataResponse arrivalDataResponse = null;
+        ArrivalData arrivalData = order.getArrivalData();
+        if (arrivalData != null) {
+            arrivalDataResponse = new ArrivalDataResponse(
+                    arrivalData.getArrivalDate(),
+                    arrivalData.getArrivalTime(),
+                    arrivalData.getTurn(),
+                    arrivalData.isFreeLoad(),
+                    arrivalData.getDestination(),
+                    arrivalData.getFob(),
+                    arrivalData.getCurrency()
+            );
+        }
+
+        // Crear una instancia de CustomsDataResponse a partir de CustomsData
+        CustomsDataResponse customsDataResponse = null;
+        CustomsData customsData = order.getCustomsData();
+        if (customsData != null) {
+            customsDataResponse = new CustomsDataResponse(
+                    customsData.getName(),
+                    customsData.getPhone(),
+                    customsData.getCuit()
+            );
+        }
+
+        // Crear una instancia de DriverDataResponse a partir de DriverData
+        DriverDataResponse driverDataResponse = null;
+        DriverData driverData = order.getDriverData();
+        if (driverData != null) {
+            driverDataResponse = new DriverDataResponse(
+                    driverData.getName(),
+                    driverData.getPhone(),
+                    driverData.getCompany()
+            );
+        }
+
+        // Crear una instancia de OrderResponse con los datos de ArrivalDataResponse, CustomsDataResponse y DriverDataResponse
         return new OrderResponse(
                 order.getId(),
                 order.isPema(),
@@ -107,9 +143,9 @@ public class OrderController {
                 order.getStatus(),
                 order.getCreatedAt(),
                 order.getFinishedAt(),
-                order.getArrivalData(),
-                order.getDriverData(),
-                order.getCustomsData()
+                arrivalDataResponse,
+                driverDataResponse,
+                customsDataResponse
         );
     }
 }
