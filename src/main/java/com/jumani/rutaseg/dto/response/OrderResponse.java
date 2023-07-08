@@ -20,9 +20,9 @@ public class OrderResponse {
     private OrderStatus status;
     private ZonedDateTime createdAt;
     private ZonedDateTime finishedAt;
-    private ArrivalData arrivalData;
-    private DriverData driverData;
-    private CustomsData customsData;
+    private ArrivalDataResponse arrivalData;
+    private DriverDataResponse driverData;
+    private CustomsDataResponse customsData;
 
 }
 
