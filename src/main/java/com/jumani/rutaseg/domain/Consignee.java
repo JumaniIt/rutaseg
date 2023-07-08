@@ -1,16 +1,15 @@
 package com.jumani.rutaseg.domain;
-import com.jumani.rutaseg.dto.result.Error;
-import com.jumani.rutaseg.util.DateGen;
-import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
 
-import java.time.ZonedDateTime;
-import java.util.Optional;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embeddable;
+import lombok.Getter;
 
 @Getter
+@Embeddable
 public class Consignee {
+    @Column(name = "name")
     private String name;
+    @Column(name = "cuit")
     private long CUIT;
 
     public Consignee(String name, long CUIT) {
@@ -18,7 +17,7 @@ public class Consignee {
         this.CUIT = CUIT;
     }
 
-    public Consignee(){
+    public Consignee() {
     }
 }
 
