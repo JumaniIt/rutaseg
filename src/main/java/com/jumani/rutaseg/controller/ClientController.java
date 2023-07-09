@@ -63,10 +63,10 @@ public class ClientController {
     @GetMapping
     public ResponseEntity<List<ClientResponse>> search(@RequestParam(value = "user_id", required = false) Long userId,
                                                        @RequestParam(value = "name", required = false) String name,
-                                                       @RequestParam(value = "email", required = false) String email,
                                                        @RequestParam(value = "phone", required = false) String phone,
                                                        @RequestParam(value = "cuit", required = false) Long cuit,
-                                                       @RequestParam(value = "page_size", required = false, defaultValue = "1") Integer pageSize,
+                                                       @RequestParam(value = "page_size", required = false, defaultValue = "1") int pageSize,
+                                                       @RequestParam(value = "with_consignees", required = false, defaultValue = "false") boolean withConsignees,
                                                        @Session SessionInfo session) {
 
         final Long theUserId;
@@ -86,7 +86,7 @@ public class ClientController {
         final List<Client> clients = clientRepo.search(theUserId, name, phone, cuit, thePageSize);
 
         final List<ClientResponse> responses = clients.stream()
-                .map(client -> this.createResponse(client, false))
+                .map(client -> this.createResponse(client, withConsignees))
                 .toList();
 
         return ResponseEntity.ok(responses);
