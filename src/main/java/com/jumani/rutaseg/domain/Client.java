@@ -3,14 +3,15 @@ package com.jumani.rutaseg.domain;
 import com.jumani.rutaseg.dto.result.Error;
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.experimental.FieldNameConstants;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 @Getter
 @Entity
+@FieldNameConstants
 @Table(name = "clients")
 public class Client {
 
@@ -22,36 +23,39 @@ public class Client {
     @JoinColumn(name = "user_id")
     private User user;
 
+    @Column(name = "name")
+    private String name;
+
     @Column(name = "phone")
     private String phone;
     @Column(name = "cuit")
-    private Long CUIT;
+    private Long cuit;
 
-    @ElementCollection(fetch = FetchType.EAGER)
+    @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "consignees",
             joinColumns = @JoinColumn(name = "client_id"))
     private List<Consignee> consignees;
 
-    public Client(User user, String phone, Long CUIT) {
+    public Client(User user, String name, String phone, Long cuit) {
         this.user = user;
+
+        this.name = name;
         this.phone = phone;
-        this.CUIT = CUIT;
+        this.cuit = cuit;
         this.consignees = new ArrayList<>();
 
-        if (Objects.nonNull(this.user) && Objects.nonNull(this.CUIT)) {
-            consignees.add(new Consignee(this.user.getName(), this.CUIT));
-        }
+        consignees.add(new Consignee(this.name, this.cuit));
     }
 
     private Client() {
     }
 
     public Optional<Error> addConsignee(Consignee consignee) {
-        String consigneeName = consignee.getName();
-        long consigneeCUIT = consignee.getCUIT();
+        final String consigneeName = consignee.getName();
+        final long consigneeCuit = consignee.getCuit();
 
         for (Consignee existingConsignee : consignees) {
-            if (existingConsignee.getName().equals(consigneeName) || existingConsignee.getCUIT() == consigneeCUIT) {
+            if (existingConsignee.getName().equals(consigneeName) || existingConsignee.getCuit() == consigneeCuit) {
                 return Optional.of(new Error("duplicated_consignee", "consignee with the same name or CUIT already exists"));
             }
         }

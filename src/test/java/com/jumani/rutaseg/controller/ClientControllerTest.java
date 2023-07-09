@@ -41,14 +41,15 @@ class ClientControllerTest {
 
     @Test
     void create_WithUser_Ok() {
+        final String name = randomShortString();
         final String phone = randomShortString();
-        final long CUIT = randomId();
+        final long cuit = randomId();
         final long userId = randomId();
         final List<Consignee> consignees = List.of(new Consignee(randomShortString(), randomId()));
         final long clientId = randomId();
 
         final SessionInfo session = new SessionInfo(1L, true);
-        final ClientRequest request = new ClientRequest(phone, CUIT, userId);
+        final ClientRequest request = new ClientRequest(name, phone, cuit, userId);
 
         final User user = mock(User.class);
         final Client savedClient = mock(Client.class);
@@ -59,11 +60,12 @@ class ClientControllerTest {
 
         when(savedClient.getId()).thenReturn(clientId);
         when(savedClient.getUserId()).thenReturn(userId);
+        when(savedClient.getName()).thenReturn(name);
         when(savedClient.getPhone()).thenReturn(phone);
-        when(savedClient.getCUIT()).thenReturn(CUIT);
+        when(savedClient.getCuit()).thenReturn(cuit);
         when(savedClient.getConsignees()).thenReturn(consignees);
 
-        final ClientResponse expectedClientResponse = new ClientResponse(clientId, userId, phone, CUIT, consignees);
+        final ClientResponse expectedClientResponse = new ClientResponse(clientId, userId, name, phone, cuit, consignees);
         final ResponseEntity<ClientResponse> response = controller.create(request, session);
 
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
@@ -74,13 +76,14 @@ class ClientControllerTest {
 
     @Test
     void create_WithoutUser_Ok() {
+        final String name = randomShortString();
         final String phone = randomShortString();
-        final long CUIT = randomId();
+        final long cuit = randomId();
         final List<Consignee> consignees = new ArrayList<>();
         final long clientId = randomId();
 
         final SessionInfo session = new SessionInfo(1L, true);
-        final ClientRequest request = new ClientRequest(phone, CUIT, null);
+        final ClientRequest request = new ClientRequest(name, phone, cuit, null);
 
         final Client savedClient = mock(Client.class);
 
@@ -88,11 +91,12 @@ class ClientControllerTest {
 
         when(savedClient.getId()).thenReturn(clientId);
         when(savedClient.getUserId()).thenReturn(null);
+        when(savedClient.getName()).thenReturn(name);
         when(savedClient.getPhone()).thenReturn(phone);
-        when(savedClient.getCUIT()).thenReturn(CUIT);
+        when(savedClient.getCuit()).thenReturn(cuit);
         when(savedClient.getConsignees()).thenReturn(consignees);
 
-        final ClientResponse expectedClientResponse = new ClientResponse(clientId, null, phone, CUIT, consignees);
+        final ClientResponse expectedClientResponse = new ClientResponse(clientId, null, name, phone, cuit, consignees);
         final ResponseEntity<ClientResponse> response = controller.create(request, session);
 
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
@@ -103,12 +107,13 @@ class ClientControllerTest {
 
     @Test
     void create_UserNotFound_ValidationException() {
+        final String name = randomShortString();
         final String phone = randomShortString();
-        final long CUIT = randomId();
+        final long cuit = randomId();
         final long userId = randomId();
 
         final SessionInfo session = new SessionInfo(1L, true);
-        final ClientRequest request = new ClientRequest(phone, CUIT, userId);
+        final ClientRequest request = new ClientRequest(name, phone, cuit, userId);
 
         when(userRepo.findById(userId)).thenReturn(Optional.empty());
 
@@ -123,12 +128,13 @@ class ClientControllerTest {
 
     @Test
     void create_UserAlreadyTaken_ValidationException() {
+        final String name = randomShortString();
         final String phone = randomShortString();
-        final long CUIT = randomId();
+        final long cuit = randomId();
         final long userId = randomId();
 
         final SessionInfo session = new SessionInfo(1L, true);
-        final ClientRequest request = new ClientRequest(phone, CUIT, userId);
+        final ClientRequest request = new ClientRequest(name, phone, cuit, userId);
 
         final User user = mock(User.class);
         final Client existentClient = mock(Client.class);
