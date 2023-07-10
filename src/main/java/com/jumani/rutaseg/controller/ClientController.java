@@ -7,6 +7,7 @@ import com.jumani.rutaseg.dto.request.ClientRequest;
 import com.jumani.rutaseg.dto.response.ClientResponse;
 import com.jumani.rutaseg.dto.response.SessionInfo;
 import com.jumani.rutaseg.exception.ForbiddenException;
+import com.jumani.rutaseg.exception.NotFoundException;
 import com.jumani.rutaseg.exception.ValidationException;
 import com.jumani.rutaseg.handler.Session;
 import com.jumani.rutaseg.repository.client.ClientRepository;
@@ -90,6 +91,20 @@ public class ClientController {
                 .toList();
 
         return ResponseEntity.ok(responses);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<ClientResponse> getById(@PathVariable("id") long id,
+                                                  @RequestParam(value = "with_consignees", required = false, defaultValue = "false") boolean withConsignees,
+                                                  @Session SessionInfo session) {
+
+        final Client client = clientRepo.findById(id)
+                .filter(c -> session.admin() || Objects.equals(session.id(), c.getUserId()))
+                .orElseThrow(() -> new NotFoundException(String.format("client with id [%s] not found", id)));
+
+        final ClientResponse response = this.createResponse(client, withConsignees);
+
+        return ResponseEntity.ok(response);
     }
 
     private ClientResponse createResponse(Client client, boolean withConsignees) {
