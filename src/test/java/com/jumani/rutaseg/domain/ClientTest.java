@@ -91,7 +91,7 @@ public class ClientTest {
         final String consigneeName = "Pepe";
         final long consigneeCuit = 2L;
 
-        final Error expectedError = new Error("duplicated_consignee", "consignee with the same name or CUIT already exists");
+        final Error expectedError = new Error("duplicated_consignee", "consignee with the same name or cuit already exists");
 
         client.addConsignee(new Consignee(consigneeName, consigneeCuit));
         final Optional<Error> error = client.addConsignee(new Consignee(consigneeName, 3L));
@@ -114,7 +114,7 @@ public class ClientTest {
         final String consigneeName = "Pepe";
         final long consigneeCuit = 2L;
 
-        final Error expectedError = new Error("duplicated_consignee", "consignee with the same name or CUIT already exists");
+        final Error expectedError = new Error("duplicated_consignee", "consignee with the same name or cuit already exists");
 
         client.addConsignee(new Consignee(consigneeName, consigneeCuit));
         final Optional<Error> error = client.addConsignee(new Consignee("Mario", consigneeCuit));

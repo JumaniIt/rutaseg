@@ -9,7 +9,7 @@ import com.jumani.rutaseg.dto.response.SessionInfo;
 import com.jumani.rutaseg.exception.ForbiddenException;
 import com.jumani.rutaseg.exception.ValidationException;
 import com.jumani.rutaseg.handler.Session;
-import com.jumani.rutaseg.repository.ClientRepository;
+import com.jumani.rutaseg.repository.client.ClientRepository;
 import com.jumani.rutaseg.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;

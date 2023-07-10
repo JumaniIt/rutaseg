@@ -8,7 +8,7 @@ import com.jumani.rutaseg.dto.response.ClientResponse;
 import com.jumani.rutaseg.dto.response.SessionInfo;
 import com.jumani.rutaseg.exception.ForbiddenException;
 import com.jumani.rutaseg.exception.ValidationException;
-import com.jumani.rutaseg.repository.ClientRepository;
+import com.jumani.rutaseg.repository.client.ClientRepository;
 import com.jumani.rutaseg.repository.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -19,11 +19,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import static com.jumani.rutaseg.TestDataGen.randomId;
-import static com.jumani.rutaseg.TestDataGen.randomShortString;
+import static com.jumani.rutaseg.TestDataGen.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
@@ -159,5 +159,68 @@ class ClientControllerTest {
         assertThrows(ForbiddenException.class, () -> controller.create(request, session));
 
         verifyNoInteractions(clientRepo, userRepo);
+    }
+
+    @Test
+    void search_AllAttributes_AdminSession_WithConsignees_Ok() {
+        final SessionInfo session = new SessionInfo(1L, true);
+
+        final long userId = randomId();
+        final String name = randomShortString();
+        final String phone = randomShortString();
+        final long cuit = randomId();
+        final int pageSize = randomPositiveInt(10);
+
+        final long id = randomId();
+        final List<Consignee> consignees = List.of(mock(Consignee.class));
+
+        final Client client = mock(Client.class);
+        when(client.getId()).thenReturn(id);
+        when(client.getUserId()).thenReturn(userId);
+        when(client.getName()).thenReturn(name);
+        when(client.getPhone()).thenReturn(phone);
+        when(client.getCuit()).thenReturn(cuit);
+        when(client.getConsignees()).thenReturn(consignees);
+
+        when(clientRepo.search(userId, name, phone, cuit, pageSize)).thenReturn(List.of(client));
+
+        final ClientResponse expectedResponse = new ClientResponse(id, userId, name, phone, cuit, consignees);
+
+        final ResponseEntity<List<ClientResponse>> result =
+                controller.search(userId, name, phone, cuit, pageSize, true, session);
+
+        assertEquals(HttpStatus.OK, result.getStatusCode());
+        assertEquals(List.of(expectedResponse), result.getBody());
+    }
+
+    @Test
+    void search_NotAllAttributes_NotAdminSession_WithoutConsignees_Ok() {
+        final long sessionUserId = randomId();
+        final SessionInfo session = new SessionInfo(sessionUserId, false);
+
+        final long ignoredUserId = randomId();
+        final String name = randomShortString();
+        final String phone = randomShortString();
+        final long cuit = randomId();
+        final int ignoredPageSize = 100;
+
+        final long id = randomId();
+
+        final Client client = mock(Client.class);
+        when(client.getId()).thenReturn(id);
+        when(client.getUserId()).thenReturn(sessionUserId);
+        when(client.getName()).thenReturn(name);
+        when(client.getPhone()).thenReturn(phone);
+        when(client.getCuit()).thenReturn(cuit);
+
+        when(clientRepo.search(sessionUserId, name, phone, cuit, 1)).thenReturn(List.of(client));
+
+        final ClientResponse expectedResponse = new ClientResponse(id, sessionUserId, name, phone, cuit, Collections.emptyList());
+
+        final ResponseEntity<List<ClientResponse>> result =
+                controller.search(sessionUserId, name, phone, cuit, ignoredPageSize, false, session);
+
+        assertEquals(HttpStatus.OK, result.getStatusCode());
+        assertEquals(List.of(expectedResponse), result.getBody());
     }
 }

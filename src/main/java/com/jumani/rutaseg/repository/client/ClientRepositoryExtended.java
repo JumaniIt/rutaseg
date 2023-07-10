@@ -1,4 +1,4 @@
-package com.jumani.rutaseg.repository;
+package com.jumani.rutaseg.repository.client;
 
 import org.springframework.lang.Nullable;
 import com.jumani.rutaseg.domain.Client;

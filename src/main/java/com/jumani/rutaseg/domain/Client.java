@@ -56,7 +56,7 @@ public class Client {
 
         for (Consignee existingConsignee : consignees) {
             if (existingConsignee.getName().equals(consigneeName) || existingConsignee.getCuit() == consigneeCuit) {
-                return Optional.of(new Error("duplicated_consignee", "consignee with the same name or CUIT already exists"));
+                return Optional.of(new Error("duplicated_consignee", "consignee with the same name or cuit already exists"));
             }
         }
 

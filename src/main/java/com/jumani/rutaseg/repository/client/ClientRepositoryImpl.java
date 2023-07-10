@@ -1,4 +1,4 @@
-package com.jumani.rutaseg.repository;
+package com.jumani.rutaseg.repository.client;
 
 import com.jumani.rutaseg.domain.Client;
 import com.jumani.rutaseg.domain.User;

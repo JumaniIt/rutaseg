@@ -9,7 +9,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = RutasegApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestPropertySource(properties = {"SCOPE = integration_test"})
-public class RutasegApplicationTests {
+public class IntegrationTest {
 
     @Test
     void contextLoads() {
