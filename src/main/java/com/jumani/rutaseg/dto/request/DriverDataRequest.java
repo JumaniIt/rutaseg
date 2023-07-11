@@ -7,9 +7,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
-public class UserRequest {
-    private String nickname;
-    private String email;
-    private String password;
-    private boolean admin;
+public class DriverDataRequest {
+
+    private String name;
+    private String phone;
+    private String company;
+
 }

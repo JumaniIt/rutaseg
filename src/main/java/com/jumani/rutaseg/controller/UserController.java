@@ -19,14 +19,14 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/users")
 public class UserController {
 
-    private final UserRepository repo;
+    private final UserRepository userRepo;
 
     private final PasswordService passwordService;
 
-    public UserController(UserRepository repo,
+    public UserController(UserRepository userRepo,
                           PasswordService passwordService) {
 
-        this.repo = repo;
+        this.userRepo = userRepo;
         this.passwordService = passwordService;
     }
     @PostMapping
@@ -35,13 +35,13 @@ public class UserController {
             throw new ForbiddenException();
         }
 
-        if (repo.existsByEmail(userRequest.getEmail())) {
+        if (userRepo.existsByEmail(userRequest.getEmail())) {
             throw new ValidationException("user_email_exists", "user with the same email already exists");
         }
 
         String encryptedPassword = passwordService.encrypt(userRequest.getPassword());
         User newUser = new User(userRequest.getNickname(), encryptedPassword, userRequest.getEmail(), userRequest.isAdmin());
-        User savedUser = repo.save(newUser);
+        User savedUser = userRepo.save(newUser);
 
         UserResponse userResponse = createResponse(savedUser);
         return ResponseEntity.status(HttpStatus.CREATED).body(userResponse);

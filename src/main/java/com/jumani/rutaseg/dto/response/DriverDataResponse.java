@@ -7,9 +7,9 @@ import lombok.Getter;
 @EqualsAndHashCode
 @AllArgsConstructor
 @Getter
-public class UserResponse {
-    private final long id;
-    private String nickname;
-    private String email;
-    private boolean admin;
+public class DriverDataResponse {
+
+    private String name;
+    private String phone;
+    private String company;
 }
