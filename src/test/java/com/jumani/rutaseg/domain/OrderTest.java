@@ -16,6 +16,7 @@ public class OrderTest {
         boolean pema = TestDataGen.randomBoolean();
         boolean port = TestDataGen.randomBoolean();
         boolean transport = TestDataGen.randomBoolean();
+        long createdByUserId = TestDataGen.randomId();
         final Destination destination = TestDataGen.randomEnum(Destination.class);
 
         ArrivalData arrivalData = new ArrivalData(LocalDate.now(), LocalTime.now(), "Morning", true, destination, "FOB", Currency.USD);
@@ -23,7 +24,7 @@ public class OrderTest {
         CustomsData customsData = new CustomsData("Customs Name", "9876543210", 123456789L);
 
         // Act
-        Order order = new Order(pema, port, transport, arrivalData, driverData, customsData);
+        Order order = new Order(pema, port, transport, arrivalData, driverData,customsData,createdByUserId);
 
         // Assert
         assertEquals(pema, order.isPema());
@@ -34,5 +35,7 @@ public class OrderTest {
         assertEquals(customsData, order.getCustomsData());
         assertNotNull(order.getCreatedAt());
         assertNull(order.getFinishedAt());
+        assertEquals(createdByUserId, order.getCreatedByUserId());
+
     }
 }

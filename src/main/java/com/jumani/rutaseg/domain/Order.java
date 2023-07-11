@@ -40,22 +40,29 @@ public class Order implements DateGen {
     private ZonedDateTime finishedAt;
 
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER, optional = false)
-    @JoinColumn(name = "id")
+    @JoinColumn(name = "_arrival_data_id")
     private ArrivalData arrivalData;
 
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER, optional = false)
-    @JoinColumn(name = "id")
+    @JoinColumn(name = "driver_data_id")
     private DriverData driverData;
 
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER, optional = false)
-    @JoinColumn(name = "id")
+    @JoinColumn(name = "customs_data_id")
     private CustomsData customsData;
+
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER, optional = false)
+    @JoinColumn(name = "client_id")
+    private Client  client;
+
+    @Column(name = "created_by_user_id")
+    private long createdByUserId;
 
     //constructor
     public Order(boolean pema, boolean port, boolean transport,
                  ArrivalData arrivalData,
                  DriverData driverData,
-                 CustomsData customsData) {
+                 CustomsData customsData,long createdByUserId) {
 
         this.pema = pema;
         this.port = port;
@@ -66,6 +73,7 @@ public class Order implements DateGen {
         this.arrivalData = arrivalData;
         this.driverData = driverData;
         this.customsData = customsData;
+        this.createdByUserId = createdByUserId;
     }
 
     private Order() {

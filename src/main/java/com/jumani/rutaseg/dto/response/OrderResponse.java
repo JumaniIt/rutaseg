@@ -1,14 +1,13 @@
 package com.jumani.rutaseg.dto.response;
 
-import com.jumani.rutaseg.domain.ArrivalData;
-import com.jumani.rutaseg.domain.CustomsData;
-import com.jumani.rutaseg.domain.DriverData;
 import com.jumani.rutaseg.domain.OrderStatus;
 import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
 import java.time.ZonedDateTime;
 
+@EqualsAndHashCode(exclude = "createdAt")
 @AllArgsConstructor
 @Getter
 public class OrderResponse {

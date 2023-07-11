@@ -16,7 +16,6 @@ public class ClientRequest {
     @NotNull
     @Positive
     private Long cuit;
-
     @Positive
     private Long userId;
 }
