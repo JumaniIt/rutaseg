@@ -60,7 +60,8 @@ public class OrderController {
                 arrivalData,
                 driverData,
                 customsData,
-                session.id()
+                session.id(),
+                client
         );
 
 
@@ -146,6 +147,8 @@ public class OrderController {
 
         // Crear una instancia de OrderResponse con los datos de ArrivalDataResponse, CustomsDataResponse y DriverDataResponse
         return new OrderResponse(
+                order.getClient().getId(),
+                order.getCreatedByUserId(),
                 order.getId(),
                 order.isPema(),
                 order.isPort(),
@@ -156,6 +159,7 @@ public class OrderController {
                 arrivalDataResponse,
                 driverDataResponse,
                 customsDataResponse
+
         );
     }
 }

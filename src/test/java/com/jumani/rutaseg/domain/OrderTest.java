@@ -22,20 +22,22 @@ public class OrderTest {
         ArrivalData arrivalData = new ArrivalData(LocalDate.now(), LocalTime.now(), "Morning", true, destination, "FOB", Currency.USD);
         DriverData driverData = new DriverData("John Doe", "1234567890", "ABC Company");
         CustomsData customsData = new CustomsData("Customs Name", "9876543210", 123456789L);
+        Client client = new Client(new User("John", "password", "john@example.com", false), "1234567890", 123456789L);
 
         // Act
-        Order order = new Order(pema, port, transport, arrivalData, driverData,customsData,createdByUserId);
+        Order order = new Order(pema, port, transport, arrivalData, driverData, customsData, createdByUserId, client);
 
         // Assert
         assertEquals(pema, order.isPema());
         assertEquals(port, order.isPort());
         assertEquals(transport, order.isTransport());
-        assertEquals(arrivalData, order.getArrivalData());
-        assertEquals(driverData, order.getDriverData());
-        assertEquals(customsData, order.getCustomsData());
+        assertSame(arrivalData, order.getArrivalData());
+        assertSame(driverData, order.getDriverData());
+        assertSame(customsData, order.getCustomsData());
         assertNotNull(order.getCreatedAt());
         assertNull(order.getFinishedAt());
         assertEquals(createdByUserId, order.getCreatedByUserId());
+        assertSame(client, order.getClient());
 
     }
 }

@@ -51,7 +51,7 @@ public class Order implements DateGen {
     @JoinColumn(name = "customs_data_id")
     private CustomsData customsData;
 
-    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER, optional = false)
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "client_id")
     private Client  client;
 
@@ -62,7 +62,7 @@ public class Order implements DateGen {
     public Order(boolean pema, boolean port, boolean transport,
                  ArrivalData arrivalData,
                  DriverData driverData,
-                 CustomsData customsData,long createdByUserId) {
+                 CustomsData customsData,long createdByUserId,Client client) {
 
         this.pema = pema;
         this.port = port;
@@ -74,6 +74,10 @@ public class Order implements DateGen {
         this.driverData = driverData;
         this.customsData = customsData;
         this.createdByUserId = createdByUserId;
+        this.client= client;
+    }
+    public Long getClientId() {
+        return this.client.getId();
     }
 
     private Order() {

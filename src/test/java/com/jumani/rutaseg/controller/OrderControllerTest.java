@@ -47,9 +47,7 @@ class OrderControllerTest {
         boolean pema = TestDataGen.randomBoolean();
         boolean port = TestDataGen.randomBoolean();
         boolean transport = TestDataGen.randomBoolean();
-        long createdByUserId = TestDataGen.randomId();
         long clientId = TestDataGen.randomId();
-
 
         ArrivalDataRequest arrivalDataRequest = new ArrivalDataRequest();
         DriverDataRequest driverDataRequest = new DriverDataRequest();
@@ -58,14 +56,19 @@ class OrderControllerTest {
                 clientId, pema, port, transport, arrivalDataRequest, driverDataRequest, customsDataRequest
         );
 
-
-        SessionInfo session = new SessionInfo(createdByUserId, true);
+        SessionInfo session = new SessionInfo(TestDataGen.randomId(), true);
 
         Client client = mock(Client.class);
+        when(client.getId()).thenReturn(clientId); // Mock del método getId()
+
         Order savedOrder = mock(Order.class);
+        when(savedOrder.getClient()).thenReturn(client);
+        long createdByUserId = TestDataGen.randomId(); // Generar un número aleatorio para createdByUserId
+        when(savedOrder.getCreatedByUserId()).thenReturn(createdByUserId); // Configurar el mock para devolver el número aleatorio
 
         when(clientRepo.findById(clientId)).thenReturn(Optional.of(client));
         when(orderRepo.save(any(Order.class))).thenReturn(savedOrder);
+        when(savedOrder.getClient()).thenReturn(client);
 
         when(savedOrder.getId()).thenReturn(1L);
         when(savedOrder.isPema()).thenReturn(pema);
@@ -76,7 +79,7 @@ class OrderControllerTest {
         when(savedOrder.getFinishedAt()).thenReturn(null);
 
         OrderResponse expectedOrderResponse = new OrderResponse(
-                1L, pema, port, transport, OrderStatus.DRAFT,
+                clientId, createdByUserId, 1L, pema, port, transport, OrderStatus.DRAFT,
                 ZonedDateTime.now(), null, null, null, null
         );
 
@@ -85,13 +88,14 @@ class OrderControllerTest {
 
         // Assert
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
-        assertEquals(expectedOrderResponse, response.getBody());
+        OrderResponse actualOrderResponse = response.getBody();
+
+        assertEquals(expectedOrderResponse, actualOrderResponse);
 
         verify(clientRepo).findById(clientId);
         verify(orderRepo).save(any(Order.class));
         verifyNoMoreInteractions(clientRepo, orderRepo);
     }
-
     @Test
     void createOrder_WithNonAdminUserAndDifferentUserId_ThrowsForbiddenException() {
         // Arrange
@@ -122,9 +126,6 @@ class OrderControllerTest {
     @Test
     void createOrder_WithNonExistentClient_ThrowsNotFoundException() {
         // Arrange
-        boolean pema = TestDataGen.randomBoolean();
-        boolean port = TestDataGen.randomBoolean();
-        boolean transport = TestDataGen.randomBoolean();
         long createdByUserId = TestDataGen.randomId();
         long clientId = TestDataGen.randomId();
 
