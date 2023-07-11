@@ -1,11 +1,26 @@
 package com.jumani.rutaseg.domain;
 
+import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 
 @Getter
+@Entity
+@Table(name = "driver_datas")
+@Slf4j
 public class DriverData {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(name = "name")
     private String name;
+
+    @Column(name = "phone")
     private String phone;
+
+    @Column(name = "company")
     private String company;
 
     private DriverData() {

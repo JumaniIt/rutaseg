@@ -1,6 +1,5 @@
 package com.jumani.rutaseg.dto.request;
 
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
@@ -10,12 +9,14 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
-public class ClientRequest {
-    @NotEmpty
-    private String phone;
+public class OrderRequest {
     @NotNull
     @Positive
-    private Long cuit;
-    @Positive
-    private Long userId;
+    private Long clientId;
+    private boolean pema;
+    private boolean port;
+    private boolean transport;
+    private ArrivalDataRequest arrivalData;
+    private DriverDataRequest driverData;
+    private CustomsDataRequest customsData;
 }

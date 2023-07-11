@@ -1,6 +1,5 @@
 package com.jumani.rutaseg.dto.request;
 
-import com.jumani.rutaseg.domain.TestEnum;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -8,9 +7,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
-public class UserRequest {
+public class DriverDataRequest {
+
     private String name;
-    private String email;
-    private String password;
-    private boolean admin;
+    private String phone;
+    private String company;
+
 }
