@@ -32,3 +32,6 @@ jwt:
 session:
   knownOrigins: ${KNOWN_ORIGINS:}
   allowAllOrigins: ${ALLOW_ALL_ORIGINS:true}
+
+server:
+  port: 5000
