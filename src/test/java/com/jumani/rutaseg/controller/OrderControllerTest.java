@@ -12,8 +12,8 @@ import com.jumani.rutaseg.dto.response.OrderResponse;
 import com.jumani.rutaseg.dto.response.SessionInfo;
 import com.jumani.rutaseg.exception.ForbiddenException;
 import com.jumani.rutaseg.exception.NotFoundException;
-import com.jumani.rutaseg.repository.ClientRepository;
 import com.jumani.rutaseg.repository.OrderRepository;
+import com.jumani.rutaseg.repository.client.ClientRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -59,16 +59,15 @@ class OrderControllerTest {
         SessionInfo session = new SessionInfo(TestDataGen.randomId(), true);
 
         Client client = mock(Client.class);
-        when(client.getId()).thenReturn(clientId); // Mock del método getId()
 
         Order savedOrder = mock(Order.class);
-        when(savedOrder.getClient()).thenReturn(client);
+        when(savedOrder.getClientId()).thenReturn(clientId);
         long createdByUserId = TestDataGen.randomId(); // Generar un número aleatorio para createdByUserId
         when(savedOrder.getCreatedByUserId()).thenReturn(createdByUserId); // Configurar el mock para devolver el número aleatorio
 
         when(clientRepo.findById(clientId)).thenReturn(Optional.of(client));
         when(orderRepo.save(any(Order.class))).thenReturn(savedOrder);
-        when(savedOrder.getClient()).thenReturn(client);
+        when(savedOrder.getClientId()).thenReturn(clientId);
 
         when(savedOrder.getId()).thenReturn(1L);
         when(savedOrder.isPema()).thenReturn(pema);
@@ -96,12 +95,10 @@ class OrderControllerTest {
         verify(orderRepo).save(any(Order.class));
         verifyNoMoreInteractions(clientRepo, orderRepo);
     }
+
     @Test
     void createOrder_WithNonAdminUserAndDifferentUserId_ThrowsForbiddenException() {
         // Arrange
-        boolean pema = TestDataGen.randomBoolean();
-        boolean port = TestDataGen.randomBoolean();
-        boolean transport = TestDataGen.randomBoolean();
         long createdByUserId = TestDataGen.randomId();
         long clientId = TestDataGen.randomId();
 
@@ -123,6 +120,7 @@ class OrderControllerTest {
         verify(clientRepo).findById(clientId);
         verifyNoMoreInteractions(clientRepo, orderRepo);
     }
+
     @Test
     void createOrder_WithNonExistentClient_ThrowsNotFoundException() {
         // Arrange

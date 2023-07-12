@@ -2,8 +2,9 @@ package com.jumani.rutaseg.filter;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jumani.rutaseg.RutasegApplicationTests;
+import com.jumani.rutaseg.IntegrationTest;
 import com.jumani.rutaseg.dto.result.Error;
+import com.jumani.rutaseg.repository.client.ClientRepository;
 import com.jumani.rutaseg.service.auth.JwtService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -30,7 +31,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
-class SessionFilterFunctionalTest extends RutasegApplicationTests {
+class SessionFilterFunctionalTest extends IntegrationTest {
     private MockMvc mvc;
 
     @Autowired
@@ -41,6 +42,9 @@ class SessionFilterFunctionalTest extends RutasegApplicationTests {
 
     @Autowired
     private ObjectMapper objectMapper;
+
+    @Autowired
+    private ClientRepository clientRepository;
 
     private static final String KNOWN_ORIGIN = UUID.randomUUID().toString();
 

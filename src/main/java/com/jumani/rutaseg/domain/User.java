@@ -2,19 +2,19 @@ package com.jumani.rutaseg.domain;
 
 import jakarta.persistence.*;
 import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
+import lombok.experimental.FieldNameConstants;
 
 @Getter
 @Entity
 @Table(name = "users")
-@Slf4j
+@FieldNameConstants
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "name")
-    private String name;
+    @Column(name = "nickname")
+    private String nickname;
 
     @Column(name = "password")
     private String password;
@@ -25,8 +25,8 @@ public class User {
     @Column(name = "admin")
     private boolean admin;
 
-    public User(String name, String password, String email, boolean admin) {
-        this.name = name;
+    public User(String nickname, String password, String email, boolean admin) {
+        this.nickname = nickname;
         this.password = password;
         this.email = email;
         this.admin = admin;

@@ -22,10 +22,10 @@ public class OrderTest {
         ArrivalData arrivalData = new ArrivalData(LocalDate.now(), LocalTime.now(), "Morning", true, destination, "FOB", Currency.USD);
         DriverData driverData = new DriverData("John Doe", "1234567890", "ABC Company");
         CustomsData customsData = new CustomsData("Customs Name", "9876543210", 123456789L);
-        Client client = new Client(new User("John", "password", "john@example.com", false), "1234567890", 123456789L);
+        Client client = new Client(new User("John", "password", "john@example.com", false), "name", "1234567890", 123456789L);
 
         // Act
-        Order order = new Order(pema, port, transport, arrivalData, driverData, customsData, createdByUserId, client);
+        Order order = new Order(client, pema, port, transport, arrivalData, driverData, customsData, createdByUserId);
 
         // Assert
         assertEquals(pema, order.isPema());

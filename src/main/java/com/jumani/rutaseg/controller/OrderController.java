@@ -9,8 +9,8 @@ import com.jumani.rutaseg.dto.response.*;
 import com.jumani.rutaseg.exception.ForbiddenException;
 import com.jumani.rutaseg.exception.NotFoundException;
 import com.jumani.rutaseg.handler.Session;
-import com.jumani.rutaseg.repository.ClientRepository;
 import com.jumani.rutaseg.repository.OrderRepository;
+import com.jumani.rutaseg.repository.client.ClientRepository;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -54,14 +54,13 @@ public class OrderController {
 
         // Crear la instancia de Order con los datos proporcionados
         Order order = new Order(
-                orderRequest.isPema(),
+                client, orderRequest.isPema(),
                 orderRequest.isPort(),
                 orderRequest.isTransport(),
                 arrivalData,
                 driverData,
                 customsData,
-                session.id(),
-                client
+                session.id()
         );
 
 
@@ -147,7 +146,7 @@ public class OrderController {
 
         // Crear una instancia de OrderResponse con los datos de ArrivalDataResponse, CustomsDataResponse y DriverDataResponse
         return new OrderResponse(
-                order.getClient().getId(),
+                order.getClientId(),
                 order.getCreatedByUserId(),
                 order.getId(),
                 order.isPema(),

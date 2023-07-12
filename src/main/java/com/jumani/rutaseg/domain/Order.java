@@ -53,17 +53,20 @@ public class Order implements DateGen {
 
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "client_id")
-    private Client  client;
+    private Client client;
 
     @Column(name = "created_by_user_id")
     private long createdByUserId;
 
     //constructor
-    public Order(boolean pema, boolean port, boolean transport,
+    public Order(Client client,
+                 boolean pema, boolean port, boolean transport,
                  ArrivalData arrivalData,
                  DriverData driverData,
-                 CustomsData customsData,long createdByUserId,Client client) {
+                 CustomsData customsData,
+                 long createdByUserId) {
 
+        this.client = client;
         this.pema = pema;
         this.port = port;
         this.transport = transport;
@@ -74,8 +77,8 @@ public class Order implements DateGen {
         this.driverData = driverData;
         this.customsData = customsData;
         this.createdByUserId = createdByUserId;
-        this.client= client;
     }
+
     public Long getClientId() {
         return this.client.getId();
     }

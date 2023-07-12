@@ -40,14 +40,14 @@ public class UserController {
         }
 
         String encryptedPassword = passwordService.encrypt(userRequest.getPassword());
-        User newUser = new User(userRequest.getName(), encryptedPassword, userRequest.getEmail(), userRequest.isAdmin());
+        User newUser = new User(userRequest.getNickname(), encryptedPassword, userRequest.getEmail(), userRequest.isAdmin());
         User savedUser = userRepo.save(newUser);
 
         UserResponse userResponse = createResponse(savedUser);
         return ResponseEntity.status(HttpStatus.CREATED).body(userResponse);
     }
     private UserResponse createResponse(User user) {
-        return new UserResponse(user.getId(), user.getName(), user.getEmail(), user.isAdmin());
+        return new UserResponse(user.getId(), user.getNickname(), user.getEmail(), user.isAdmin());
     }
 }
 

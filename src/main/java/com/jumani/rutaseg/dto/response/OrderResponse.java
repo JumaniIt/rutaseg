@@ -12,9 +12,9 @@ import java.time.ZonedDateTime;
 @Getter
 public class OrderResponse {
 
-    private Long clientId;
-    private long createdByUserId;
     private Long id;
+    private long clientId;
+    private long createdByUserId;
     private boolean pema;
     private boolean port;
     private boolean transport;

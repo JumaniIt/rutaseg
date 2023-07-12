@@ -16,71 +16,58 @@ public class ClientTest {
     public void initialization_AllAttributes() {
         String name = randomShortString();
         String phone = randomShortString();
-        long CUIT = randomId();
+        long cuit = randomId();
 
         final User user = mock(User.class);
 
-        when(user.getName()).thenReturn(name);
-
-        Client client = new Client(user, phone, CUIT);
+        Client client = new Client(user, name, phone, cuit);
 
         assertEquals(user, client.getUser());
+        assertEquals(name, client.getName());
         assertEquals(phone, client.getPhone());
-        assertEquals(CUIT, client.getCUIT());
+        assertEquals(cuit, client.getCuit());
         assertEquals(1, client.getConsignees().size());
 
         final Consignee selfConsignee = client.getConsignees().get(0);
 
         assertEquals(name, selfConsignee.getName());
-        assertEquals(CUIT, selfConsignee.getCUIT());
+        assertEquals(cuit, selfConsignee.getCuit());
     }
 
     @Test
     public void initialization_WithoutUser_Ok() {
-        String phone = randomShortString();
-        long CUIT = randomId();
-
-        Client client = new Client(null, phone, CUIT);
-
-        assertNull(client.getUser());
-        assertEquals(phone, client.getPhone());
-        assertEquals(CUIT, client.getCUIT());
-        assertTrue(client.getConsignees().isEmpty());
-    }
-
-    @Test
-    public void initialization_WithoutCUIT_Ok() {
         String name = randomShortString();
         String phone = randomShortString();
+        long cuit = randomId();
 
-        final User user = mock(User.class);
+        Client client = new Client(null, name, phone, cuit);
 
-        when(user.getName()).thenReturn(name);
-
-        Client client = new Client(user, phone, null);
-
-        assertEquals(user, client.getUser());
+        assertNull(client.getUser());
+        assertEquals(name, client.getName());
         assertEquals(phone, client.getPhone());
-        assertNull(client.getCUIT());
-        assertTrue(client.getConsignees().isEmpty());
+        assertEquals(cuit, client.getCuit());
+        assertEquals(1, client.getConsignees().size());
+
+        final Consignee selfConsignee = client.getConsignees().get(0);
+
+        assertEquals(name, selfConsignee.getName());
+        assertEquals(cuit, selfConsignee.getCuit());
     }
 
     @Test
     void addConsignee_Ok() {
         String name = "Juan";
         String phone = randomShortString();
-        long CUIT = 1L;
+        long cuit = 1L;
 
         final User user = mock(User.class);
 
-        when(user.getName()).thenReturn(name);
-
-        Client client = new Client(user, phone, CUIT);
+        Client client = new Client(user, name, phone, cuit);
 
         final String consigneeName = "Pepe";
-        final long consigneeCUIT = 2L;
+        final long consigneecuit = 2L;
 
-        final Optional<Error> error = client.addConsignee(new Consignee(consigneeName, consigneeCUIT));
+        final Optional<Error> error = client.addConsignee(new Consignee(consigneeName, consigneecuit));
 
         assertTrue(error.isEmpty());
         assertEquals(2, client.getConsignees().size());
@@ -88,51 +75,49 @@ public class ClientTest {
         final Consignee secondConsignee = client.getConsignees().get(1);
 
         assertEquals(consigneeName, secondConsignee.getName());
-        assertEquals(consigneeCUIT, secondConsignee.getCUIT());
+        assertEquals(consigneecuit, secondConsignee.getCuit());
     }
 
     @Test
     void addConsignee_DuplicatedName_ReturnError() {
         String name = "Juan";
         String phone = randomShortString();
-        long CUIT = 1L;
+        long cuit = 1L;
 
         final User user = mock(User.class);
 
-        when(user.getName()).thenReturn(name);
-
-        Client client = new Client(user, phone, CUIT);
+        Client client = new Client(user, name, phone, cuit);
 
         final String consigneeName = "Pepe";
-        final long consigneeCUIT = 2L;
+        final long consigneeCuit = 2L;
 
-        final Error expectedError = new Error("duplicated_consignee", "consignee with the same name or CUIT already exists");
+        final Error expectedError = new Error("duplicated_consignee", "consignee with the same name or cuit already exists");
 
-        client.addConsignee(new Consignee(consigneeName, consigneeCUIT));
+        client.addConsignee(new Consignee(consigneeName, consigneeCuit));
         final Optional<Error> error = client.addConsignee(new Consignee(consigneeName, 3L));
 
         assertEquals(Optional.of(expectedError), error);
     }
 
     @Test
-    void addConsignee_DuplicatedCUIT_ReturnError() {
+    void addConsignee_DuplicatedCuit_ReturnError() {
         String name = "Juan";
         String phone = randomShortString();
-        long CUIT = 1L;
+        long cuit = 1L;
 
         final User user = mock(User.class);
 
-        when(user.getName()).thenReturn(name);
+        when(user.getNickname()).thenReturn(name);
 
-        Client client = new Client(user, phone, CUIT);
+        Client client = new Client(user, name, phone, cuit);
 
         final String consigneeName = "Pepe";
-        final long consigneeCUIT = 2L;
+        final long consigneeCuit = 2L;
 
-        final Error expectedError = new Error("duplicated_consignee", "consignee with the same name or CUIT already exists");
+        final Error expectedError = new Error("duplicated_consignee", "consignee with the same name or cuit already exists");
 
-        client.addConsignee(new Consignee(consigneeName, consigneeCUIT));
-        final Optional<Error> error = client.addConsignee(new Consignee("Mario", consigneeCUIT));
+        client.addConsignee(new Consignee(consigneeName, consigneeCuit));
+        final Optional<Error> error = client.addConsignee(new Consignee("Mario", consigneeCuit));
 
         assertEquals(Optional.of(expectedError), error);
     }

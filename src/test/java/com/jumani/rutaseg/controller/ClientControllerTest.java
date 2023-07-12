@@ -7,8 +7,9 @@ import com.jumani.rutaseg.dto.request.ClientRequest;
 import com.jumani.rutaseg.dto.response.ClientResponse;
 import com.jumani.rutaseg.dto.response.SessionInfo;
 import com.jumani.rutaseg.exception.ForbiddenException;
+import com.jumani.rutaseg.exception.NotFoundException;
 import com.jumani.rutaseg.exception.ValidationException;
-import com.jumani.rutaseg.repository.ClientRepository;
+import com.jumani.rutaseg.repository.client.ClientRepository;
 import com.jumani.rutaseg.repository.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -19,11 +20,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import static com.jumani.rutaseg.TestDataGen.randomId;
-import static com.jumani.rutaseg.TestDataGen.randomShortString;
+import static com.jumani.rutaseg.TestDataGen.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
@@ -41,14 +42,15 @@ class ClientControllerTest {
 
     @Test
     void create_WithUser_Ok() {
+        final String name = randomShortString();
         final String phone = randomShortString();
-        final long CUIT = randomId();
+        final long cuit = randomId();
         final long userId = randomId();
         final List<Consignee> consignees = List.of(new Consignee(randomShortString(), randomId()));
         final long clientId = randomId();
 
         final SessionInfo session = new SessionInfo(1L, true);
-        final ClientRequest request = new ClientRequest(phone, CUIT, userId);
+        final ClientRequest request = new ClientRequest(name, phone, cuit, userId);
 
         final User user = mock(User.class);
         final Client savedClient = mock(Client.class);
@@ -59,11 +61,12 @@ class ClientControllerTest {
 
         when(savedClient.getId()).thenReturn(clientId);
         when(savedClient.getUserId()).thenReturn(userId);
+        when(savedClient.getName()).thenReturn(name);
         when(savedClient.getPhone()).thenReturn(phone);
-        when(savedClient.getCUIT()).thenReturn(CUIT);
+        when(savedClient.getCuit()).thenReturn(cuit);
         when(savedClient.getConsignees()).thenReturn(consignees);
 
-        final ClientResponse expectedClientResponse = new ClientResponse(clientId, userId, phone, CUIT, consignees);
+        final ClientResponse expectedClientResponse = new ClientResponse(clientId, userId, name, phone, cuit, consignees);
         final ResponseEntity<ClientResponse> response = controller.create(request, session);
 
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
@@ -74,13 +77,14 @@ class ClientControllerTest {
 
     @Test
     void create_WithoutUser_Ok() {
+        final String name = randomShortString();
         final String phone = randomShortString();
-        final long CUIT = randomId();
+        final long cuit = randomId();
         final List<Consignee> consignees = new ArrayList<>();
         final long clientId = randomId();
 
         final SessionInfo session = new SessionInfo(1L, true);
-        final ClientRequest request = new ClientRequest(phone, CUIT, null);
+        final ClientRequest request = new ClientRequest(name, phone, cuit, null);
 
         final Client savedClient = mock(Client.class);
 
@@ -88,11 +92,12 @@ class ClientControllerTest {
 
         when(savedClient.getId()).thenReturn(clientId);
         when(savedClient.getUserId()).thenReturn(null);
+        when(savedClient.getName()).thenReturn(name);
         when(savedClient.getPhone()).thenReturn(phone);
-        when(savedClient.getCUIT()).thenReturn(CUIT);
+        when(savedClient.getCuit()).thenReturn(cuit);
         when(savedClient.getConsignees()).thenReturn(consignees);
 
-        final ClientResponse expectedClientResponse = new ClientResponse(clientId, null, phone, CUIT, consignees);
+        final ClientResponse expectedClientResponse = new ClientResponse(clientId, null, name, phone, cuit, consignees);
         final ResponseEntity<ClientResponse> response = controller.create(request, session);
 
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
@@ -103,12 +108,13 @@ class ClientControllerTest {
 
     @Test
     void create_UserNotFound_ValidationException() {
+        final String name = randomShortString();
         final String phone = randomShortString();
-        final long CUIT = randomId();
+        final long cuit = randomId();
         final long userId = randomId();
 
         final SessionInfo session = new SessionInfo(1L, true);
-        final ClientRequest request = new ClientRequest(phone, CUIT, userId);
+        final ClientRequest request = new ClientRequest(name, phone, cuit, userId);
 
         when(userRepo.findById(userId)).thenReturn(Optional.empty());
 
@@ -123,12 +129,13 @@ class ClientControllerTest {
 
     @Test
     void create_UserAlreadyTaken_ValidationException() {
+        final String name = randomShortString();
         final String phone = randomShortString();
-        final long CUIT = randomId();
+        final long cuit = randomId();
         final long userId = randomId();
 
         final SessionInfo session = new SessionInfo(1L, true);
-        final ClientRequest request = new ClientRequest(phone, CUIT, userId);
+        final ClientRequest request = new ClientRequest(name, phone, cuit, userId);
 
         final User user = mock(User.class);
         final Client existentClient = mock(Client.class);
@@ -153,5 +160,158 @@ class ClientControllerTest {
         assertThrows(ForbiddenException.class, () -> controller.create(request, session));
 
         verifyNoInteractions(clientRepo, userRepo);
+    }
+
+    @Test
+    void search_AllAttributes_AdminSession_WithConsignees_Ok() {
+        final SessionInfo session = new SessionInfo(1L, true);
+
+        final long userId = randomId();
+        final String name = randomShortString();
+        final String phone = randomShortString();
+        final long cuit = randomId();
+        final int pageSize = randomPositiveInt(10);
+
+        final long id = randomId();
+        final List<Consignee> consignees = List.of(mock(Consignee.class));
+
+        final Client client = mock(Client.class);
+        when(client.getId()).thenReturn(id);
+        when(client.getUserId()).thenReturn(userId);
+        when(client.getName()).thenReturn(name);
+        when(client.getPhone()).thenReturn(phone);
+        when(client.getCuit()).thenReturn(cuit);
+        when(client.getConsignees()).thenReturn(consignees);
+
+        when(clientRepo.search(userId, name, phone, cuit, pageSize)).thenReturn(List.of(client));
+
+        final ClientResponse expectedResponse = new ClientResponse(id, userId, name, phone, cuit, consignees);
+
+        final ResponseEntity<List<ClientResponse>> result =
+                controller.search(userId, name, phone, cuit, pageSize, true, session);
+
+        assertEquals(HttpStatus.OK, result.getStatusCode());
+        assertEquals(List.of(expectedResponse), result.getBody());
+    }
+
+    @Test
+    void search_NotAllAttributes_NotAdminSession_WithoutConsignees_Ok() {
+        final long sessionUserId = randomId();
+        final SessionInfo session = new SessionInfo(sessionUserId, false);
+
+        final long ignoredUserId = randomId();
+        final String name = randomShortString();
+        final String phone = randomShortString();
+        final long cuit = randomId();
+        final int ignoredPageSize = 100;
+
+        final long id = randomId();
+
+        final Client client = mock(Client.class);
+        when(client.getId()).thenReturn(id);
+        when(client.getUserId()).thenReturn(sessionUserId);
+        when(client.getName()).thenReturn(name);
+        when(client.getPhone()).thenReturn(phone);
+        when(client.getCuit()).thenReturn(cuit);
+
+        when(clientRepo.search(sessionUserId, name, phone, cuit, 1)).thenReturn(List.of(client));
+
+        final ClientResponse expectedResponse = new ClientResponse(id, sessionUserId, name, phone, cuit, Collections.emptyList());
+
+        final ResponseEntity<List<ClientResponse>> result =
+                controller.search(sessionUserId, name, phone, cuit, ignoredPageSize, false, session);
+
+        assertEquals(HttpStatus.OK, result.getStatusCode());
+        assertEquals(List.of(expectedResponse), result.getBody());
+    }
+
+    @Test
+    void getById_AdminSession_WithConsignees_Ok() {
+        final SessionInfo session = new SessionInfo(randomId(), true);
+
+        final long userId = randomId();
+        final String name = randomShortString();
+        final String phone = randomShortString();
+        final long cuit = randomId();
+
+        final long id = randomId();
+        final List<Consignee> consignees = List.of(mock(Consignee.class));
+
+        final Client client = mock(Client.class);
+        when(client.getId()).thenReturn(id);
+        when(client.getUserId()).thenReturn(userId);
+        when(client.getName()).thenReturn(name);
+        when(client.getPhone()).thenReturn(phone);
+        when(client.getCuit()).thenReturn(cuit);
+        when(client.getConsignees()).thenReturn(consignees);
+
+        when(clientRepo.findById(id)).thenReturn(Optional.of(client));
+
+        final ClientResponse expectedResponse = new ClientResponse(id, userId, name, phone, cuit, consignees);
+
+        final ResponseEntity<ClientResponse> result = controller.getById(id, true, session);
+
+        assertEquals(HttpStatus.OK, result.getStatusCode());
+        assertEquals(expectedResponse, result.getBody());
+    }
+
+    @Test
+    void getById_AdminSession_NotFound() {
+        final SessionInfo session = new SessionInfo(randomId(), true);
+
+        final long id = randomId();
+
+        when(clientRepo.findById(id)).thenReturn(Optional.empty());
+
+        final NotFoundException notFoundEx = assertThrows(NotFoundException.class,
+                () -> controller.getById(id, false, session));
+
+        assertEquals(String.format("client with id [%s] not found", id), notFoundEx.getMessage());
+    }
+
+    @Test
+    void getById_NotAdminSession_WithoutConsignees_Ok() {
+        final long userId = randomId();
+        final SessionInfo session = new SessionInfo(userId, false);
+
+        final String name = randomShortString();
+        final String phone = randomShortString();
+        final long cuit = randomId();
+
+        final long id = randomId();
+
+        final Client client = mock(Client.class);
+        when(client.getId()).thenReturn(id);
+        when(client.getUserId()).thenReturn(userId);
+        when(client.getName()).thenReturn(name);
+        when(client.getPhone()).thenReturn(phone);
+        when(client.getCuit()).thenReturn(cuit);
+
+        when(clientRepo.findById(id)).thenReturn(Optional.of(client));
+
+        final ClientResponse expectedResponse = new ClientResponse(id, userId, name, phone, cuit, Collections.emptyList());
+
+        final ResponseEntity<ClientResponse> result = controller.getById(id, false, session);
+
+        assertEquals(HttpStatus.OK, result.getStatusCode());
+        assertEquals(expectedResponse, result.getBody());
+    }
+
+    @Test
+    void getById_NotAdminSession_FromAnotherUser_NotFound() {
+        final long userId = randomId();
+        final SessionInfo session = new SessionInfo(userId, false);
+
+        final long id = randomId();
+
+        final Client client = mock(Client.class);
+        when(client.getUserId()).thenReturn(userId + 1);
+
+        when(clientRepo.findById(id)).thenReturn(Optional.of(client));
+
+        final NotFoundException notFoundEx = assertThrows(NotFoundException.class,
+                () -> controller.getById(id, false, session));
+
+        assertEquals(String.format("client with id [%s] not found", id), notFoundEx.getMessage());
     }
 }

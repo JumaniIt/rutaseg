@@ -10,11 +10,11 @@ public class Consignee {
     @Column(name = "name")
     private String name;
     @Column(name = "cuit")
-    private long CUIT;
+    private long cuit;
 
-    public Consignee(String name, long CUIT) {
+    public Consignee(String name, long cuit) {
         this.name = name;
-        this.CUIT = CUIT;
+        this.cuit = cuit;
     }
 
     public Consignee() {
