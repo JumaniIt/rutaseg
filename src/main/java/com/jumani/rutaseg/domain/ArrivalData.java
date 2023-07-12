@@ -1,6 +1,5 @@
 package com.jumani.rutaseg.domain;
 
-import com.jumani.rutaseg.util.DateGen;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -10,9 +9,9 @@ import java.time.LocalTime;
 
 @Getter
 @Entity
-@Table(name = "Arival_datas")
+@Table(name = "arrival_datas")
 @Slf4j
-public class ArrivalData implements DateGen {
+public class ArrivalData {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,31 +23,43 @@ public class ArrivalData implements DateGen {
     @Column(name = "arrival_time")
     private LocalTime arrivalTime;
 
+    @Column(name = "origin")
+    @Enumerated(EnumType.STRING)
+    private Origin origin;
+
     @Column(name = "turn")
     private String turn;
 
     @Column(name = "free_load")
     private boolean freeLoad;
 
-    @Column(name = "destination")
-    private Destination destination;
+    @Column(name = "destination_type")
+    private DestinationType destinationType;
+
+    @Column(name = "destination_name")
+    private String destinationName;
 
     @Column(name = "fob")
     private String fob;
 
     @Column(name = "currency")
-    private Currency currency;
+    private String currency;
 
     private ArrivalData() {
     }
 
-    public ArrivalData(LocalDate arrivalDate, LocalTime arrivalTime, String turn, boolean freeLoad,
-                       Destination destination, String fob, Currency currency) {
+    public ArrivalData(LocalDate arrivalDate, LocalTime arrivalTime,
+                       Origin origin, String turn, boolean freeLoad,
+                       DestinationType destinationType, String destinationName,
+                       String fob, String currency) {
+
         this.arrivalDate = arrivalDate;
         this.arrivalTime = arrivalTime;
+        this.origin = origin;
         this.turn = turn;
         this.freeLoad = freeLoad;
-        this.destination = destination;
+        this.destinationType = destinationType;
+        this.destinationName = destinationName;
         this.fob = fob;
         this.currency = currency;
     }

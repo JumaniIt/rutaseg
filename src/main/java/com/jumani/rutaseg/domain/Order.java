@@ -20,6 +20,10 @@ public class Order implements DateGen {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @OneToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "client_id")
+    private Client client;
+
     @Column(name = "pema")
     private boolean pema;
 
@@ -50,10 +54,6 @@ public class Order implements DateGen {
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "customs_data_id")
     private CustomsData customsData;
-
-    @OneToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "client_id")
-    private Client client;
 
     @Column(name = "created_by_user_id")
     private long createdByUserId;

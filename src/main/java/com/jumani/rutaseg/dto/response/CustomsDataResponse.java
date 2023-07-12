@@ -11,5 +11,4 @@ public class CustomsDataResponse {
 
     private String name;
     private String phone;
-    private Long cuit;
 }

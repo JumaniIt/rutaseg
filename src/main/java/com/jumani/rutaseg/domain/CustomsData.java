@@ -20,16 +20,11 @@ public class CustomsData {
     @Column(name = "phone")
     private String phone;
 
-
-    @Column(name = "cuit")
-    private Long cuit;
-
     private CustomsData() {
     }
 
-    public CustomsData(String name, String phone, Long cuit) {
+    public CustomsData(String name, String phone) {
         this.name = name;
         this.phone = phone;
-        this.cuit = cuit;
     }
 }
