@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Objects;
+import java.util.Optional;
 
 
 @RestController
@@ -54,7 +55,8 @@ public class OrderController {
 
         // Crear la instancia de Order con los datos proporcionados
         Order order = new Order(
-                client, orderRequest.isPema(),
+                client,
+                orderRequest.isPema(),
                 orderRequest.isPort(),
                 orderRequest.isTransport(),
                 arrivalData,
@@ -80,11 +82,13 @@ public class OrderController {
         return new ArrivalData(
                 arrivalDataRequest.getArrivalDate(),
                 arrivalDataRequest.getArrivalTime(),
+                arrivalDataRequest.getOrigin(),
                 arrivalDataRequest.getTurn(),
                 arrivalDataRequest.isFreeLoad(),
-                arrivalDataRequest.getDestination(),
+                arrivalDataRequest.getDestinationType(),
+                arrivalDataRequest.getDestinationName(),
                 arrivalDataRequest.getFob(),
-                arrivalDataRequest.getCurrency()
+                Optional.ofNullable(arrivalDataRequest.getCurrency()).map(String::toUpperCase).orElse(null)
         );
     }
 
@@ -92,8 +96,7 @@ public class OrderController {
         // Crear una instancia de CustomsData a partir de CustomsDataRequest
         return new CustomsData(
                 customsDataRequest.getName(),
-                customsDataRequest.getPhone(),
-                customsDataRequest.getCuit()
+                customsDataRequest.getPhone()
         );
     }
 
@@ -114,9 +117,11 @@ public class OrderController {
             arrivalDataResponse = new ArrivalDataResponse(
                     arrivalData.getArrivalDate(),
                     arrivalData.getArrivalTime(),
+                    arrivalData.getOrigin(),
                     arrivalData.getTurn(),
                     arrivalData.isFreeLoad(),
-                    arrivalData.getDestination(),
+                    arrivalData.getDestinationType(),
+                    arrivalData.getDestinationName(),
                     arrivalData.getFob(),
                     arrivalData.getCurrency()
             );
@@ -128,8 +133,7 @@ public class OrderController {
         if (customsData != null) {
             customsDataResponse = new CustomsDataResponse(
                     customsData.getName(),
-                    customsData.getPhone(),
-                    customsData.getCuit()
+                    customsData.getPhone()
             );
         }
 
@@ -158,7 +162,6 @@ public class OrderController {
                 arrivalDataResponse,
                 driverDataResponse,
                 customsDataResponse
-
         );
     }
 }
