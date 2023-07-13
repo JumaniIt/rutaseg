@@ -37,21 +37,27 @@ class ClientRepositoryImplTest extends IntegrationTest {
 
         final Client clientOne = clientRepo.save(new Client(userOne, nameOne, phoneOne, cuitOne));
         final Client clientTwo = clientRepo.save(new Client(userTwo, nameTwo, phoneTwo, cuitTwo));
+        final Client clientThree = clientRepo.save(new Client(null, "Mark", "3", 3L));
 
         final List<Client> justClientOne = List.of(clientOne);
         final List<Client> justClientTwo = List.of(clientTwo);
-        final List<Client> bothClients = List.of(clientOne, clientTwo);
+        final List<Client> justClientThree = List.of(clientThree);
+        final List<Client> clientOneAndTwo = List.of(clientOne, clientTwo);
+        final List<Client> allClients = List.of(clientOne, clientTwo, clientThree);
 
         // by user id
         assertEquals(justClientOne, clientRepo.search(clientOne.getUserId(), null, null, null, 2));
         assertEquals(justClientTwo, clientRepo.search(clientTwo.getUserId(), null, null, null, 1));
 
+        // by not having user
+        assertEquals(justClientThree, clientRepo.search(-1L, null, null, null, 1));
+
         // by name like
-        assertEquals(bothClients, clientRepo.search(null, "am", null, null, 2));
+        assertEquals(clientOneAndTwo, clientRepo.search(null, "am", null, null, 2));
         assertEquals(justClientOne, clientRepo.search(null, "ame1", null, null, 2));
 
         // by phone like
-        assertEquals(bothClients, clientRepo.search(null, "name", "phone", null, 10));
+        assertEquals(clientOneAndTwo, clientRepo.search(null, "name", "phone", null, 10));
         assertEquals(justClientTwo, clientRepo.search(null, "name", "2", null, 10));
 
         // by cuit
@@ -63,7 +69,7 @@ class ClientRepositoryImplTest extends IntegrationTest {
         assertEquals(justClientTwo, clientRepo.search(clientTwo.getUserId(), "name", "phone", cuitTwo, 10));
 
         // by nothing
-        assertEquals(bothClients, clientRepo.search(null, null, null, null, 2));
+        assertEquals(allClients, clientRepo.search(null, null, null, null, 4));
 
         // by nothing limit 1
         assertEquals(justClientOne, clientRepo.search(null, null, null, null, 1));

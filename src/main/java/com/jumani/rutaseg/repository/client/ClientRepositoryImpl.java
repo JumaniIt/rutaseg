@@ -34,6 +34,7 @@ public class ClientRepositoryImpl implements ClientRepositoryExtended {
 
         criteriaQuery.select(root);
         criteriaQuery.where(this.createPredicates(builder, root, userId, nameLike, phoneLike, cuit));
+        criteriaQuery.orderBy(builder.asc(root.get(Client.Fields.id)));
 
         return entityManager.createQuery(criteriaQuery)
                 .setMaxResults(limit)
@@ -49,7 +50,11 @@ public class ClientRepositoryImpl implements ClientRepositoryExtended {
         final List<Predicate> predicates = new ArrayList<>();
 
         if (Objects.nonNull(userId)) {
-            predicates.add(builder.equal(root.get(Client.Fields.user).get(User.Fields.id), userId));
+            if (userId == -1) {
+                predicates.add(builder.isNull(root.get(Client.Fields.user)));
+            } else {
+                predicates.add(builder.equal(root.get(Client.Fields.user).get(User.Fields.id), userId));
+            }
         }
 
         if (Objects.nonNull(nameLike)) {
