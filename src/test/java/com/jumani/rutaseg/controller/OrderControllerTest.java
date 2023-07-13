@@ -78,7 +78,7 @@ class OrderControllerTest {
         when(savedOrder.getFinishedAt()).thenReturn(null);
 
         OrderResponse expectedOrderResponse = new OrderResponse(
-                clientId, createdByUserId, 1L, pema, port, transport, OrderStatus.DRAFT,
+                1L, clientId, createdByUserId, pema, port, transport, OrderStatus.DRAFT,
                 ZonedDateTime.now(), null, null, null, null
         );
 
