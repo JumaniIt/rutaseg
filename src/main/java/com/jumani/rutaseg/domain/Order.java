@@ -20,8 +20,8 @@ public class Order implements DateGen {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "client_id")
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "client_id", foreignKey = @ForeignKey(name = "fk_orders_clients"))
     private Client client;
 
     @Column(name = "pema")
@@ -43,16 +43,16 @@ public class Order implements DateGen {
     @Column(name = "finished_at")
     private ZonedDateTime finishedAt;
 
-    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER, optional = false)
-    @JoinColumn(name = "_arrival_data_id")
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @JoinColumn(name = "id")
     private ArrivalData arrivalData;
 
-    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER, optional = false)
-    @JoinColumn(name = "driver_data_id")
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @JoinColumn(name = "id")
     private DriverData driverData;
 
-    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER, optional = false)
-    @JoinColumn(name = "customs_data_id")
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @JoinColumn(name = "id")
     private CustomsData customsData;
 
     @Column(name = "created_by_user_id")

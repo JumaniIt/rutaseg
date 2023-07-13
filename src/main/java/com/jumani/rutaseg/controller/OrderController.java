@@ -150,9 +150,9 @@ public class OrderController {
 
         // Crear una instancia de OrderResponse con los datos de ArrivalDataResponse, CustomsDataResponse y DriverDataResponse
         return new OrderResponse(
+                order.getId(),
                 order.getClientId(),
                 order.getCreatedByUserId(),
-                order.getId(),
                 order.isPema(),
                 order.isPort(),
                 order.isTransport(),

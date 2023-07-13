@@ -1,8 +1,8 @@
 spring:
   datasource:
-    url:
-    username:
-    password:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
   jpa:
     properties:
       hibernate:
@@ -32,3 +32,6 @@ jwt:
 session:
   knownOrigins: ${KNOWN_ORIGINS:}
   allowAllOrigins: ${ALLOW_ALL_ORIGINS:true}
+
+server:
+  port: 5000
