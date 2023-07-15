@@ -10,6 +10,7 @@ import com.jumani.rutaseg.handler.Session;
 import com.jumani.rutaseg.repository.UserRepository;
 import com.jumani.rutaseg.service.PasswordService;
 import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -30,7 +31,7 @@ public class UserController {
         this.passwordService = passwordService;
     }
     @PostMapping
-    public ResponseEntity<UserResponse> createUser(@RequestBody UserRequest userRequest, @Session SessionInfo session) {
+    public ResponseEntity<UserResponse> createUser(@RequestBody @Valid UserRequest userRequest, @Session SessionInfo session) {
         if (!session.admin()) {
             throw new ForbiddenException();
         }
