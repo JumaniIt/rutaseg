@@ -60,8 +60,11 @@ public class SessionFilter extends OncePerRequestFilter {
             throw new InvalidRequestOriginException();
         }
 
-        final String endpoint = request.getRequestURI();
-        if (SKIPPED_ENDPOINTS.contains(endpoint)) return;
+        String endpoint = request.getRequestURI();
+        if (endpoint.equals("/login")) {
+            filterChain.doFilter(request, httpServletResponse);
+            return;
+        }
 
         final String authorizationHeader = request.getHeader(AUTHORIZATION_HEADER);
         if (authorizationHeader == null || !authorizationHeader.startsWith(BEARER_SUFFIX)) {
