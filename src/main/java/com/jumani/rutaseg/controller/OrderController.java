@@ -15,10 +15,7 @@ import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -37,6 +34,21 @@ public class OrderController {
         this.clientRepo = clientRepo;
 
     }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<OrderResponse> getById(@PathVariable("id") long id, @Session SessionInfo session) {
+        Order order = orderRepo.findById(id)
+                .orElseThrow(() -> new NotFoundException(String.format("Order with id [%s] not found", id)));
+
+        if (!session.admin() && order.getClient().getId() != session.id()) {
+            throw new NotFoundException(String.format("Order with id [%s] not found", id));
+        }
+
+        OrderResponse response = createOrderResponse(order);
+        return ResponseEntity.ok(response);
+    }
+
+
 
     @PostMapping
     public ResponseEntity<OrderResponse> createOrder(@RequestBody @Valid OrderRequest orderRequest, @Session SessionInfo session) {
