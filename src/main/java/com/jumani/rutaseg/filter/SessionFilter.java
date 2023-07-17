@@ -37,6 +37,7 @@ public class SessionFilter extends OncePerRequestFilter {
 
     static {
         SKIPPED_ENDPOINTS = new ArrayList<>();
+        SKIPPED_ENDPOINTS.add("/login");
     }
 
     static {
