@@ -9,19 +9,24 @@ import com.jumani.rutaseg.service.auth.JwtService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.util.List;
 import java.util.UUID;
 
 import static com.jumani.rutaseg.TestDataGen.randomShortString;
+import static com.jumani.rutaseg.filter.SessionFilterFunctionalTest.TestConfig;
 import static org.apache.commons.lang3.reflect.FieldUtils.readStaticField;
 import static org.apache.commons.lang3.reflect.FieldUtils.writeField;
 import static org.junit.jupiter.api.Assertions.*;
@@ -30,7 +35,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest
+@SuppressWarnings("unused")
+@Import(TestConfig.class)
 class SessionFilterFunctionalTest extends IntegrationTest {
     private MockMvc mvc;
 
@@ -48,6 +54,7 @@ class SessionFilterFunctionalTest extends IntegrationTest {
 
     private static final String KNOWN_ORIGIN = UUID.randomUUID().toString();
 
+    private static final String SIMPLE_GET = "/simple-get";
     private static final String SKIPPED_ENDPOINT = "/skipped_endpoint";
     private static final String ADMIN_ENDPOINT = "/admin_endpoint";
 
@@ -71,7 +78,7 @@ class SessionFilterFunctionalTest extends IntegrationTest {
 
     @Test
     void doFilterInternal_PreFlightRequest_Ok() throws Exception {
-        final MvcResult mvcResult = mvc.perform(get("/simple-get")
+        final MvcResult mvcResult = mvc.perform(get(SIMPLE_GET)
                         .header(SessionFilter.ACCESS_CONTROL_REQUEST_HEADERS, "some-value"))
                 .andDo(print())
                 .andReturn();
@@ -79,14 +86,14 @@ class SessionFilterFunctionalTest extends IntegrationTest {
         final MockHttpServletResponse response = mvcResult.getResponse();
 
         assertAll(
-                () -> assertEquals(HttpStatus.OK.value(), response.getStatus()),
+                () -> assertEquals(HttpStatus.NO_CONTENT.value(), response.getStatus()),
                 () -> assertTrue(response.getContentAsString().isEmpty())
         );
     }
 
     @Test
     void doFilterInternal_InvalidOrigin_BadRequest() throws Exception {
-        final MvcResult mvcResult = mvc.perform(get("/simple-get"))
+        final MvcResult mvcResult = mvc.perform(get(SIMPLE_GET))
                 .andDo(print())
                 .andReturn();
 
@@ -100,16 +107,18 @@ class SessionFilterFunctionalTest extends IntegrationTest {
 
     @Test
     void doFilterInternal_SkippedEndpoint_Ok() throws Exception {
-        mvc.perform(get(SKIPPED_ENDPOINT)
+        final MvcResult result = mvc.perform(get(SKIPPED_ENDPOINT)
                         .header(SessionFilter.ORIGIN_HEADER, KNOWN_ORIGIN))
                 .andDo(print())
                 .andExpect(status().is(HttpStatus.OK.value()))
                 .andReturn();
+
+        assertTrue(Boolean.parseBoolean(result.getResponse().getContentAsString()));
     }
 
     @Test
     void doFilterInternal_WithoutAuthorizationHeader_Unauthorized() throws Exception {
-        final MvcResult mvcResult = mvc.perform(get("/simple-get")
+        final MvcResult mvcResult = mvc.perform(get(SIMPLE_GET)
                         .header(SessionFilter.ORIGIN_HEADER, KNOWN_ORIGIN))
                 .andDo(print())
                 .andReturn();
@@ -124,7 +133,7 @@ class SessionFilterFunctionalTest extends IntegrationTest {
 
     @Test
     void doFilterInternal_InvalidAuthorizationHeader_Unauthorized() throws Exception {
-        final MvcResult mvcResult = mvc.perform(get("/simple-get")
+        final MvcResult mvcResult = mvc.perform(get(SIMPLE_GET)
                         .header(SessionFilter.ORIGIN_HEADER, KNOWN_ORIGIN)
                         .header(SessionFilter.AUTHORIZATION_HEADER, "invalid-auth-header"))
                 .andDo(print())
@@ -144,7 +153,7 @@ class SessionFilterFunctionalTest extends IntegrationTest {
 
         when(jwtService.isTokenValid(token)).thenReturn(false);
 
-        final MvcResult mvcResult = mvc.perform(get("/simple-get")
+        final MvcResult mvcResult = mvc.perform(get(SIMPLE_GET)
                         .header(SessionFilter.ORIGIN_HEADER, KNOWN_ORIGIN)
                         .header(SessionFilter.AUTHORIZATION_HEADER, SessionFilter.BEARER_SUFFIX + token))
                 .andDo(print())
@@ -185,11 +194,11 @@ class SessionFilterFunctionalTest extends IntegrationTest {
 
         when(jwtService.isTokenValid(token)).thenReturn(true);
 
-        mvc.perform(get("/simple-get")
+        mvc.perform(get(SIMPLE_GET)
                         .header(SessionFilter.ORIGIN_HEADER, KNOWN_ORIGIN)
                         .header(SessionFilter.AUTHORIZATION_HEADER, SessionFilter.BEARER_SUFFIX + token))
                 .andDo(print())
-                .andExpect(status().is(HttpStatus.NOT_FOUND.value()))
+                .andExpect(status().is(HttpStatus.NO_CONTENT.value()))
                 .andReturn();
     }
 
@@ -204,7 +213,7 @@ class SessionFilterFunctionalTest extends IntegrationTest {
                         .header(SessionFilter.ORIGIN_HEADER, KNOWN_ORIGIN)
                         .header(SessionFilter.AUTHORIZATION_HEADER, SessionFilter.BEARER_SUFFIX + token))
                 .andDo(print())
-                .andExpect(status().is(HttpStatus.NOT_FOUND.value()))
+                .andExpect(status().is(HttpStatus.NO_CONTENT.value()))
                 .andReturn();
     }
 
@@ -216,10 +225,10 @@ class SessionFilterFunctionalTest extends IntegrationTest {
 
         when(jwtService.isTokenValid(token)).thenReturn(true);
 
-        mvc.perform(get("/simple-get")
+        mvc.perform(get(SIMPLE_GET)
                         .header(SessionFilter.AUTHORIZATION_HEADER, SessionFilter.BEARER_SUFFIX + token))
                 .andDo(print())
-                .andExpect(status().is(HttpStatus.NOT_FOUND.value()))
+                .andExpect(status().is(HttpStatus.NO_CONTENT.value()))
                 .andReturn();
     }
 
@@ -231,4 +240,27 @@ class SessionFilterFunctionalTest extends IntegrationTest {
             throw new RuntimeException(e);
         }
     }
+
+    @TestConfiguration
+    protected static class TestConfig {
+        @SuppressWarnings("unused")
+        @RestController
+        private static class TestController {
+            @GetMapping(SKIPPED_ENDPOINT)
+            private ResponseEntity<Boolean> skippedGet() {
+                return ResponseEntity.ok(true);
+            }
+
+            @GetMapping(SIMPLE_GET)
+            private ResponseEntity<?> simpleGet() {
+                return ResponseEntity.noContent().build();
+            }
+
+            @GetMapping(ADMIN_ENDPOINT)
+            private ResponseEntity<?> adminEndpoint() {
+                return ResponseEntity.noContent().build();
+            }
+        }
+    }
+
 }
