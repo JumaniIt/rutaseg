@@ -41,6 +41,6 @@ public class LoginController {
                     return new LoginResponse(token, userResponse);
                 })
                 .map(ResponseEntity::ok)
-                .orElseThrow(() -> new ValidationException("invalid_credentials", "Invalid email or password"));
+                .orElseThrow(() -> new ValidationException("invalid_credentials", "invalid email or password"));
     }
 }
