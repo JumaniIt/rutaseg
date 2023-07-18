@@ -15,10 +15,7 @@ import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -38,10 +35,23 @@ public class OrderController {
 
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<OrderResponse> getById(@PathVariable("id") long id, @Session SessionInfo session) {
+        Order order = orderRepo.findById(id)
+                .orElseThrow(() -> new NotFoundException(String.format("order with id [%s] not found", id)));
+
+        if (!session.admin() && !Objects.equals(order.getClient().getUserId(), session.id())) {
+            throw new NotFoundException(String.format("order with id [%s] not found", id));
+        }
+
+        OrderResponse response = createOrderResponse(order);
+        return ResponseEntity.ok(response);
+    }
+
     @PostMapping
-    public ResponseEntity<OrderResponse> createOrder(@RequestBody @Valid OrderRequest orderRequest, @Session SessionInfo session) {
+        public ResponseEntity<OrderResponse> createOrder(@RequestBody @Valid OrderRequest orderRequest, @Session SessionInfo session) {
         Client client = clientRepo.findById(orderRequest.getClientId())
-                .orElseThrow(() -> new NotFoundException("Client not found"));
+                .orElseThrow(() -> new NotFoundException("client not found"));
 
         if (!session.admin() && !Objects.equals(client.getUserId(), session.id())) {
             throw new ForbiddenException();
