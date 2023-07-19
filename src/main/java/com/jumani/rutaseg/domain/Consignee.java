@@ -1,14 +1,20 @@
 package com.jumani.rutaseg.domain;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Embeddable;
+import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.Setter;
 
 @Getter
-@Embeddable
+@Setter
+@Entity
 public class Consignee {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id; // Clave primaria
+
     @Column(name = "name")
     private String name;
+
     @Column(name = "cuit")
     private long cuit;
 
