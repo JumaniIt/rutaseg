@@ -55,6 +55,11 @@ public class SessionFilter extends OncePerRequestFilter {
                                     HttpServletResponse httpServletResponse,
                                     FilterChain filterChain) throws ServletException, IOException {
 
+        this.validateSession(request);
+        filterChain.doFilter(request, httpServletResponse);
+    }
+
+    private void validateSession(HttpServletRequest request) {
         if (this.isPreFlight(request)) return;
 
         if (!this.isValidRequestOrigin(request)) {
@@ -77,8 +82,6 @@ public class SessionFilter extends OncePerRequestFilter {
         if (ADMIN_ENDPOINTS.stream().anyMatch(endpoint::startsWith) && !jwtService.isAdminToken(token)) {
             throw new ForbiddenException();
         }
-
-        filterChain.doFilter(request, httpServletResponse);
     }
 
     private boolean isPreFlight(HttpServletRequest request) {
