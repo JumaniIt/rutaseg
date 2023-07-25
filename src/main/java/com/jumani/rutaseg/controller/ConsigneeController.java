@@ -4,8 +4,10 @@ import com.jumani.rutaseg.domain.Consignee;
 import com.jumani.rutaseg.domain.Client;
 import com.jumani.rutaseg.dto.response.SessionInfo;
 import com.jumani.rutaseg.exception.ValidationException;
+import com.jumani.rutaseg.service.auth.JwtService;
 import com.jumani.rutaseg.handler.Session;
 import com.jumani.rutaseg.repository.client.ClientRepository;
+import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,57 +20,44 @@ import java.util.List;
 @RestController
 @RequestMapping("/clients/{clientId}/consignees")
 @Validated
+@Transactional
 public class ConsigneeController {
 
     private final ClientRepository clientRepository;
+    private final JwtService jwtService;
 
     @Autowired
-    public ConsigneeController(ClientRepository clientRepository) {
+    public ConsigneeController(ClientRepository clientRepository, JwtService jwtService) {
         this.clientRepository = clientRepository;
+        this.jwtService = jwtService;
     }
 
     @PostMapping
     public ResponseEntity<Consignee> createConsignee(@PathVariable("clientId") Long clientId,
                                                      @Session SessionInfo session,
                                                      @Valid @RequestBody Consignee consignee,
-                                                     @RequestHeader("Authorization") String token) {
+                                                     String token) {
         Client client = clientRepository.findById(clientId)
-                .orElseThrow(() -> new ValidationException("CLIENT_NOT_FOUND", "Client not found"));
-
-        if (!session.admin() && !clientMatchesToken(client, token)) {
-            throw new ValidationException("ACCESS_DENIED", "Access denied");
-        }
-
-        if (consignedExistsForClient(client, consignee.getCuit())) {
-            throw new ValidationException("DUPLICATE_CONSIGNEE", "A consignee with the same CUIT already exists");
-        }
+                .filter(c -> clientMatchesToken(c, session, token))
+                .orElseThrow(() -> new ValidationException("client_not_found", "client not found"));
 
         Consignee newConsignee = new Consignee(consignee.getName(), consignee.getCuit());
         client.addConsignee(newConsignee);
         clientRepository.save(client);
 
-        return new ResponseEntity<>(newConsignee, HttpStatus.OK);
+        return ResponseEntity.status(HttpStatus.CREATED).body(newConsignee);
     }
-
-    private boolean clientMatchesToken(Client client, String token) {
-        return true;
-    }
-
-    private boolean consignedExistsForClient(Client client, long cuit) {
-        List<Consignee> consignees = client.getConsignees();
-
-        for (Consignee consignee : consignees) {
-            if (consignee.getCuit() == cuit) {
-                return true;
-            }
-        }
-        return false;
+    private boolean clientMatchesToken(Client client, SessionInfo session, String token) {
+        boolean tokenValid = jwtService.isTokenValid(token) && jwtService.extractSubject(token).equals(client.getUserId().toString());
+        return (session.admin() || (tokenValid && session.id() == client.getUserId()));
     }
 
     @GetMapping
-    public ResponseEntity<List<Consignee>> getAllConsignees(@PathVariable("clientId") Long clientId) {
+    public ResponseEntity<List<Consignee>> getAllConsignees(@PathVariable("clientId") Long clientId,
+                                                            @Session SessionInfo session, String token){
         Client client = clientRepository.findById(clientId)
-                .orElseThrow(() -> new ValidationException("CLIENT_NOT_FOUND", "Client not found"));
+                .filter(c -> clientMatchesToken(c, session, token))
+                .orElseThrow(() -> new ValidationException("client_not_found", "client not found"));
 
         List<Consignee> consignees = client.getConsignees();
 
