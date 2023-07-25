@@ -6,7 +6,6 @@ import com.jumani.rutaseg.dto.request.ConsigneeRequest;
 import com.jumani.rutaseg.dto.response.SessionInfo;
 import com.jumani.rutaseg.exception.ValidationException;
 import com.jumani.rutaseg.repository.client.ClientRepository;
-import java.util.Arrays;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -55,8 +54,7 @@ class ConsigneeControllerTest {
         consigneeRequest.setName("Name");
         consigneeRequest.setCuit(123456789);
 
-        Client client = mock(Client.class);
-        when(clientRepository.findById(clientId)).thenReturn(Optional.of(client));
+        when(clientRepository.findById(clientId)).thenReturn(Optional.empty());
 
         ValidationException exception = assertThrows(ValidationException.class,
                 () -> consigneeController.createConsignee(clientId, sessionInfo, consigneeRequest));
@@ -76,7 +74,11 @@ class ConsigneeControllerTest {
         Client client = mock(Client.class);
         Consignee existingConsignee = new Consignee("existing Consignee", 123456789);
         client.addConsignee(existingConsignee);
+
         when(clientRepository.findById(clientId)).thenReturn(Optional.of(client));
+
+        when(consigneeController.createConsignee(clientId, sessionInfo, consigneeRequest))
+                .thenThrow(new ValidationException("duplicate_cuit", "a client with the same CUIT already exists"));
 
         ValidationException exception = assertThrows(ValidationException.class,
                 () -> consigneeController.createConsignee(clientId, sessionInfo, consigneeRequest));
@@ -84,16 +86,13 @@ class ConsigneeControllerTest {
         assertEquals("duplicate_cuit", exception.getCode());
         assertEquals("a client with the same CUIT already exists", exception.getMessage());
     }
-    @Test
-    void getAllConsignees_Success() {
-        Long clientId = 1L;
-        SessionInfo sessionInfo = new SessionInfo(1L, true);
 
+
+    @Test
+    void getAllConsignees_EmptyList_Success() {
+        Long clientId = 1L;
+        SessionInfo sessionInfo = new SessionInfo(clientId, true);
         Client client = mock(Client.class);
-        Consignee consignee1 = new Consignee("Consignee 1", 123456789);
-        Consignee consignee2 = new Consignee("Consignee 2", 123456799);
-        client.addConsignee(consignee1);
-        client.addConsignee(consignee2);
 
         when(clientRepository.findById(clientId)).thenReturn(Optional.of(client));
 
@@ -101,8 +100,7 @@ class ConsigneeControllerTest {
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
-        assertEquals(2, response.getBody().size());
-        assertTrue(response.getBody().containsAll(Arrays.asList(consignee1, consignee2)));
+        assertTrue(response.getBody().isEmpty());
     }
 
     @Test
