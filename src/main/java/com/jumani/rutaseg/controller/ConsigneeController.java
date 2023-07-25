@@ -31,9 +31,9 @@ public class ConsigneeController {
     }
 
     @PostMapping
-    public ResponseEntity<ConsigneeRequest> createConsignee(@PathVariable("clientId") Long clientId,
-                                                            @Session SessionInfo session,
-                                                            @Valid ConsigneeRequest consigneeRequest) {
+    public ResponseEntity<Consignee> createConsignee(@PathVariable("clientId") Long clientId,
+                                                     @Session SessionInfo session,
+                                                     @Valid ConsigneeRequest consigneeRequest) {
         Client client = clientRepository.findById(clientId)
                 .filter(c -> clientMatchesSession(c, session))
                 .orElseThrow(() -> new ValidationException("client_not_found", "client not found"));
@@ -46,10 +46,8 @@ public class ConsigneeController {
 
         clientRepository.save(client);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(consigneeRequest);
+        return ResponseEntity.status(HttpStatus.CREATED).body(consignee);
     }
-
-
 
     private boolean clientMatchesSession(Client client, SessionInfo session) {
         return session.admin() || (session.id() == client.getUserId());
