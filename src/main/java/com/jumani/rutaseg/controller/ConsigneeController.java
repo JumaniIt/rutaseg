@@ -2,9 +2,9 @@ package com.jumani.rutaseg.controller;
 
 import com.jumani.rutaseg.domain.Consignee;
 import com.jumani.rutaseg.domain.Client;
+import com.jumani.rutaseg.dto.request.ConsigneeRequest;
 import com.jumani.rutaseg.dto.response.SessionInfo;
 import com.jumani.rutaseg.exception.ValidationException;
-import com.jumani.rutaseg.service.auth.JwtService;
 import com.jumani.rutaseg.handler.Session;
 import com.jumani.rutaseg.repository.client.ClientRepository;
 import jakarta.transaction.Transactional;
@@ -24,39 +24,42 @@ import java.util.List;
 public class ConsigneeController {
 
     private final ClientRepository clientRepository;
-    private final JwtService jwtService;
 
     @Autowired
-    public ConsigneeController(ClientRepository clientRepository, JwtService jwtService) {
+    public ConsigneeController(ClientRepository clientRepository) {
         this.clientRepository = clientRepository;
-        this.jwtService = jwtService;
     }
 
     @PostMapping
-    public ResponseEntity<Consignee> createConsignee(@PathVariable("clientId") Long clientId,
-                                                     @Session SessionInfo session,
-                                                     @Valid @RequestBody Consignee consignee,
-                                                     String token) {
+    public ResponseEntity<ConsigneeRequest> createConsignee(@PathVariable("clientId") Long clientId,
+                                                            @Session SessionInfo session,
+                                                            @Valid ConsigneeRequest consigneeRequest) {
         Client client = clientRepository.findById(clientId)
-                .filter(c -> clientMatchesToken(c, session, token))
+                .filter(c -> clientMatchesSession(c, session))
                 .orElseThrow(() -> new ValidationException("client_not_found", "client not found"));
 
-        Consignee newConsignee = new Consignee(consignee.getName(), consignee.getCuit());
-        client.addConsignee(newConsignee);
+        Consignee consignee = new Consignee(consigneeRequest.getName(), consigneeRequest.getCuit());
+
+        client.addConsignee(consignee).ifPresent(error -> {
+            throw new ValidationException(error.code(), error.message());
+        });
+
         clientRepository.save(client);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(newConsignee);
+        return ResponseEntity.status(HttpStatus.CREATED).body(consigneeRequest);
     }
-    private boolean clientMatchesToken(Client client, SessionInfo session, String token) {
-        boolean tokenValid = jwtService.isTokenValid(token) && jwtService.extractSubject(token).equals(client.getUserId().toString());
-        return (session.admin() || (tokenValid && session.id() == client.getUserId()));
+
+
+
+    private boolean clientMatchesSession(Client client, SessionInfo session) {
+        return session.admin() || (session.id() == client.getUserId());
     }
 
     @GetMapping
     public ResponseEntity<List<Consignee>> getAllConsignees(@PathVariable("clientId") Long clientId,
-                                                            @Session SessionInfo session, String token){
+                                                            @Session SessionInfo session) {
         Client client = clientRepository.findById(clientId)
-                .filter(c -> clientMatchesToken(c, session, token))
+                .filter(c -> clientMatchesSession(c, session))
                 .orElseThrow(() -> new ValidationException("client_not_found", "client not found"));
 
         List<Consignee> consignees = client.getConsignees();
