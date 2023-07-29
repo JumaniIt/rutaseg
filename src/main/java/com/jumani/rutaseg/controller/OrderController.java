@@ -17,8 +17,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 
 @RestController
@@ -63,6 +65,24 @@ public class OrderController {
         CustomsData customsData = orderRequest.getCustomsData() != null ? createCustomsData(orderRequest.getCustomsData()) : null;
         DriverData driverData = orderRequest.getDriverData() != null ? createDriverData(orderRequest.getDriverData()) : null;
 
+        // Crear objetos Containers a partir de la lista de Containers de la solicitud, si existe
+        List<Container> containers = orderRequest.getContainers() != null ?
+                orderRequest.getContainers().stream()
+                        .map(containerRequest -> new Container(
+                                containerRequest.getCode(),
+                                containerRequest.getMeasures(),
+                                containerRequest.isRepackage(),
+                                containerRequest.getPema()
+                        ))
+                        .collect(Collectors.toList()) : null;
+
+        // Crear el objeto ConsigneeData a partir de los datos de ConsigneeData de la solicitud, si existe
+        ConsigneeData consigneeData = orderRequest.getConsigneeData() != null ?
+                new ConsigneeData(
+                        orderRequest.getConsigneeData().getName(),
+                        orderRequest.getConsigneeData().getCuit()
+                ) : null;
+
         // Crear la instancia de Order con los datos proporcionados
         Order order = new Order(
                 client,
@@ -72,8 +92,11 @@ public class OrderController {
                 arrivalData,
                 driverData,
                 customsData,
-                session.id()
+                session.id(),
+                containers,
+                consigneeData
         );
+
 
 
         // Realizar la lógica adicional de creación de la orden, como persistencia en la base de datos

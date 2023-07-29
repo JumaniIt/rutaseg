@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.ZonedDateTime;
+import java.util.List;
 
 import static com.jumani.rutaseg.domain.OrderStatus.DRAFT;
 
@@ -58,13 +59,22 @@ public class Order implements DateGen {
     @Column(name = "created_by_user_id")
     private long createdByUserId;
 
+    @ElementCollection(fetch = FetchType.LAZY)
+    @CollectionTable(name = "containers",
+            joinColumns = @JoinColumn(name = "id"))
+    private List<Container> containers;
+
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @JoinColumn(name = "id")
+    private ConsigneeData consigneeData;
+
     //constructor
     public Order(Client client,
                  boolean pema, boolean port, boolean transport,
                  ArrivalData arrivalData,
                  DriverData driverData,
                  CustomsData customsData,
-                 long createdByUserId) {
+                 long createdByUserId, List<Container> containers, ConsigneeData consigneeData) {
 
         this.client = client;
         this.pema = pema;
@@ -77,6 +87,8 @@ public class Order implements DateGen {
         this.driverData = driverData;
         this.customsData = customsData;
         this.createdByUserId = createdByUserId;
+        this.containers = containers;
+        this.consigneeData = consigneeData;
     }
 
     public Long getClientId() {

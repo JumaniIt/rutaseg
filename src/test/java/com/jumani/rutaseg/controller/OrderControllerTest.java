@@ -139,7 +139,7 @@ class OrderControllerTest {
         DriverDataRequest driverDataRequest = new DriverDataRequest();
         CustomsDataRequest customsDataRequest = new CustomsDataRequest();
         OrderRequest orderRequest = new OrderRequest(
-                clientId, pema, port, transport, arrivalDataRequest, driverDataRequest, customsDataRequest
+                clientId, pema, port, transport, arrivalDataRequest, driverDataRequest, customsDataRequest,null,null
         );
 
         SessionInfo session = new SessionInfo(TestDataGen.randomId(), true);

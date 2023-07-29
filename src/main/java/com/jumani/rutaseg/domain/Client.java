@@ -28,6 +28,7 @@ public class Client {
 
     @Column(name = "phone")
     private String phone;
+
     @Column(name = "cuit")
     private Long cuit;
 
