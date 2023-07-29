@@ -12,7 +12,7 @@ public class Container {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
     @Column(name = "code")
     private String code;

@@ -1,11 +1,19 @@
 package com.jumani.rutaseg.domain;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Embeddable;
+import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.experimental.FieldNameConstants;
+
 @Getter
-@Embeddable
+@Entity
+@FieldNameConstants
+@Table(name = "consineeDatas")
 public class ConsigneeData {
+
+        @Id
+        @GeneratedValue(strategy = GenerationType.IDENTITY)
+        private Long id;
+
 
         @Column(name = "name")
         private String name;
