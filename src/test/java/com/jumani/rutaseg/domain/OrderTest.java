@@ -1,7 +1,5 @@
 package com.jumani.rutaseg.domain;
 
-import com.jumani.rutaseg.dto.request.ConsigneeDataRequest;
-import com.jumani.rutaseg.dto.request.ContainerRequest;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
@@ -50,7 +48,7 @@ public class OrderTest {
         assertNull(order.getFinishedAt());
         assertEquals(createdByUserId, order.getCreatedByUserId());
         assertSame(client, order.getClient());
-        assertSame(consigneeData, order.getConsigneeData());
+        assertSame(consigneeData, order.getConsignee());
         assertSame(containers, order.getContainers());
     }
 }
