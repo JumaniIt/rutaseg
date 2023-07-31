@@ -7,7 +7,7 @@ import lombok.experimental.FieldNameConstants;
 @Getter
 @Entity
 @FieldNameConstants
-@Table(name = "consinee_datas")
+@Table(name = "consignee_datas")
 public class ConsigneeData {
 
         @Id
