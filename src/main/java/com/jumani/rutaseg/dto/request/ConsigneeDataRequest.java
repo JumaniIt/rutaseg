@@ -1,5 +1,8 @@
 package com.jumani.rutaseg.dto.request;
 
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -10,8 +13,11 @@ import lombok.NoArgsConstructor;
 
 public class ConsigneeDataRequest {
 
+    @NotEmpty
     private String name;
 
-    private long cuit;
+    @NotNull
+    @Positive
+    private Long cuit;
 
 }

@@ -7,7 +7,7 @@ import lombok.experimental.FieldNameConstants;
 @Getter
 @Entity
 @FieldNameConstants
-@Table(name = "consineeDatas")
+@Table(name = "consinee_datas")
 public class ConsigneeData {
 
         @Id
@@ -19,9 +19,9 @@ public class ConsigneeData {
         private String name;
 
         @Column(name = "cuit")
-        private long cuit;
+        private Long cuit;
 
-        public ConsigneeData(String name, long cuit) {
+        public ConsigneeData(String name, Long cuit) {
             this.name = name;
             this.cuit = cuit;
         }

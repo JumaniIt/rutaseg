@@ -2,17 +2,12 @@ package com.jumani.rutaseg.domain;
 
 import jakarta.persistence.*;
 import lombok.Getter;
-import lombok.experimental.FieldNameConstants;
+
 
 @Getter
-@Entity
-@FieldNameConstants
-@Table(name = "containers")
+@Embeddable
 public class Container {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
 
     @Column(name = "code")
     private String code;

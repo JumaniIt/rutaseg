@@ -10,9 +10,8 @@ import lombok.Getter;
 @Getter
 public class ConsigneeDataResponse {
 
-    private Long id;
 
     private String name;
 
-    private long cuit;
+    private Long cuit;
 }

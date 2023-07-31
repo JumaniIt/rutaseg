@@ -17,6 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -65,7 +66,6 @@ public class OrderController {
         CustomsData customsData = orderRequest.getCustomsData() != null ? createCustomsData(orderRequest.getCustomsData()) : null;
         DriverData driverData = orderRequest.getDriverData() != null ? createDriverData(orderRequest.getDriverData()) : null;
 
-        // Crear objetos Containers a partir de la lista de Containers de la solicitud, si existe
         List<Container> containers = orderRequest.getContainers() != null ?
                 orderRequest.getContainers().stream()
                         .map(containerRequest -> new Container(
@@ -74,7 +74,7 @@ public class OrderController {
                                 containerRequest.isRepackage(),
                                 containerRequest.getPema()
                         ))
-                        .collect(Collectors.toList()) : null;
+                        .collect(Collectors.toList()) : Collections.emptyList();
 
         // Crear el objeto ConsigneeData a partir de los datos de ConsigneeData de la solicitud, si existe
         ConsigneeData consigneeData = orderRequest.getConsigneeData() != null ?

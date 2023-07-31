@@ -10,8 +10,6 @@ import lombok.Getter;
 @Getter
 public class ContainerResponse {
 
-    private Long id;
-
     private String code;
 
     private Measures measures;

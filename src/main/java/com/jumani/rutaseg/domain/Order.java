@@ -59,13 +59,13 @@ public class Order implements DateGen {
     @Column(name = "created_by_user_id")
     private long createdByUserId;
 
-    @ElementCollection(fetch = FetchType.LAZY)
+    @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "containers",
-            joinColumns = @JoinColumn(name = "id"))
+            joinColumns = @JoinColumn(name = "order_id"))
     private List<Container> containers;
 
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
-    @JoinColumn(name = "id")
+    @JoinColumn(name = "consignee")
     private ConsigneeData consigneeData;
 
     //constructor
