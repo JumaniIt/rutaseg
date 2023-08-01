@@ -104,34 +104,15 @@ public class Order implements DateGen {
                        CustomsData customsData, List<Container> containers, ConsigneeData consignee) {
 
 
-        if (pema) {
+
             this.pema = pema;
-        }
-
-        if (port) {
             this.port = port;
-        }
-
-        if (transport) {
             this.transport = transport;
-        }
-
-        if (arrivalData != null) {
             this.arrivalData = arrivalData;
-        }
-
-        if (driverData != null) {
             this.driverData = driverData;
-        }
-
-        if (customsData != null) {
             this.customsData = customsData;
-        }
-
-        this.containers = containers != null ? containers : Collections.emptyList();
-
-        if (consignee != null) {
+            this.containers = containers;
             this.consignee = consignee;
-        }
+
     }
 }

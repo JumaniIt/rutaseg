@@ -21,6 +21,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import java.time.ZonedDateTime;
+import java.util.Collections;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -64,6 +65,8 @@ class OrderControllerTest {
                 finishedAt,
                 null,
                 null,
+                null,
+                Collections.emptyList(),
                 null
         );
 
@@ -87,18 +90,7 @@ class OrderControllerTest {
         assertEquals(HttpStatus.OK, response.getStatusCode());
         OrderResponse actualResponse = response.getBody();
 
-        assertEquals(expectedResponse.getId(), actualResponse.getId());
-        assertEquals(expectedResponse.getClientId(), actualResponse.getClientId());
-        assertEquals(expectedResponse.getCreatedByUserId(), actualResponse.getCreatedByUserId());
-        assertEquals(expectedResponse.isPema(), actualResponse.isPema());
-        assertEquals(expectedResponse.isPort(), actualResponse.isPort());
-        assertEquals(expectedResponse.isTransport(), actualResponse.isTransport());
-        assertEquals(expectedResponse.getStatus(), actualResponse.getStatus());
-        assertEquals(expectedResponse.getCreatedAt(), actualResponse.getCreatedAt());
-        assertEquals(expectedResponse.getFinishedAt(), actualResponse.getFinishedAt());
-        assertEquals(expectedResponse.getArrivalData(), actualResponse.getArrivalData());
-        assertEquals(expectedResponse.getDriverData(), actualResponse.getDriverData());
-        assertEquals(expectedResponse.getCustomsData(), actualResponse.getCustomsData());
+        assertEquals(expectedResponse, actualResponse);
     }
     @Test
     public void getById_NonAdminSessionAndDifferentClientIds_ThrowsNotFoundException() {
@@ -139,7 +131,7 @@ class OrderControllerTest {
         DriverDataRequest driverDataRequest = new DriverDataRequest();
         CustomsDataRequest customsDataRequest = new CustomsDataRequest();
         OrderRequest orderRequest = new OrderRequest(
-                clientId, pema, port, transport, arrivalDataRequest, driverDataRequest, customsDataRequest,null,null
+                clientId, pema, port, transport, arrivalDataRequest, driverDataRequest, customsDataRequest,Collections.emptyList(),null
         );
 
         SessionInfo session = new SessionInfo(TestDataGen.randomId(), true);
@@ -165,7 +157,8 @@ class OrderControllerTest {
 
         OrderResponse expectedOrderResponse = new OrderResponse(
                 1L, clientId, createdByUserId, pema, port, transport, OrderStatus.DRAFT,
-                ZonedDateTime.now(), null, null, null, null
+                ZonedDateTime.now(), null, null, null, null,Collections.emptyList(),
+                null
         );
 
         // Act
