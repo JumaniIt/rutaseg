@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.ZonedDateTime;
+import java.util.Collections;
 import java.util.List;
 
 import static com.jumani.rutaseg.domain.OrderStatus.DRAFT;
@@ -98,5 +99,39 @@ public class Order implements DateGen {
     private Order() {
     }
 
+    public void update(boolean pema, boolean port, boolean transport,
+                       ArrivalData arrivalData, DriverData driverData,
+                       CustomsData customsData, List<Container> containers, ConsigneeData consignee) {
 
+
+        if (pema) {
+            this.pema = pema;
+        }
+
+        if (port) {
+            this.port = port;
+        }
+
+        if (transport) {
+            this.transport = transport;
+        }
+
+        if (arrivalData != null) {
+            this.arrivalData = arrivalData;
+        }
+
+        if (driverData != null) {
+            this.driverData = driverData;
+        }
+
+        if (customsData != null) {
+            this.customsData = customsData;
+        }
+
+        this.containers = containers != null ? containers : Collections.emptyList();
+
+        if (consignee != null) {
+            this.consignee = consignee;
+        }
+    }
 }

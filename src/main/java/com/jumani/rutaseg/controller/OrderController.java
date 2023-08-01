@@ -109,6 +109,63 @@ public class OrderController {
         return ResponseEntity.status(HttpStatus.CREATED).body(orderResponse);
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<OrderResponse> updateOrder(
+            @PathVariable("id") long id,
+            @RequestBody OrderRequest orderRequest,
+            @Session SessionInfo session
+    ) {
+        Order order = orderRepo.findById(id)
+                .orElseThrow(() -> new NotFoundException(String.format("order with id [%s] not found", id)));
+
+        Client client = clientRepo.findById(orderRequest.getClientId())
+                .orElseThrow(() -> new NotFoundException("client not found"));
+
+        // Verificar que la sesión sea de un usuario administrador o que la orden sea del cliente asociado al usuario de la sesión.
+        if (!session.admin() && !Objects.equals(client.getUserId(), session.id())) {
+            throw new ForbiddenException();
+        }
+
+        // Asegurarse de que, si la sesión no es de un usuario administrador, la orden esté en estado DRAFT.
+        if (!session.admin() && order.getStatus() != OrderStatus.DRAFT) {
+            throw new ForbiddenException();
+        }
+
+        // Actualizar los atributos de la orden utilizando el método update() de la clase Order
+        order.update(
+                orderRequest.isPema(),
+                orderRequest.isPort(),
+                orderRequest.isTransport(),
+                orderRequest.getArrivalData() != null ? createArrivalData(orderRequest.getArrivalData()) : null,
+                orderRequest.getDriverData() != null ? createDriverData(orderRequest.getDriverData()) : null,
+                orderRequest.getCustomsData() != null ? createCustomsData(orderRequest.getCustomsData()) : null,
+                orderRequest.getContainers() != null ?
+                        orderRequest.getContainers().stream()
+                                .map(containerRequest -> new Container(
+                                        containerRequest.getCode(),
+                                        containerRequest.getMeasures(),
+                                        containerRequest.isRepackage(),
+                                        containerRequest.getPema()
+                                ))
+                                .collect(Collectors.toList()) : Collections.emptyList(),
+                orderRequest.getConsigneeData() != null ?
+                        new ConsigneeData(
+                                orderRequest.getConsigneeData().getName(),
+                                orderRequest.getConsigneeData().getCuit()
+                        ) : null
+        );
+
+        // Actualizar la orden en la base de datos
+        Order updatedOrder = orderRepo.save(order);
+
+        // Crear la respuesta con los datos actualizados de la orden
+        OrderResponse orderResponse = createOrderResponse(updatedOrder);
+
+        // Devolver la respuesta con el estado OK (200)
+        return ResponseEntity.ok(orderResponse);
+    }
+
+
 
     private ArrivalData createArrivalData(ArrivalDataRequest arrivalDataRequest) {
         // Crear una instancia de ArrivalData a partir de ArrivalDataRequest
