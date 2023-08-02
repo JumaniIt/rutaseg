@@ -99,12 +99,12 @@ public class Order implements DateGen {
     private Order() {
     }
 
-    public void update(boolean pema, boolean port, boolean transport,
+    public void update(Client client, boolean pema, boolean port, boolean transport,
                        ArrivalData arrivalData, DriverData driverData,
                        CustomsData customsData, List<Container> containers, ConsigneeData consignee) {
 
 
-
+            this.client = client;
             this.pema = pema;
             this.port = port;
             this.transport = transport;

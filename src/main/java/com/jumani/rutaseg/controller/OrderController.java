@@ -170,7 +170,7 @@ public class OrderController {
                 ) : null;
 
         // Actualizar los atributos de la orden utilizando el método update() de la clase Order
-        order.update(pema, port, transport, arrivalData, driverData, customsData, containers, consigneeData);
+        order.update(client, pema, port, transport, arrivalData, driverData, customsData, containers, consigneeData);
 
 
         // Actualizar la orden en la base de datos
