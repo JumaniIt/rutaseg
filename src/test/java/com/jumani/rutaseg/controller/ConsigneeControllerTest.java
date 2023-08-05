@@ -44,6 +44,10 @@ class ConsigneeControllerTest {
 
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
         assertNotNull(response.getBody());
+
+        Consignee responseBodyConsignee = response.getBody();
+        assertEquals(consigneeRequest.getName(), responseBodyConsignee.getName());
+        assertEquals(consigneeRequest.getCuit(), responseBodyConsignee.getCuit());
     }
 
     @Test
@@ -72,12 +76,10 @@ class ConsigneeControllerTest {
         consigneeRequest.setCuit(123456789);
 
         Client client = mock(Client.class);
-        Consignee existingConsignee = new Consignee("existing Consignee", 123456789);
-        client.addConsignee(existingConsignee);
 
         when(clientRepository.findById(clientId)).thenReturn(Optional.of(client));
 
-        when(consigneeController.createConsignee(clientId, sessionInfo, consigneeRequest))
+        when(client.addConsignee(any(Consignee.class)))
                 .thenThrow(new ValidationException("duplicate_cuit", "a client with the same CUIT already exists"));
 
         ValidationException exception = assertThrows(ValidationException.class,
@@ -111,6 +113,22 @@ class ConsigneeControllerTest {
         Client client = mock(Client.class);
         Consignee consignee = new Consignee("Consignee", 123456789);
         client.addConsignee(consignee);
+
+        when(clientRepository.findById(clientId)).thenReturn(Optional.of(client));
+
+        ValidationException exception = assertThrows(ValidationException.class,
+                () -> consigneeController.getAllConsignees(clientId, sessionInfo));
+
+        assertEquals("client_not_found", exception.getCode());
+        assertEquals("client not found", exception.getMessage());
+    }
+
+    @Test
+    void getAllConsignees_Failure_InvalidUser_NotAdmin() {
+        Long clientId = 16L;
+        SessionInfo sessionInfo = new SessionInfo(16L, false);
+
+        Client client = mock(Client.class);
 
         when(clientRepository.findById(clientId)).thenReturn(Optional.of(client));
 
