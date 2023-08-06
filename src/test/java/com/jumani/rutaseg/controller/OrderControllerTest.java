@@ -2,10 +2,7 @@ package com.jumani.rutaseg.controller;
 
 import com.jumani.rutaseg.TestDataGen;
 import com.jumani.rutaseg.domain.*;
-import com.jumani.rutaseg.dto.request.ArrivalDataRequest;
-import com.jumani.rutaseg.dto.request.CustomsDataRequest;
-import com.jumani.rutaseg.dto.request.DriverDataRequest;
-import com.jumani.rutaseg.dto.request.OrderRequest;
+import com.jumani.rutaseg.dto.request.*;
 import com.jumani.rutaseg.dto.response.*;
 import com.jumani.rutaseg.exception.ForbiddenException;
 import com.jumani.rutaseg.exception.NotFoundException;
@@ -35,6 +32,9 @@ class OrderControllerTest {
 
     @Mock
     OrderRepository orderRepo;
+
+    @Mock
+    private SessionInfo sessionInfo;
 
     @InjectMocks
     OrderController controller;
@@ -221,5 +221,28 @@ class OrderControllerTest {
         verify(clientRepo).findById(clientId);
         verifyNoMoreInteractions(clientRepo, orderRepo);
     }
+    @Test
+    void updateOrder_WithNonExistingOrder_ReturnsNotFound() {
+        // Arrange
+        long orderId = 1L;
+        OrderRequest orderRequest = new OrderRequest(101L, true, true, true, null, null, null, Collections.emptyList(), null);
+        SessionInfo session = new SessionInfo(501L, true);
+
+        when(orderRepo.findById(orderId)).thenReturn(Optional.empty());
+
+        // Act
+        Exception exception = assertThrows(NotFoundException.class, () ->
+                controller.updateOrder(orderId, orderRequest, session));
+
+        // Assert
+        assertEquals("order with id [1] not found", exception.getMessage());
+        verify(orderRepo).findById(orderId);
+        verifyNoMoreInteractions(orderRepo, clientRepo);
+    }
 }
+
+
+
+
+
 

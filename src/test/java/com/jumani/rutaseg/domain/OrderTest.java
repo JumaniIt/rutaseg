@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -50,5 +51,93 @@ public class OrderTest {
         assertSame(client, order.getClient());
         assertSame(consigneeData, order.getConsignee());
         assertSame(containers, order.getContainers());
+    }
+    @Test
+    void testUpdateMethod() {
+        // Arrange
+        Client originalClient = new Client(new User("John", "password", "john@example.com", false),
+                "Original Client", "1234567890", 123456789L);
+        boolean originalPema = false;
+        boolean originalPort = true;
+        boolean originalTransport = true;
+        ArrivalData originalArrivalData = new ArrivalData(
+                LocalDate.of(2023, 6, 1),
+                LocalTime.of(9, 0),
+                Origin.EZEIZA,
+                "Morning",
+                true,
+                DestinationType.TLEA,
+                "Warehouse A",
+                "FOB",
+                "USD"
+        );
+        DriverData originalDriverData = new DriverData(
+                "John Doe",
+                "1234567890",
+                "ABC Company"
+        );
+        CustomsData originalCustomsData = new CustomsData(
+                "Customs Name",
+                "9876543210"
+        );
+        long originalCreatedByUserId = 12345L;
+        List<Container> originalContainers = new ArrayList<>();
+        ConsigneeData originalConsigneeData = new ConsigneeData(
+                "Consignee Name",
+                67890L
+        );
+
+        Order order = new Order(originalClient, originalPema, originalPort, originalTransport,
+                originalArrivalData, originalDriverData, originalCustomsData, originalCreatedByUserId,
+                originalContainers, originalConsigneeData);
+
+        Client updatedClient = new Client(new User("Jane", "password", "jane@example.com", false),
+                "Updated Client", "9876543210", 987654321L);
+        boolean updatedPema = true;
+        boolean updatedPort = false;
+        boolean updatedTransport = false;
+        ArrivalData updatedArrivalData = new ArrivalData(
+                LocalDate.of(2023, 7, 15),
+                LocalTime.of(14, 30),
+                Origin.EXOLGAN,
+                "Afternoon",
+                false,
+                DestinationType.TLAT,
+                "Customer B",
+                "CIF",
+                "EUR"
+        );
+        DriverData updatedDriverData = new DriverData(
+                "Jane Smith",
+                "9876543210",
+                "XYZ Transport"
+        );
+        CustomsData updatedCustomsData = new CustomsData(
+                "Updated Customs",
+                "1234567890"
+        );
+        List<Container> updatedContainers = new ArrayList<>();
+        updatedContainers.add(new Container("ABC123", Measures.STANDARD_DRY_20_20_ST, false, "PEMA1"));
+        updatedContainers.add(new Container("XYZ789", Measures.STANDARD_OPEN_SIDE_20_20_OS, true, "PEMA2"));
+        ConsigneeData updatedConsigneeData = new ConsigneeData(
+                "New Consignee",
+                54321L
+        );
+
+        // Act
+        order.update(updatedClient, updatedPema, updatedPort, updatedTransport,
+                updatedArrivalData, updatedDriverData, updatedCustomsData,
+                updatedContainers, updatedConsigneeData);
+
+        // Assert
+        assertEquals(updatedClient, order.getClient());
+        assertEquals(updatedPema, order.isPema());
+        assertEquals(updatedPort, order.isPort());
+        assertEquals(updatedTransport, order.isTransport());
+        assertSame(updatedArrivalData, order.getArrivalData());
+        assertSame(updatedDriverData, order.getDriverData());
+        assertSame(updatedCustomsData, order.getCustomsData());
+        assertSame(updatedContainers, order.getContainers());
+        assertSame(updatedConsigneeData, order.getConsignee());
     }
 }
