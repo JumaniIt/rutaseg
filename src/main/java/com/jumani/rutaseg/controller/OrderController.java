@@ -8,6 +8,7 @@ import com.jumani.rutaseg.dto.request.OrderRequest;
 import com.jumani.rutaseg.dto.response.*;
 import com.jumani.rutaseg.exception.ForbiddenException;
 import com.jumani.rutaseg.exception.NotFoundException;
+import com.jumani.rutaseg.exception.ValidationException;
 import com.jumani.rutaseg.handler.Session;
 import com.jumani.rutaseg.repository.OrderRepository;
 import com.jumani.rutaseg.repository.client.ClientRepository;
@@ -17,8 +18,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.List;
 
 
 @RestController
@@ -173,5 +177,61 @@ public class OrderController {
                 driverDataResponse,
                 customsDataResponse
         );
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<OrderResponse>> search(
+            @RequestParam(value = "pema", required = false) Boolean pema,
+            @RequestParam(value = "transport", required = false) Boolean transport,
+            @RequestParam(value = "port", required = false) Boolean port,
+            @RequestParam(value = "arrivalDateFrom", required = false) LocalDate arrivalDateFrom,
+            @RequestParam(value = "arrivalDateTo", required = false) LocalDate arrivalDateTo,
+            @RequestParam(value = "arrivalTimeFrom", required = false) LocalTime arrivalTimeFrom,
+            @RequestParam(value = "arrivalTimeTo", required = false) LocalTime arrivalTimeTo,
+            @RequestParam(value = "clientId", required = false) Long clientId,
+            @RequestParam(value = "status", required = false) OrderStatus status,
+            @RequestParam(value = "pageSize", required = false, defaultValue = "10") Integer pageSize,
+            @Session SessionInfo session
+    ) {
+        final Long theClientId;
+        if (!session.admin()) {
+            theClientId = session.id();
+        } else {
+            theClientId = clientId;
+        }
+        final int thePageSize;
+        if (!session.admin()) {
+            thePageSize = 1;
+        } else {
+            thePageSize = pageSize;
+        }
+
+        if (Objects.nonNull(arrivalDateFrom) && Objects.nonNull(arrivalDateTo) && arrivalDateFrom.isAfter(arrivalDateTo)) {
+            throw new ValidationException("invalid_date_range", "the 'arrivalDateFrom' cannot be after 'arrivalDateTo'");
+        }
+
+        if (Objects.nonNull(arrivalTimeFrom) && Objects.nonNull(arrivalTimeTo)
+                && arrivalDateFrom.equals(arrivalDateTo) && arrivalTimeFrom.isAfter(arrivalTimeTo)) {
+            throw new ValidationException("invalid_time_range", "the 'arrivalTimeFrom' cannot be after 'arrivalTimeTo' for the same day");
+        }
+
+        List<Order> orders = orderRepo.search(
+                pema,
+                transport,
+                port,
+                arrivalDateFrom,
+                arrivalDateTo,
+                arrivalTimeFrom,
+                arrivalTimeTo,
+                theClientId,
+                status,
+                thePageSize
+        );
+
+        List<OrderResponse> responses = orders.stream()
+                .map(order -> createOrderResponse(order))
+                .toList();
+
+            return ResponseEntity.ok(responses);
     }
 }
