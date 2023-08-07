@@ -1,11 +1,14 @@
 package com.jumani.rutaseg.dto.response;
 
 import com.jumani.rutaseg.domain.OrderStatus;
+import com.jumani.rutaseg.dto.request.ConsigneeDataRequest;
+import com.jumani.rutaseg.dto.request.ContainerRequest;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
 import java.time.ZonedDateTime;
+import java.util.List;
 
 @EqualsAndHashCode(exclude = "createdAt")
 @AllArgsConstructor
@@ -24,5 +27,8 @@ public class OrderResponse {
     private ArrivalDataResponse arrivalData;
     private DriverDataResponse driverData;
     private CustomsDataResponse customsData;
+    private List<ContainerResponse> containers;
+    private ConsigneeDataResponse consigneeData;
+
 }
 

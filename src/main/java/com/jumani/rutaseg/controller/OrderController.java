@@ -1,10 +1,7 @@
 package com.jumani.rutaseg.controller;
 
 import com.jumani.rutaseg.domain.*;
-import com.jumani.rutaseg.dto.request.ArrivalDataRequest;
-import com.jumani.rutaseg.dto.request.CustomsDataRequest;
-import com.jumani.rutaseg.dto.request.DriverDataRequest;
-import com.jumani.rutaseg.dto.request.OrderRequest;
+import com.jumani.rutaseg.dto.request.*;
 import com.jumani.rutaseg.dto.response.*;
 import com.jumani.rutaseg.exception.ForbiddenException;
 import com.jumani.rutaseg.exception.NotFoundException;
@@ -18,11 +15,19 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.List;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
 
 
 @RestController
@@ -67,6 +72,23 @@ public class OrderController {
         CustomsData customsData = orderRequest.getCustomsData() != null ? createCustomsData(orderRequest.getCustomsData()) : null;
         DriverData driverData = orderRequest.getDriverData() != null ? createDriverData(orderRequest.getDriverData()) : null;
 
+        List<Container> containers = orderRequest.getContainers() != null ?
+                orderRequest.getContainers().stream()
+                        .map(containerRequest -> new Container(
+                                containerRequest.getCode(),
+                                containerRequest.getMeasures(),
+                                containerRequest.isRepackage(),
+                                containerRequest.getPema()
+                        ))
+                        .collect(Collectors.toList()) : Collections.emptyList();
+
+        // Crear el objeto ConsigneeData a partir de los datos de ConsigneeData de la solicitud, si existe
+        ConsigneeData consigneeData = orderRequest.getConsigneeData() != null ?
+                new ConsigneeData(
+                        orderRequest.getConsigneeData().getName(),
+                        orderRequest.getConsigneeData().getCuit()
+                ) : null;
+
         // Crear la instancia de Order con los datos proporcionados
         Order order = new Order(
                 client,
@@ -76,8 +98,11 @@ public class OrderController {
                 arrivalData,
                 driverData,
                 customsData,
-                session.id()
+                session.id(),
+                containers,
+                consigneeData
         );
+
 
 
         // Realizar la lógica adicional de creación de la orden, como persistencia en la base de datos
@@ -89,6 +114,84 @@ public class OrderController {
         // Devolver la respuesta con el status code CREATED (201)
         return ResponseEntity.status(HttpStatus.CREATED).body(orderResponse);
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<OrderResponse> updateOrder(
+            @PathVariable("id") long id,
+            @RequestBody OrderRequest orderRequest,
+            @Session SessionInfo session
+    ) {
+        Order order = orderRepo.findById(id)
+                .orElseThrow(() -> new NotFoundException(String.format("order with id [%s] not found", id)));
+
+        Client client = clientRepo.findById(orderRequest.getClientId())
+                .orElseThrow(() -> new NotFoundException("client not found"));
+
+        // Verificar que la sesión sea de un usuario administrador o que la orden sea del cliente asociado al usuario de la sesión.
+        if (!session.admin() && !Objects.equals(client.getUserId(), session.id())) {
+            throw new ForbiddenException();
+        }
+
+        // Asegurarse de que, si la sesión no es de un usuario administrador, la orden esté en estado DRAFT.
+        if (!session.admin() && order.getStatus() != OrderStatus.DRAFT) {
+            throw new ForbiddenException();
+
+        }
+        // Obtener el ID del cliente actualmente asociado a la orden
+        Long currentClientId = order.getClient().getId();
+
+        // Verificar si el cliente de la solicitud coincide con el cliente actualmente asociado a la orden
+        if (!session.admin() && !Objects.equals(orderRequest.getClientId(), currentClientId)) {
+            throw new ForbiddenException();
+        }
+
+        // Obtener los valores de los atributos de la orden desde el objeto OrderRequest
+        boolean pema = orderRequest.isPema();
+        boolean port = orderRequest.isPort();
+        boolean transport = orderRequest.isTransport();
+        ArrivalDataRequest arrivalDataRequest = orderRequest.getArrivalData();
+        DriverDataRequest driverDataRequest = orderRequest.getDriverData();
+        CustomsDataRequest customsDataRequest = orderRequest.getCustomsData();
+        List<ContainerRequest> containerRequests = orderRequest.getContainers();
+        ConsigneeDataRequest consigneeDataRequest = orderRequest.getConsigneeData();
+
+        // Crear objetos ArrivalData, CustomsData y DriverData a partir de los datos de la solicitud
+        ArrivalData arrivalData = arrivalDataRequest != null ? createArrivalData(arrivalDataRequest) : null;
+        DriverData driverData = driverDataRequest != null ? createDriverData(driverDataRequest) : null;
+        CustomsData customsData = customsDataRequest != null ? createCustomsData(customsDataRequest) : null;
+
+        // Crear una lista de objetos Container a partir de los datos de la solicitud
+        List<Container> containers = containerRequests != null ?
+                containerRequests.stream()
+                        .map(containerRequest -> new Container(
+                                containerRequest.getCode(),
+                                containerRequest.getMeasures(),
+                                containerRequest.isRepackage(),
+                                containerRequest.getPema()
+                        ))
+                        .collect(Collectors.toList()) : Collections.emptyList();
+
+        // Crear el objeto ConsigneeData a partir de los datos de la solicitud, si existe
+        ConsigneeData consigneeData = consigneeDataRequest != null ?
+                new ConsigneeData(
+                        consigneeDataRequest.getName(),
+                        consigneeDataRequest.getCuit()
+                ) : null;
+
+        // Actualizar los atributos de la orden utilizando el método update() de la clase Order
+        order.update(client, pema, port, transport, arrivalData, driverData, customsData, containers, consigneeData);
+
+
+        // Actualizar la orden en la base de datos
+        Order updatedOrder = orderRepo.save(order);
+
+        // Crear la respuesta con los datos actualizados de la orden
+        OrderResponse orderResponse = createOrderResponse(updatedOrder);
+
+        // Devolver la respuesta con el estado OK (200)
+        return ResponseEntity.ok(orderResponse);
+    }
+
 
 
     private ArrivalData createArrivalData(ArrivalDataRequest arrivalDataRequest) {
@@ -120,6 +223,24 @@ public class OrderController {
                 driverDataRequest.getName(),
                 driverDataRequest.getPhone(),
                 driverDataRequest.getCompany()
+        );
+    }
+
+    private ConsigneeData createConsigneeData(ConsigneeDataRequest consigneeDataRequest) {
+        // Crear una instancia de ConsigneeData a partir de ConsigneeDataRequest
+        return new ConsigneeData(
+                consigneeDataRequest.getName(),
+                consigneeDataRequest.getCuit()
+        );
+    }
+
+    private Container createContainer(ContainerRequest containerRequest) {
+        // Crear una instancia de Container a partir de ContainerRequest
+        return new Container(
+                containerRequest.getCode(),
+                containerRequest.getMeasures(),
+                containerRequest.isRepackage(),
+                containerRequest.getPema()
         );
     }
 
@@ -161,6 +282,26 @@ public class OrderController {
                     driverData.getCompany()
             );
         }
+        // Crear una instancia de ConsigneeDataResponse a partir de ConsigneeData, si existe
+        ConsigneeDataResponse consigneeDataResponse = null;
+        ConsigneeData consigneeData = order.getConsignee();
+        if (consigneeData != null) {
+            consigneeDataResponse = new ConsigneeDataResponse(
+                    consigneeData.getName(),
+                    consigneeData.getCuit()
+            );
+        }
+
+        // Crear una lista de ContainerResponse a partir de los objetos Container
+        List<ContainerResponse> containerResponse = order.getContainers().stream()
+                .map(container -> new ContainerResponse(
+                        container.getCode(),
+                        container.getMeasures(),
+                        container.isRepackage(),
+                        container.getPema()
+                ))
+                .collect(Collectors.toList());
+
 
         // Crear una instancia de OrderResponse con los datos de ArrivalDataResponse, CustomsDataResponse y DriverDataResponse
         return new OrderResponse(
@@ -175,7 +316,12 @@ public class OrderController {
                 order.getFinishedAt(),
                 arrivalDataResponse,
                 driverDataResponse,
-                customsDataResponse
+                customsDataResponse,
+                containerResponse,
+                consigneeDataResponse
+
+
+
         );
     }
 

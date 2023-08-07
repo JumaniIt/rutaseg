@@ -1,5 +1,5 @@
 package com.jumani.rutaseg.domain;
 
 public enum OrderStatus {
-    DRAFT
+    DRAFT, REVISION, PROCESSING, FINISHED, CANCELLED
 }

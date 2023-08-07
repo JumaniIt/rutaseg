@@ -6,6 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
@@ -19,4 +21,6 @@ public class OrderRequest {
     private ArrivalDataRequest arrivalData;
     private DriverDataRequest driverData;
     private CustomsDataRequest customsData;
+    private List<ContainerRequest> containers;
+    private ConsigneeDataRequest consigneeData;
 }

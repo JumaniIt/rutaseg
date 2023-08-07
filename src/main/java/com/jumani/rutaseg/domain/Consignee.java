@@ -7,8 +7,10 @@ import lombok.Getter;
 @Getter
 @Embeddable
 public class Consignee {
+
     @Column(name = "name")
     private String name;
+
     @Column(name = "cuit")
     private long cuit;
 
@@ -20,4 +22,3 @@ public class Consignee {
     public Consignee() {
     }
 }
-
