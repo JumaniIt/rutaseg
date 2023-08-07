@@ -2,10 +2,7 @@ package com.jumani.rutaseg.controller;
 
 import com.jumani.rutaseg.TestDataGen;
 import com.jumani.rutaseg.domain.*;
-import com.jumani.rutaseg.dto.request.ArrivalDataRequest;
-import com.jumani.rutaseg.dto.request.CustomsDataRequest;
-import com.jumani.rutaseg.dto.request.DriverDataRequest;
-import com.jumani.rutaseg.dto.request.OrderRequest;
+import com.jumani.rutaseg.dto.request.*;
 import com.jumani.rutaseg.dto.response.*;
 import com.jumani.rutaseg.exception.ForbiddenException;
 import com.jumani.rutaseg.exception.NotFoundException;
@@ -21,6 +18,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import java.time.ZonedDateTime;
+import java.util.Collections;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -34,6 +32,9 @@ class OrderControllerTest {
 
     @Mock
     OrderRepository orderRepo;
+
+    @Mock
+    private SessionInfo sessionInfo;
 
     @InjectMocks
     OrderController controller;
@@ -64,6 +65,8 @@ class OrderControllerTest {
                 finishedAt,
                 null,
                 null,
+                null,
+                Collections.emptyList(),
                 null
         );
 
@@ -87,19 +90,9 @@ class OrderControllerTest {
         assertEquals(HttpStatus.OK, response.getStatusCode());
         OrderResponse actualResponse = response.getBody();
 
-        assertEquals(expectedResponse.getId(), actualResponse.getId());
-        assertEquals(expectedResponse.getClientId(), actualResponse.getClientId());
-        assertEquals(expectedResponse.getCreatedByUserId(), actualResponse.getCreatedByUserId());
-        assertEquals(expectedResponse.isPema(), actualResponse.isPema());
-        assertEquals(expectedResponse.isPort(), actualResponse.isPort());
-        assertEquals(expectedResponse.isTransport(), actualResponse.isTransport());
-        assertEquals(expectedResponse.getStatus(), actualResponse.getStatus());
-        assertEquals(expectedResponse.getCreatedAt(), actualResponse.getCreatedAt());
-        assertEquals(expectedResponse.getFinishedAt(), actualResponse.getFinishedAt());
-        assertEquals(expectedResponse.getArrivalData(), actualResponse.getArrivalData());
-        assertEquals(expectedResponse.getDriverData(), actualResponse.getDriverData());
-        assertEquals(expectedResponse.getCustomsData(), actualResponse.getCustomsData());
+        assertEquals(expectedResponse, actualResponse);
     }
+
     @Test
     public void getById_NonAdminSessionAndDifferentClientIds_ThrowsNotFoundException() {
         // Arrange
@@ -139,7 +132,7 @@ class OrderControllerTest {
         DriverDataRequest driverDataRequest = new DriverDataRequest();
         CustomsDataRequest customsDataRequest = new CustomsDataRequest();
         OrderRequest orderRequest = new OrderRequest(
-                clientId, pema, port, transport, arrivalDataRequest, driverDataRequest, customsDataRequest
+                clientId, pema, port, transport, arrivalDataRequest, driverDataRequest, customsDataRequest, Collections.emptyList(), null
         );
 
         SessionInfo session = new SessionInfo(TestDataGen.randomId(), true);
@@ -165,7 +158,8 @@ class OrderControllerTest {
 
         OrderResponse expectedOrderResponse = new OrderResponse(
                 1L, clientId, createdByUserId, pema, port, transport, OrderStatus.DRAFT,
-                ZonedDateTime.now(), null, null, null, null
+                ZonedDateTime.now(), null, null, null, null, Collections.emptyList(),
+                null
         );
 
         // Act
@@ -228,5 +222,82 @@ class OrderControllerTest {
         verify(clientRepo).findById(clientId);
         verifyNoMoreInteractions(clientRepo, orderRepo);
     }
+
+    @Test
+    void updateOrder_WithNonExistingOrder_ReturnsNotFound() {
+        // Arrange
+        long orderId = 1L;
+        OrderRequest orderRequest = new OrderRequest(101L, true, true, true, null, null, null, Collections.emptyList(), null);
+        SessionInfo session = new SessionInfo(501L, true);
+
+        when(orderRepo.findById(orderId)).thenReturn(Optional.empty());
+
+        // Act
+        Exception exception = assertThrows(NotFoundException.class, () ->
+                controller.updateOrder(orderId, orderRequest, session));
+
+        // Assert
+        assertEquals("order with id [1] not found", exception.getMessage());
+        verify(orderRepo).findById(orderId);
+        verifyNoMoreInteractions(orderRepo, clientRepo);
+    }
+
+    @Test
+    void updateOrder_WithNonDraftOrderAndNonAdminUser_ReturnsForbidden() {
+        // Arrange
+        long orderId = 1L;
+        OrderRequest orderRequest = new OrderRequest(101L, true, true, true, null, null, null, Collections.emptyList(), null);
+        SessionInfo session = new SessionInfo(501L, false);
+
+        Client existingClient = mock(Client.class);
+        Order existingOrder = mock(Order.class);
+        when(orderRepo.findById(orderId)).thenReturn(Optional.of(existingOrder));
+        when(clientRepo.findById(orderRequest.getClientId())).thenReturn(Optional.of(existingClient));
+        when(existingOrder.getStatus()).thenReturn(OrderStatus.PROCESSING);
+        when(existingClient.getUserId()).thenReturn(session.id());
+
+        // Act
+        assertThrows(ForbiddenException.class, () -> controller.updateOrder(orderId, orderRequest, session));
+
+        // Assert
+        verify(orderRepo).findById(orderId);
+        verify(clientRepo).findById(orderRequest.getClientId());
+        verifyNoMoreInteractions(orderRepo, clientRepo, existingOrder);
+    }
+
+    @Test
+    void updateOrder_WithValidDataAndAdminUser_ReturnsUpdatedOrderResponse() {
+        // Arrange
+        long orderId = 1L;
+        OrderRequest orderRequest = new OrderRequest(101L, true, true, true, null, null, null, Collections.emptyList(), null);
+        SessionInfo session = new SessionInfo(501L, true);
+
+        Client existingClient = mock(Client.class);
+        Order existingOrder = mock(Order.class);
+        when(orderRepo.findById(orderId)).thenReturn(Optional.of(existingOrder));
+        when(clientRepo.findById(orderRequest.getClientId())).thenReturn(Optional.of(existingClient));
+        when(existingOrder.getClient()).thenReturn(existingClient);
+        when(existingOrder.getStatus()).thenReturn(OrderStatus.DRAFT);
+        when(orderRepo.save(any(Order.class))).thenReturn(existingOrder);
+
+        // Act
+        ResponseEntity<OrderResponse> response = controller.updateOrder(orderId, orderRequest, session);
+
+        // Assert
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
+
+        verify(orderRepo).findById(orderId);
+        verify(clientRepo).findById(orderRequest.getClientId());
+        verify(existingOrder).getClient();
+        verify(existingOrder).getStatus();
+        verify(orderRepo).save(any(Order.class));
+        verifyNoMoreInteractions(orderRepo, clientRepo);
+    }
 }
+
+
+
+
+
 
