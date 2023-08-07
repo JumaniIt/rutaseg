@@ -92,6 +92,7 @@ class OrderControllerTest {
 
         assertEquals(expectedResponse, actualResponse);
     }
+
     @Test
     public void getById_NonAdminSessionAndDifferentClientIds_ThrowsNotFoundException() {
         // Arrange
@@ -131,7 +132,7 @@ class OrderControllerTest {
         DriverDataRequest driverDataRequest = new DriverDataRequest();
         CustomsDataRequest customsDataRequest = new CustomsDataRequest();
         OrderRequest orderRequest = new OrderRequest(
-                clientId, pema, port, transport, arrivalDataRequest, driverDataRequest, customsDataRequest,Collections.emptyList(),null
+                clientId, pema, port, transport, arrivalDataRequest, driverDataRequest, customsDataRequest, Collections.emptyList(), null
         );
 
         SessionInfo session = new SessionInfo(TestDataGen.randomId(), true);
@@ -157,7 +158,7 @@ class OrderControllerTest {
 
         OrderResponse expectedOrderResponse = new OrderResponse(
                 1L, clientId, createdByUserId, pema, port, transport, OrderStatus.DRAFT,
-                ZonedDateTime.now(), null, null, null, null,Collections.emptyList(),
+                ZonedDateTime.now(), null, null, null, null, Collections.emptyList(),
                 null
         );
 
@@ -221,6 +222,7 @@ class OrderControllerTest {
         verify(clientRepo).findById(clientId);
         verifyNoMoreInteractions(clientRepo, orderRepo);
     }
+
     @Test
     void updateOrder_WithNonExistingOrder_ReturnsNotFound() {
         // Arrange
@@ -237,6 +239,59 @@ class OrderControllerTest {
         // Assert
         assertEquals("order with id [1] not found", exception.getMessage());
         verify(orderRepo).findById(orderId);
+        verifyNoMoreInteractions(orderRepo, clientRepo);
+    }
+
+    @Test
+    void updateOrder_WithNonDraftOrderAndNonAdminUser_ReturnsForbidden() {
+        // Arrange
+        long orderId = 1L;
+        OrderRequest orderRequest = new OrderRequest(101L, true, true, true, null, null, null, Collections.emptyList(), null);
+        SessionInfo session = new SessionInfo(501L, false);
+
+        Client existingClient = mock(Client.class);
+        Order existingOrder = mock(Order.class);
+        when(orderRepo.findById(orderId)).thenReturn(Optional.of(existingOrder));
+        when(clientRepo.findById(orderRequest.getClientId())).thenReturn(Optional.of(existingClient));
+        when(existingOrder.getStatus()).thenReturn(OrderStatus.PROCESSING);
+        when(existingClient.getUserId()).thenReturn(session.id());
+
+        // Act
+        assertThrows(ForbiddenException.class, () -> controller.updateOrder(orderId, orderRequest, session));
+
+        // Assert
+        verify(orderRepo).findById(orderId);
+        verify(clientRepo).findById(orderRequest.getClientId());
+        verifyNoMoreInteractions(orderRepo, clientRepo, existingOrder);
+    }
+
+    @Test
+    void updateOrder_WithValidDataAndAdminUser_ReturnsUpdatedOrderResponse() {
+        // Arrange
+        long orderId = 1L;
+        OrderRequest orderRequest = new OrderRequest(101L, true, true, true, null, null, null, Collections.emptyList(), null);
+        SessionInfo session = new SessionInfo(501L, true);
+
+        Client existingClient = mock(Client.class);
+        Order existingOrder = mock(Order.class);
+        when(orderRepo.findById(orderId)).thenReturn(Optional.of(existingOrder));
+        when(clientRepo.findById(orderRequest.getClientId())).thenReturn(Optional.of(existingClient));
+        when(existingOrder.getClient()).thenReturn(existingClient);
+        when(existingOrder.getStatus()).thenReturn(OrderStatus.DRAFT);
+        when(orderRepo.save(any(Order.class))).thenReturn(existingOrder);
+
+        // Act
+        ResponseEntity<OrderResponse> response = controller.updateOrder(orderId, orderRequest, session);
+
+        // Assert
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
+
+        verify(orderRepo).findById(orderId);
+        verify(clientRepo).findById(orderRequest.getClientId());
+        verify(existingOrder).getClient();
+        verify(existingOrder).getStatus();
+        verify(orderRepo).save(any(Order.class));
         verifyNoMoreInteractions(orderRepo, clientRepo);
     }
 }
