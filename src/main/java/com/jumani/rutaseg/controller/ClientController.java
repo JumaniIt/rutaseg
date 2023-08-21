@@ -6,12 +6,14 @@ import com.jumani.rutaseg.domain.User;
 import com.jumani.rutaseg.dto.request.ClientRequest;
 import com.jumani.rutaseg.dto.response.ClientResponse;
 import com.jumani.rutaseg.dto.response.SessionInfo;
+import com.jumani.rutaseg.dto.result.PaginatedResult;
 import com.jumani.rutaseg.exception.ForbiddenException;
 import com.jumani.rutaseg.exception.NotFoundException;
 import com.jumani.rutaseg.exception.ValidationException;
 import com.jumani.rutaseg.handler.Session;
 import com.jumani.rutaseg.repository.client.ClientRepository;
 import com.jumani.rutaseg.repository.UserRepository;
+import com.jumani.rutaseg.util.PaginationUtil;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -62,13 +64,14 @@ public class ClientController {
     }
 
     @GetMapping
-    public ResponseEntity<List<ClientResponse>> search(@RequestParam(value = "user_id", required = false) Long userId,
-                                                       @RequestParam(value = "name", required = false) String name,
-                                                       @RequestParam(value = "phone", required = false) String phone,
-                                                       @RequestParam(value = "cuit", required = false) Long cuit,
-                                                       @RequestParam(value = "page_size", required = false, defaultValue = "1") int pageSize,
-                                                       @RequestParam(value = "with_consignees", required = false, defaultValue = "false") boolean withConsignees,
-                                                       @Session SessionInfo session) {
+    public ResponseEntity<PaginatedResult<ClientResponse>> search(@RequestParam(value = "user_id", required = false) Long userId,
+                                                                  @RequestParam(value = "name", required = false) String name,
+                                                                  @RequestParam(value = "phone", required = false) String phone,
+                                                                  @RequestParam(value = "cuit", required = false) Long cuit,
+                                                                  @RequestParam(value = "page_size", required = false, defaultValue = "1") int pageSize,
+                                                                  @RequestParam(value = "page", required = false, defaultValue = "1") int page,
+                                                                  @RequestParam(value = "with_consignees", required = false, defaultValue = "false") boolean withConsignees,
+                                                                  @Session SessionInfo session) {
 
         final Long theUserId;
         if (session.admin()) {
@@ -84,13 +87,27 @@ public class ClientController {
             thePageSize = 1;
         }
 
-        final List<Client> clients = clientRepo.search(theUserId, name, phone, cuit, thePageSize);
+        final int thePage;
+        if (session.admin()) {
+            thePage = page;
+        } else {
+            thePage = 1;
+        }
 
-        final List<ClientResponse> responses = clients.stream()
-                .map(client -> this.createResponse(client, withConsignees))
-                .toList();
+        final long theTotalElements;
+        if (session.admin()) {
+            theTotalElements = clientRepo.count(theUserId, name, phone, cuit);
+        } else {
+            theTotalElements = 1L;
+        }
 
-        return ResponseEntity.ok(responses);
+        final PaginatedResult<ClientResponse> result = PaginationUtil.get(theTotalElements, thePageSize, thePage,
+                (offset, limit) -> clientRepo.search(theUserId, name, phone, cuit, offset, limit)
+                        .stream()
+                        .map(client -> this.createResponse(client, withConsignees))
+                        .toList());
+
+        return ResponseEntity.ok(result);
     }
 
     @GetMapping("/{id}")

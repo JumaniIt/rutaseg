@@ -6,6 +6,7 @@ import com.jumani.rutaseg.domain.User;
 import com.jumani.rutaseg.dto.request.ClientRequest;
 import com.jumani.rutaseg.dto.response.ClientResponse;
 import com.jumani.rutaseg.dto.response.SessionInfo;
+import com.jumani.rutaseg.dto.result.PaginatedResult;
 import com.jumani.rutaseg.exception.ForbiddenException;
 import com.jumani.rutaseg.exception.NotFoundException;
 import com.jumani.rutaseg.exception.ValidationException;
@@ -25,8 +26,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.jumani.rutaseg.TestDataGen.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -163,13 +163,14 @@ class ClientControllerTest {
     }
 
     @Test
-    void search_AllAttributes_AdminSession_WithConsignees_Ok() {
+    void search_AllAttributes_AdminSession_WithConsignees_FirstPage_Ok() {
         final SessionInfo session = new SessionInfo(1L, true);
 
         final long userId = randomId();
         final String name = randomShortString();
         final String phone = randomShortString();
         final long cuit = randomId();
+        final long totalElements = randomPositiveInt(100);
         final int pageSize = randomPositiveInt(10);
 
         final long id = randomId();
@@ -183,15 +184,58 @@ class ClientControllerTest {
         when(client.getCuit()).thenReturn(cuit);
         when(client.getConsignees()).thenReturn(consignees);
 
-        when(clientRepo.search(userId, name, phone, cuit, pageSize)).thenReturn(List.of(client));
+        when(clientRepo.count(userId, name, phone, cuit)).thenReturn(totalElements);
+        when(clientRepo.search(userId, name, phone, cuit, 0, pageSize)).thenReturn(List.of(client));
 
         final ClientResponse expectedResponse = new ClientResponse(id, userId, name, phone, cuit, consignees);
 
-        final ResponseEntity<List<ClientResponse>> result =
-                controller.search(userId, name, phone, cuit, pageSize, true, session);
+        final ResponseEntity<PaginatedResult<ClientResponse>> result =
+                controller.search(userId, name, phone, cuit, pageSize, 1, true, session);
 
         assertEquals(HttpStatus.OK, result.getStatusCode());
-        assertEquals(List.of(expectedResponse), result.getBody());
+        assertNotNull(result.getBody());
+
+        final PaginatedResult<ClientResponse> paginatedResult = result.getBody();
+        assertEquals(List.of(expectedResponse), paginatedResult.elements());
+    }
+
+    @Test
+    void search_AllAttributes_AdminSession_WithoutConsignees_SecondPage_Ok() {
+        final SessionInfo session = new SessionInfo(1L, true);
+
+        final long userId = randomId();
+        final String name = randomShortString();
+        final String phone = randomShortString();
+        final long cuit = randomId();
+        final long totalElements = 20;
+        final int pageSize = 5;
+
+        final long id = randomId();
+
+        final Client client = mock(Client.class);
+        when(client.getId()).thenReturn(id);
+        when(client.getUserId()).thenReturn(userId);
+        when(client.getName()).thenReturn(name);
+        when(client.getPhone()).thenReturn(phone);
+        when(client.getCuit()).thenReturn(cuit);
+
+        when(clientRepo.count(userId, name, phone, cuit)).thenReturn(totalElements);
+        when(clientRepo.search(userId, name, phone, cuit, pageSize, pageSize)).thenReturn(List.of(client));
+
+        final ClientResponse expectedResponse = new ClientResponse(id, userId, name, phone, cuit, Collections.emptyList());
+
+        final ResponseEntity<PaginatedResult<ClientResponse>> result =
+                controller.search(userId, name, phone, cuit, pageSize, 2, false, session);
+
+        assertEquals(HttpStatus.OK, result.getStatusCode());
+        assertNotNull(result.getBody());
+
+        final PaginatedResult<ClientResponse> paginatedResult = result.getBody();
+        assertEquals(List.of(expectedResponse), paginatedResult.elements());
+        assertEquals(totalElements, paginatedResult.totalElements());
+        assertEquals(4, paginatedResult.totalPages());
+        assertEquals(2, paginatedResult.page());
+        assertEquals(pageSize, paginatedResult.pageSize());
     }
 
     @Test
@@ -214,15 +258,22 @@ class ClientControllerTest {
         when(client.getPhone()).thenReturn(phone);
         when(client.getCuit()).thenReturn(cuit);
 
-        when(clientRepo.search(sessionUserId, name, phone, cuit, 1)).thenReturn(List.of(client));
+        when(clientRepo.search(sessionUserId, name, phone, cuit, 0, 1)).thenReturn(List.of(client));
 
         final ClientResponse expectedResponse = new ClientResponse(id, sessionUserId, name, phone, cuit, Collections.emptyList());
 
-        final ResponseEntity<List<ClientResponse>> result =
-                controller.search(sessionUserId, name, phone, cuit, ignoredPageSize, false, session);
+        final ResponseEntity<PaginatedResult<ClientResponse>> result =
+                controller.search(sessionUserId, name, phone, cuit, ignoredPageSize, 1, false, session);
 
         assertEquals(HttpStatus.OK, result.getStatusCode());
-        assertEquals(List.of(expectedResponse), result.getBody());
+        assertNotNull(result.getBody());
+
+        final PaginatedResult<ClientResponse> paginatedResult = result.getBody();
+        assertEquals(List.of(expectedResponse), paginatedResult.elements());
+        assertEquals(1, paginatedResult.totalElements());
+        assertEquals(1, paginatedResult.totalPages());
+        assertEquals(1, paginatedResult.page());
+        assertEquals(1, paginatedResult.pageSize());
     }
 
     @Test

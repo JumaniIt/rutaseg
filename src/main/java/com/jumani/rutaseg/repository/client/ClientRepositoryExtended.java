@@ -11,5 +11,11 @@ public interface ClientRepositoryExtended {
                         @Nullable String nameLike,
                         @Nullable String phoneLike,
                         @Nullable Long cuit,
+                        int offset,
                         int limit);
+
+    long count(@Nullable Long userId,
+               @Nullable String nameLike,
+               @Nullable String phoneLike,
+               @Nullable Long cuit);
 }

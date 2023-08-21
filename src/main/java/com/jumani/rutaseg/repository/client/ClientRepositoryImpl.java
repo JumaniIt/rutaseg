@@ -16,16 +16,20 @@ import java.util.List;
 import java.util.Objects;
 
 @Repository
-@RequiredArgsConstructor
 public class ClientRepositoryImpl implements ClientRepositoryExtended {
 
     private final EntityManager entityManager;
+
+    public ClientRepositoryImpl(EntityManager entityManager) {
+        this.entityManager = entityManager;
+    }
 
     @Override
     public List<Client> search(@Nullable Long userId,
                                @Nullable String nameLike,
                                @Nullable String phoneLike,
                                @Nullable Long cuit,
+                               int offset,
                                int limit) {
 
         final CriteriaBuilder builder = entityManager.getCriteriaBuilder();
@@ -37,8 +41,26 @@ public class ClientRepositoryImpl implements ClientRepositoryExtended {
         criteriaQuery.orderBy(builder.asc(root.get(Client.Fields.id)));
 
         return entityManager.createQuery(criteriaQuery)
+                .setFirstResult(offset)
                 .setMaxResults(limit)
                 .getResultList();
+    }
+
+    @Override
+    public long count(@Nullable Long userId,
+                      @Nullable String nameLike,
+                      @Nullable String phoneLike,
+                      @Nullable Long cuit) {
+
+        final CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+        final CriteriaQuery<Long> countQuery = builder.createQuery(Long.class);
+        final Root<Client> root = countQuery.from(Client.class);
+
+        countQuery.select(builder.countDistinct(root));
+        countQuery.where(this.createPredicates(builder, root, userId, nameLike, phoneLike, cuit));
+
+        return entityManager.createQuery(countQuery).getSingleResult();
+
     }
 
     private Predicate[] createPredicates(CriteriaBuilder builder, Root<Client> root,
