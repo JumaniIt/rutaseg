@@ -74,30 +74,19 @@ public class ClientController {
                                                                   @Session SessionInfo session) {
 
         final Long theUserId;
+        final int thePageSize;
+        final int thePage;
+        final long theTotalElements;
+
         if (session.admin()) {
             theUserId = userId;
-        } else {
-            theUserId = session.id();
-        }
-
-        final int thePageSize;
-        if (session.admin()) {
             thePageSize = pageSize;
-        } else {
-            thePageSize = 1;
-        }
-
-        final int thePage;
-        if (session.admin()) {
             thePage = page;
-        } else {
-            thePage = 1;
-        }
-
-        final long theTotalElements;
-        if (session.admin()) {
             theTotalElements = clientRepo.count(theUserId, name, phone, cuit);
         } else {
+            theUserId = session.id();
+            thePageSize = 1;
+            thePage = 1;
             theTotalElements = 1L;
         }
 
