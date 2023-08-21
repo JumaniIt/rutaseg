@@ -20,4 +20,9 @@ public interface OrderRepositoryExtended {
                              @Nullable Long clientId,
                              @Nullable OrderStatus status,
                              int PageSize);
+
+    long count(@Nullable Boolean pema, @Nullable Boolean transport, @Nullable Boolean port,
+               @Nullable LocalDate arrivalDateFrom, @Nullable LocalDate arrivalDateTo,
+               @Nullable LocalTime arrivalTimeFrom, @Nullable LocalTime arrivalTimeTo,
+               @Nullable Long clientId, @Nullable OrderStatus status);
 }

@@ -13,6 +13,7 @@ import java.time.LocalTime;
 @Slf4j
 public class ArrivalData {
 
+    public static Object Fields;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

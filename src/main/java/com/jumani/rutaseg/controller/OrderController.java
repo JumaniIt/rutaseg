@@ -15,7 +15,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Objects;
@@ -341,16 +340,17 @@ public class OrderController {
     ) {
         final Long theClientId;
         if (!session.admin()) {
-            theClientId = session.id();
+            Optional<Client> clientOptional = clientRepo.findOneByUser_Id(session.id());
+            if (clientOptional.isPresent()) {
+                theClientId = clientOptional.get().getId();
+            } else {
+                return ResponseEntity.ok(Collections.emptyList());
+            }
         } else {
             theClientId = clientId;
         }
-        final int thePageSize;
-        if (!session.admin()) {
-            thePageSize = 1;
-        } else {
-            thePageSize = pageSize;
-        }
+
+        int thePageSize = session.admin() ? pageSize : 1;
 
         if (Objects.nonNull(arrivalDateFrom) && Objects.nonNull(arrivalDateTo) && arrivalDateFrom.isAfter(arrivalDateTo)) {
             throw new ValidationException("invalid_date_range", "the 'arrivalDateFrom' cannot be after 'arrivalDateTo'");
@@ -358,7 +358,7 @@ public class OrderController {
 
         if (Objects.nonNull(arrivalTimeFrom) && Objects.nonNull(arrivalTimeTo)
                 && arrivalDateFrom.equals(arrivalDateTo) && arrivalTimeFrom.isAfter(arrivalTimeTo)) {
-            throw new ValidationException("invalid_time_range", "the 'arrivalTimeFrom' cannot be after 'arrivalTimeTo' for the same day");
+            throw new ValidationException("invalid_time_range", "the 'arrivalTimeFrom' cannot be after 'arrivalTimeTo'");
         }
 
         List<Order> orders = orderRepo.search(
@@ -375,7 +375,7 @@ public class OrderController {
         );
 
         List<OrderResponse> responses = orders.stream()
-                .map(order -> createOrderResponse(order))
+                .map(this::createOrderResponse)
                 .toList();
 
             return ResponseEntity.ok(responses);
