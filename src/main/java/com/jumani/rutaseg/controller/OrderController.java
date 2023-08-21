@@ -3,6 +3,7 @@ package com.jumani.rutaseg.controller;
 import com.jumani.rutaseg.domain.*;
 import com.jumani.rutaseg.dto.request.*;
 import com.jumani.rutaseg.dto.response.*;
+import com.jumani.rutaseg.dto.result.PaginatedResult;
 import com.jumani.rutaseg.exception.ForbiddenException;
 import com.jumani.rutaseg.exception.NotFoundException;
 import com.jumani.rutaseg.exception.ValidationException;
@@ -14,6 +15,7 @@ import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import com.jumani.rutaseg.util.PaginationUtil;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -57,7 +59,7 @@ public class OrderController {
     }
 
     @PostMapping
-        public ResponseEntity<OrderResponse> createOrder(@RequestBody @Valid OrderRequest orderRequest, @Session SessionInfo session) {
+    public ResponseEntity<OrderResponse> createOrder(@RequestBody @Valid OrderRequest orderRequest, @Session SessionInfo session) {
         Client client = clientRepo.findById(orderRequest.getClientId())
                 .orElseThrow(() -> new NotFoundException("client not found"));
 
@@ -320,12 +322,11 @@ public class OrderController {
                 consigneeDataResponse
 
 
-
         );
     }
 
-    @GetMapping("/search")
-    public ResponseEntity<List<OrderResponse>> search(
+    @GetMapping
+    public ResponseEntity<PaginatedResult<OrderResponse>> search(
             @RequestParam(value = "pema", required = false) Boolean pema,
             @RequestParam(value = "transport", required = false) Boolean transport,
             @RequestParam(value = "port", required = false) Boolean port,
@@ -336,6 +337,7 @@ public class OrderController {
             @RequestParam(value = "clientId", required = false) Long clientId,
             @RequestParam(value = "status", required = false) OrderStatus status,
             @RequestParam(value = "pageSize", required = false, defaultValue = "10") Integer pageSize,
+            @RequestParam(value = "offset", required = false, defaultValue = "0") Integer offset,
             @Session SessionInfo session
     ) {
         final Long theClientId;
@@ -344,13 +346,11 @@ public class OrderController {
             if (clientOptional.isPresent()) {
                 theClientId = clientOptional.get().getId();
             } else {
-                return ResponseEntity.ok(Collections.emptyList());
+                return ResponseEntity.ok(new PaginatedResult<>(0, 0, pageSize, offset, Collections.emptyList()));
             }
         } else {
             theClientId = clientId;
         }
-
-        int thePageSize = session.admin() ? pageSize : 1;
 
         if (Objects.nonNull(arrivalDateFrom) && Objects.nonNull(arrivalDateTo) && arrivalDateFrom.isAfter(arrivalDateTo)) {
             throw new ValidationException("invalid_date_range", "the 'arrivalDateFrom' cannot be after 'arrivalDateTo'");
@@ -361,7 +361,7 @@ public class OrderController {
             throw new ValidationException("invalid_time_range", "the 'arrivalTimeFrom' cannot be after 'arrivalTimeTo'");
         }
 
-        List<Order> orders = orderRepo.search(
+        long totalElements = orderRepo.count(
                 pema,
                 transport,
                 port,
@@ -370,14 +370,32 @@ public class OrderController {
                 arrivalTimeFrom,
                 arrivalTimeTo,
                 theClientId,
-                status,
-                thePageSize
+                status
         );
 
-        List<OrderResponse> responses = orders.stream()
-                .map(this::createOrderResponse)
-                .toList();
+        PaginatedResult<OrderResponse> result = PaginationUtil.get(totalElements, pageSize, offset, (start, limit) -> {
+            List<Order> orders = orderRepo.search(
+                    pema,
+                    transport,
+                    port,
+                    arrivalDateFrom,
+                    arrivalDateTo,
+                    arrivalTimeFrom,
+                    arrivalTimeTo,
+                    theClientId,
+                    status,
+                    limit,
+                    start
+            );
 
-            return ResponseEntity.ok(responses);
+            List<OrderResponse> responses = orders.stream()
+                    .map(this::createOrderResponse)
+                    .toList();
+
+            return responses;
+        });
+
+        return ResponseEntity.ok(result);
     }
+
 }

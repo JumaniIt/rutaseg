@@ -27,7 +27,6 @@ public class OrderRepositoryImpl implements OrderRepositoryExtended {
 
     private final EntityManager entityManager;
 
-    @Override
     public List<Order> search(@Nullable Boolean pema,
                               @Nullable Boolean transport,
                               @Nullable Boolean port,
@@ -37,26 +36,33 @@ public class OrderRepositoryImpl implements OrderRepositoryExtended {
                               @Nullable LocalTime arrivalTimeTo,
                               @Nullable Long clientId,
                               @Nullable OrderStatus status,
-                              int pageSize) {
+                              int pageSize,
+                              int offset) {
 
         final CriteriaBuilder builder = entityManager.getCriteriaBuilder();
         final CriteriaQuery<Order> criteriaQuery = builder.createQuery(Order.class);
         final Root<Order> root = criteriaQuery.from(Order.class);
 
         criteriaQuery.select(root);
-        criteriaQuery.where(this.createPredicates(builder, root, pema, transport, port, arrivalDateFrom, arrivalDateTo, arrivalTimeFrom, arrivalTimeTo, clientId, status));
+        criteriaQuery.where(createPredicates(builder, root, pema, transport, port, arrivalDateFrom, arrivalDateTo, arrivalTimeFrom, arrivalTimeTo, clientId, status));
         criteriaQuery.orderBy(builder.asc(root.get(Order.Fields.id)));
 
         return entityManager.createQuery(criteriaQuery)
                 .setMaxResults(pageSize)
+                .setFirstResult(offset)
                 .getResultList();
     }
 
     @Override
-    public long count(@Nullable Boolean pema, @Nullable Boolean transport, @Nullable Boolean port,
-                      @Nullable LocalDate arrivalDateFrom, @Nullable LocalDate arrivalDateTo,
-                      @Nullable LocalTime arrivalTimeFrom, @Nullable LocalTime arrivalTimeTo,
-                      @Nullable Long clientId, @Nullable OrderStatus status) {
+    public long count(@Nullable Boolean pema,
+                      @Nullable Boolean transport,
+                      @Nullable Boolean port,
+                      @Nullable LocalDate arrivalDateFrom,
+                      @Nullable LocalDate arrivalDateTo,
+                      @Nullable LocalTime arrivalTimeFrom,
+                      @Nullable LocalTime arrivalTimeTo,
+                      @Nullable Long clientId,
+                      @Nullable OrderStatus status) {
 
         final CriteriaBuilder builder = entityManager.getCriteriaBuilder();
         final CriteriaQuery<Long> criteriaQuery = builder.createQuery(Long.class);
@@ -95,20 +101,21 @@ public class OrderRepositoryImpl implements OrderRepositoryExtended {
         }
 
         if (Objects.nonNull(arrivalDateFrom)) {
-            predicates.add(builder.greaterThanOrEqualTo(root.get(Order.Fields.arrivalData).get("arrivalDate"), arrivalDateFrom));
+            predicates.add(builder.greaterThanOrEqualTo(root.get(Order.Fields.arrivalData), arrivalDateFrom));
         }
 
         if (Objects.nonNull(arrivalDateTo)) {
-            predicates.add(builder.lessThanOrEqualTo(root.get(Order.Fields.arrivalData).get("arrivalDate"), arrivalDateTo));
+            predicates.add(builder.lessThanOrEqualTo(root.get(Order.Fields.arrivalData), arrivalDateTo));
         }
 
         if (Objects.nonNull(arrivalTimeFrom)) {
-            predicates.add(builder.greaterThanOrEqualTo(root.get(Order.Fields.arrivalData).get("arrivalTime"), arrivalTimeFrom));
+            predicates.add(builder.greaterThanOrEqualTo(root.get(Order.Fields.arrivalData), arrivalTimeFrom));
         }
 
         if (Objects.nonNull(arrivalTimeTo)) {
-            predicates.add(builder.lessThanOrEqualTo(root.get(Order.Fields.arrivalData).get("arrivalTime"), arrivalTimeTo));
+            predicates.add(builder.lessThanOrEqualTo(root.get(Order.Fields.arrivalData), arrivalTimeTo));
         }
+
         if (Objects.nonNull(clientId)) {
             predicates.add(builder.equal(root.get(Order.Fields.client).get(Client.Fields.id), clientId));
         }
