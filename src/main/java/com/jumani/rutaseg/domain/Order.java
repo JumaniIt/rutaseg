@@ -6,7 +6,6 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -70,10 +69,6 @@ public class Order implements DateGen {
     @JoinColumn(name = "id")
     private ConsigneeData consignee;
 
-    @OneToMany(cascade=CascadeType.ALL, orphanRemoval = true, fetch=FetchType.LAZY)
-    @JoinColumn(name="order_id")
-    private List<Document> documents;
-
     //constructor
     public Order(Client client,
                  boolean pema, boolean port, boolean transport,
@@ -95,7 +90,6 @@ public class Order implements DateGen {
         this.createdByUserId = createdByUserId;
         this.containers = containers;
         this.consignee = consignee;
-        this.documents = new ArrayList<>();
     }
 
     public Long getClientId() {

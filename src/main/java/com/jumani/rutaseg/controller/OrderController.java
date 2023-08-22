@@ -96,7 +96,6 @@ public class OrderController {
 
 
 
-
         // Realizar la lógica adicional de creación de la orden, como persistencia en la base de datos
         Order createdOrder = orderRepo.save(order);
 
@@ -295,7 +294,6 @@ public class OrderController {
                 .collect(Collectors.toList());
 
 
-
         // Crear una instancia de OrderResponse con los datos de ArrivalDataResponse, CustomsDataResponse y DriverDataResponse
         return new OrderResponse(
                 order.getId(),
@@ -311,8 +309,10 @@ public class OrderController {
                 driverDataResponse,
                 customsDataResponse,
                 containerResponse,
-                consigneeDataResponse,
-                (DocumentResponse) order.getDocuments()
+                consigneeDataResponse
+
+
+
         );
     }
 
