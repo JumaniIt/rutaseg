@@ -336,8 +336,8 @@ public class OrderController {
             @RequestParam(value = "arrivalTimeTo", required = false) LocalTime arrivalTimeTo,
             @RequestParam(value = "clientId", required = false) Long clientId,
             @RequestParam(value = "status", required = false) OrderStatus status,
-            @RequestParam(value = "pageSize", required = false, defaultValue = "10") Integer pageSize,
-            @RequestParam(value = "offset", required = false, defaultValue = "0") Integer offset,
+            @RequestParam(value = "pageSize", required = false, defaultValue = "1") Integer pageSize,
+            @RequestParam(value = "page", required = false, defaultValue = "1") Integer page,
             @Session SessionInfo session
     ) {
         final Long theClientId;
@@ -346,7 +346,7 @@ public class OrderController {
             if (clientOptional.isPresent()) {
                 theClientId = clientOptional.get().getId();
             } else {
-                return ResponseEntity.ok(new PaginatedResult<>(0, 0, pageSize, offset, Collections.emptyList()));
+                return ResponseEntity.ok(new PaginatedResult<>(0, 0, page, 1, Collections.emptyList()));
             }
         } else {
             theClientId = clientId;
@@ -373,7 +373,7 @@ public class OrderController {
                 status
         );
 
-        PaginatedResult<OrderResponse> result = PaginationUtil.get(totalElements, pageSize, offset, (start, limit) -> {
+        PaginatedResult<OrderResponse> result = PaginationUtil.get(totalElements, pageSize, page, (start, limit) -> {
             List<Order> orders = orderRepo.search(
                     pema,
                     transport,

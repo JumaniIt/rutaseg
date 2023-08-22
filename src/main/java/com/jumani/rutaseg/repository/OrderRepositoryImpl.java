@@ -1,5 +1,6 @@
 package com.jumani.rutaseg.repository;
 
+import com.jumani.rutaseg.domain.ArrivalData;
 import com.jumani.rutaseg.domain.Client;
 import com.jumani.rutaseg.domain.Order;
 import com.jumani.rutaseg.domain.OrderStatus;
@@ -101,19 +102,19 @@ public class OrderRepositoryImpl implements OrderRepositoryExtended {
         }
 
         if (Objects.nonNull(arrivalDateFrom)) {
-            predicates.add(builder.greaterThanOrEqualTo(root.get(Order.Fields.arrivalData), arrivalDateFrom));
+            predicates.add(builder.greaterThanOrEqualTo(root.get(Order.Fields.arrivalData).get(ArrivalData.Fields.arrivalDate), arrivalDateFrom));
         }
 
         if (Objects.nonNull(arrivalDateTo)) {
-            predicates.add(builder.lessThanOrEqualTo(root.get(Order.Fields.arrivalData), arrivalDateTo));
+            predicates.add(builder.lessThanOrEqualTo(root.get(Order.Fields.arrivalData).get(ArrivalData.Fields.arrivalDate), arrivalDateTo));
         }
 
         if (Objects.nonNull(arrivalTimeFrom)) {
-            predicates.add(builder.greaterThanOrEqualTo(root.get(Order.Fields.arrivalData), arrivalTimeFrom));
+            predicates.add(builder.greaterThanOrEqualTo(root.get(Order.Fields.arrivalData).get(ArrivalData.Fields.arrivalDate), arrivalTimeFrom));
         }
 
         if (Objects.nonNull(arrivalTimeTo)) {
-            predicates.add(builder.lessThanOrEqualTo(root.get(Order.Fields.arrivalData), arrivalTimeTo));
+            predicates.add(builder.lessThanOrEqualTo(root.get(Order.Fields.arrivalData).get(ArrivalData.Fields.arrivalDate), arrivalTimeTo));
         }
 
         if (Objects.nonNull(clientId)) {

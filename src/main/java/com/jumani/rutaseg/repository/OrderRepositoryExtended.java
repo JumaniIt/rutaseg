@@ -19,8 +19,8 @@ public interface OrderRepositoryExtended {
                        @Nullable LocalTime arrivalTimeTo,
                        @Nullable Long clientId,
                        @Nullable OrderStatus status,
-                       int pageSize,
-                       int offset);
+                       int offset,
+                       int limit);
 
     long count(@Nullable Boolean pema,
                @Nullable Boolean transport,
