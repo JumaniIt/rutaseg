@@ -13,7 +13,7 @@ public class Document {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private long id;
 
     @Column(name = "created_at")
     private ZonedDateTime createdAt;

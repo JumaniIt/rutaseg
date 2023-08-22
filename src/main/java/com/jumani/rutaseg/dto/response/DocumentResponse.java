@@ -10,10 +10,9 @@ import java.time.ZonedDateTime;
 @AllArgsConstructor
 @Getter
 public class DocumentResponse {
-    private Long id;
-    private ZonedDateTime createdAt;
-    private String name;
-    private String resource;
-
-
+    private final long id;
+    private final ZonedDateTime createdAt;
+    private final  String name;
+    private final  String resource;
+    private final  String link;
 }

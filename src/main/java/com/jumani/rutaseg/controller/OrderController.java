@@ -294,6 +294,17 @@ public class OrderController {
                 ))
                 .collect(Collectors.toList());
 
+        // Crear una lista de DocumentResponse a partir de los objetos Document
+        List<DocumentResponse> documentResponse = order.getDocuments().stream()
+                .map(document -> new DocumentResponse(
+                        document.getId(),
+                        document.getCreatedAt(),
+                        document.getName(),
+                        document.getResource(),
+                    null
+                ))
+                .collect(Collectors.toList());
+
 
 
         // Crear una instancia de OrderResponse con los datos de ArrivalDataResponse, CustomsDataResponse y DriverDataResponse
@@ -312,7 +323,7 @@ public class OrderController {
                 customsDataResponse,
                 containerResponse,
                 consigneeDataResponse,
-                (DocumentResponse) order.getDocuments()
+                documentResponse
         );
     }
 
