@@ -10,25 +10,20 @@ import com.jumani.rutaseg.exception.ValidationException;
 import com.jumani.rutaseg.handler.Session;
 import com.jumani.rutaseg.repository.OrderRepository;
 import com.jumani.rutaseg.repository.client.ClientRepository;
+import com.jumani.rutaseg.util.PaginationUtil;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import com.jumani.rutaseg.util.PaginationUtil;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.List;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
 
 
 @RestController
@@ -103,7 +98,6 @@ public class OrderController {
                 containers,
                 consigneeData
         );
-
 
 
         // Realizar la lógica adicional de creación de la orden, como persistencia en la base de datos
@@ -192,7 +186,6 @@ public class OrderController {
         // Devolver la respuesta con el estado OK (200)
         return ResponseEntity.ok(orderResponse);
     }
-
 
 
     private ArrivalData createArrivalData(ArrivalDataRequest arrivalDataRequest) {
@@ -373,7 +366,7 @@ public class OrderController {
                 status
         );
 
-        PaginatedResult<OrderResponse> result = PaginationUtil.get(totalElements, pageSize, page, (start, limit) -> {
+        final PaginatedResult<OrderResponse> result = PaginationUtil.get(totalElements, pageSize, page, (offset, limit) -> {
             List<Order> orders = orderRepo.search(
                     pema,
                     transport,
@@ -384,15 +377,13 @@ public class OrderController {
                     arrivalTimeTo,
                     theClientId,
                     status,
-                    limit,
-                    start
+                    offset,
+                    limit
             );
 
-            List<OrderResponse> responses = orders.stream()
+            return orders.stream()
                     .map(this::createOrderResponse)
                     .toList();
-
-            return responses;
         });
 
         return ResponseEntity.ok(result);

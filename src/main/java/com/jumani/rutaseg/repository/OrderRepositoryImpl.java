@@ -14,6 +14,7 @@ import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
+
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -37,8 +38,8 @@ public class OrderRepositoryImpl implements OrderRepositoryExtended {
                               @Nullable LocalTime arrivalTimeTo,
                               @Nullable Long clientId,
                               @Nullable OrderStatus status,
-                              int pageSize,
-                              int offset) {
+                              int offset,
+                              int limit) {
 
         final CriteriaBuilder builder = entityManager.getCriteriaBuilder();
         final CriteriaQuery<Order> criteriaQuery = builder.createQuery(Order.class);
@@ -49,8 +50,8 @@ public class OrderRepositoryImpl implements OrderRepositoryExtended {
         criteriaQuery.orderBy(builder.asc(root.get(Order.Fields.id)));
 
         return entityManager.createQuery(criteriaQuery)
-                .setMaxResults(pageSize)
                 .setFirstResult(offset)
+                .setMaxResults(limit)
                 .getResultList();
     }
 
@@ -110,11 +111,11 @@ public class OrderRepositoryImpl implements OrderRepositoryExtended {
         }
 
         if (Objects.nonNull(arrivalTimeFrom)) {
-            predicates.add(builder.greaterThanOrEqualTo(root.get(Order.Fields.arrivalData).get(ArrivalData.Fields.arrivalDate), arrivalTimeFrom));
+            predicates.add(builder.greaterThanOrEqualTo(root.get(Order.Fields.arrivalData).get(ArrivalData.Fields.arrivalTime), arrivalTimeFrom));
         }
 
         if (Objects.nonNull(arrivalTimeTo)) {
-            predicates.add(builder.lessThanOrEqualTo(root.get(Order.Fields.arrivalData).get(ArrivalData.Fields.arrivalDate), arrivalTimeTo));
+            predicates.add(builder.lessThanOrEqualTo(root.get(Order.Fields.arrivalData).get(ArrivalData.Fields.arrivalTime), arrivalTimeTo));
         }
 
         if (Objects.nonNull(clientId)) {
