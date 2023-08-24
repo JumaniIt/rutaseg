@@ -187,6 +187,77 @@ public class OrderController {
         return ResponseEntity.ok(orderResponse);
     }
 
+    @GetMapping
+    public ResponseEntity<PaginatedResult<OrderResponse>> search(
+            @RequestParam(value = "pema", required = false) Boolean pema,
+            @RequestParam(value = "transport", required = false) Boolean transport,
+            @RequestParam(value = "port", required = false) Boolean port,
+            @RequestParam(value = "date_from", required = false) LocalDate arrivalDateFrom,
+            @RequestParam(value = "date_to", required = false) LocalDate arrivalDateTo,
+            @RequestParam(value = "time_from", required = false) LocalTime arrivalTimeFrom,
+            @RequestParam(value = "time_to", required = false) LocalTime arrivalTimeTo,
+            @RequestParam(value = "client_id", required = false) Long clientId,
+            @RequestParam(value = "status", required = false) OrderStatus status,
+            @RequestParam(value = "page_size", required = false, defaultValue = "10") Integer pageSize,
+            @RequestParam(value = "page", required = false, defaultValue = "1") Integer page,
+            @Session SessionInfo session
+    ) {
+        final Long theClientId;
+        if (!session.admin()) {
+            Optional<Client> clientOptional = clientRepo.findOneByUser_Id(session.id());
+            if (clientOptional.isPresent()) {
+                theClientId = clientOptional.get().getId();
+            } else {
+                return ResponseEntity.ok(new PaginatedResult<>(0, 0, page, 1, Collections.emptyList()));
+            }
+        } else {
+            theClientId = clientId;
+        }
+
+        if (Objects.nonNull(arrivalDateFrom) && Objects.nonNull(arrivalDateTo) && arrivalDateFrom.isAfter(arrivalDateTo)) {
+            throw new ValidationException("invalid_date_range", "date_from cannot be after date_to");
+        }
+
+        if (Objects.nonNull(arrivalTimeFrom) && Objects.nonNull(arrivalTimeTo)
+                && arrivalDateFrom.equals(arrivalDateTo) && arrivalTimeFrom.isAfter(arrivalTimeTo)) {
+            throw new ValidationException("invalid_time_range", "time_from cannot be after time_to");
+        }
+
+        final long totalElements = orderRepo.count(
+                pema,
+                transport,
+                port,
+                arrivalDateFrom,
+                arrivalDateTo,
+                arrivalTimeFrom,
+                arrivalTimeTo,
+                theClientId,
+                status
+        );
+
+        final PaginatedResult<OrderResponse> result = PaginationUtil.get(totalElements, pageSize, page, (offset, limit) -> {
+            List<Order> orders = orderRepo.search(
+                    pema,
+                    transport,
+                    port,
+                    arrivalDateFrom,
+                    arrivalDateTo,
+                    arrivalTimeFrom,
+                    arrivalTimeTo,
+                    theClientId,
+                    status,
+                    offset,
+                    limit
+            );
+
+            return orders.stream()
+                    .map(this::createOrderResponse)
+                    .toList();
+        });
+
+        return ResponseEntity.ok(result);
+    }
+
 
     private ArrivalData createArrivalData(ArrivalDataRequest arrivalDataRequest) {
         // Crear una instancia de ArrivalData a partir de ArrivalDataRequest
@@ -217,24 +288,6 @@ public class OrderController {
                 driverDataRequest.getName(),
                 driverDataRequest.getPhone(),
                 driverDataRequest.getCompany()
-        );
-    }
-
-    private ConsigneeData createConsigneeData(ConsigneeDataRequest consigneeDataRequest) {
-        // Crear una instancia de ConsigneeData a partir de ConsigneeDataRequest
-        return new ConsigneeData(
-                consigneeDataRequest.getName(),
-                consigneeDataRequest.getCuit()
-        );
-    }
-
-    private Container createContainer(ContainerRequest containerRequest) {
-        // Crear una instancia de Container a partir de ContainerRequest
-        return new Container(
-                containerRequest.getCode(),
-                containerRequest.getMeasures(),
-                containerRequest.isRepackage(),
-                containerRequest.getPema()
         );
     }
 
@@ -316,77 +369,6 @@ public class OrderController {
 
 
         );
-    }
-
-    @GetMapping
-    public ResponseEntity<PaginatedResult<OrderResponse>> search(
-            @RequestParam(value = "pema", required = false) Boolean pema,
-            @RequestParam(value = "transport", required = false) Boolean transport,
-            @RequestParam(value = "port", required = false) Boolean port,
-            @RequestParam(value = "arrivalDateFrom", required = false) LocalDate arrivalDateFrom,
-            @RequestParam(value = "arrivalDateTo", required = false) LocalDate arrivalDateTo,
-            @RequestParam(value = "arrivalTimeFrom", required = false) LocalTime arrivalTimeFrom,
-            @RequestParam(value = "arrivalTimeTo", required = false) LocalTime arrivalTimeTo,
-            @RequestParam(value = "clientId", required = false) Long clientId,
-            @RequestParam(value = "status", required = false) OrderStatus status,
-            @RequestParam(value = "pageSize", required = false, defaultValue = "1") Integer pageSize,
-            @RequestParam(value = "page", required = false, defaultValue = "1") Integer page,
-            @Session SessionInfo session
-    ) {
-        final Long theClientId;
-        if (!session.admin()) {
-            Optional<Client> clientOptional = clientRepo.findOneByUser_Id(session.id());
-            if (clientOptional.isPresent()) {
-                theClientId = clientOptional.get().getId();
-            } else {
-                return ResponseEntity.ok(new PaginatedResult<>(0, 0, page, 1, Collections.emptyList()));
-            }
-        } else {
-            theClientId = clientId;
-        }
-
-        if (Objects.nonNull(arrivalDateFrom) && Objects.nonNull(arrivalDateTo) && arrivalDateFrom.isAfter(arrivalDateTo)) {
-            throw new ValidationException("invalid_date_range", "the 'arrivalDateFrom' cannot be after 'arrivalDateTo'");
-        }
-
-        if (Objects.nonNull(arrivalTimeFrom) && Objects.nonNull(arrivalTimeTo)
-                && arrivalDateFrom.equals(arrivalDateTo) && arrivalTimeFrom.isAfter(arrivalTimeTo)) {
-            throw new ValidationException("invalid_time_range", "the 'arrivalTimeFrom' cannot be after 'arrivalTimeTo'");
-        }
-
-        long totalElements = orderRepo.count(
-                pema,
-                transport,
-                port,
-                arrivalDateFrom,
-                arrivalDateTo,
-                arrivalTimeFrom,
-                arrivalTimeTo,
-                theClientId,
-                status
-        );
-
-        final PaginatedResult<OrderResponse> result = PaginationUtil.get(totalElements, pageSize, page, (offset, limit) -> {
-            List<Order> orders = orderRepo.search(
-                    pema,
-                    transport,
-                    port,
-                    arrivalDateFrom,
-                    arrivalDateTo,
-                    arrivalTimeFrom,
-                    arrivalTimeTo,
-                    theClientId,
-                    status,
-                    offset,
-                    limit
-            );
-
-            return orders.stream()
-                    .map(this::createOrderResponse)
-                    .toList();
-        });
-
-        return ResponseEntity.ok(result);
     }
 
 }
