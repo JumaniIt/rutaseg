@@ -3,17 +3,22 @@ package com.jumani.rutaseg.controller;
 import com.jumani.rutaseg.domain.*;
 import com.jumani.rutaseg.dto.request.*;
 import com.jumani.rutaseg.dto.response.*;
+import com.jumani.rutaseg.dto.result.PaginatedResult;
 import com.jumani.rutaseg.exception.ForbiddenException;
 import com.jumani.rutaseg.exception.NotFoundException;
+import com.jumani.rutaseg.exception.ValidationException;
 import com.jumani.rutaseg.handler.Session;
 import com.jumani.rutaseg.repository.OrderRepository;
 import com.jumani.rutaseg.repository.client.ClientRepository;
+import com.jumani.rutaseg.util.PaginationUtil;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -49,7 +54,7 @@ public class OrderController {
     }
 
     @PostMapping
-        public ResponseEntity<OrderResponse> createOrder(@RequestBody @Valid OrderRequest orderRequest, @Session SessionInfo session) {
+    public ResponseEntity<OrderResponse> createOrder(@RequestBody @Valid OrderRequest orderRequest, @Session SessionInfo session) {
         Client client = clientRepo.findById(orderRequest.getClientId())
                 .orElseThrow(() -> new NotFoundException("client not found"));
 
@@ -93,7 +98,6 @@ public class OrderController {
                 containers,
                 consigneeData
         );
-
 
 
         // Realizar la lógica adicional de creación de la orden, como persistencia en la base de datos
@@ -183,6 +187,76 @@ public class OrderController {
         return ResponseEntity.ok(orderResponse);
     }
 
+    @GetMapping
+    public ResponseEntity<PaginatedResult<OrderResponse>> search(
+            @RequestParam(value = "pema", required = false) Boolean pema,
+            @RequestParam(value = "transport", required = false) Boolean transport,
+            @RequestParam(value = "port", required = false) Boolean port,
+            @RequestParam(value = "date_from", required = false) LocalDate arrivalDateFrom,
+            @RequestParam(value = "date_to", required = false) LocalDate arrivalDateTo,
+            @RequestParam(value = "time_from", required = false) LocalTime arrivalTimeFrom,
+            @RequestParam(value = "time_to", required = false) LocalTime arrivalTimeTo,
+            @RequestParam(value = "client_id", required = false) Long clientId,
+            @RequestParam(value = "status", required = false) OrderStatus status,
+            @RequestParam(value = "page_size", required = false, defaultValue = "10") Integer pageSize,
+            @RequestParam(value = "page", required = false, defaultValue = "1") Integer page,
+            @Session SessionInfo session
+    ) {
+        final Long theClientId;
+        if (!session.admin()) {
+            Optional<Client> clientOptional = clientRepo.findOneByUser_Id(session.id());
+            if (clientOptional.isPresent()) {
+                theClientId = clientOptional.get().getId();
+            } else {
+                return ResponseEntity.ok(new PaginatedResult<>(0, 0, page, 1, Collections.emptyList()));
+            }
+        } else {
+            theClientId = clientId;
+        }
+
+        if (Objects.nonNull(arrivalDateFrom) && Objects.nonNull(arrivalDateTo) && arrivalDateFrom.isAfter(arrivalDateTo)) {
+            throw new ValidationException("invalid_date_range", "date_from cannot be after date_to");
+        }
+
+        if (Objects.nonNull(arrivalTimeFrom) && Objects.nonNull(arrivalTimeTo)
+                && arrivalDateFrom.equals(arrivalDateTo) && arrivalTimeFrom.isAfter(arrivalTimeTo)) {
+            throw new ValidationException("invalid_time_range", "time_from cannot be after time_to");
+        }
+
+        final long totalElements = orderRepo.count(
+                pema,
+                transport,
+                port,
+                arrivalDateFrom,
+                arrivalDateTo,
+                arrivalTimeFrom,
+                arrivalTimeTo,
+                theClientId,
+                status
+        );
+
+        final PaginatedResult<OrderResponse> result = PaginationUtil.get(totalElements, pageSize, page, (offset, limit) -> {
+            List<Order> orders = orderRepo.search(
+                    pema,
+                    transport,
+                    port,
+                    arrivalDateFrom,
+                    arrivalDateTo,
+                    arrivalTimeFrom,
+                    arrivalTimeTo,
+                    theClientId,
+                    status,
+                    offset,
+                    limit
+            );
+
+            return orders.stream()
+                    .map(this::createOrderResponse)
+                    .toList();
+        });
+
+        return ResponseEntity.ok(result);
+    }
 
 
     private ArrivalData createArrivalData(ArrivalDataRequest arrivalDataRequest) {
@@ -214,24 +288,6 @@ public class OrderController {
                 driverDataRequest.getName(),
                 driverDataRequest.getPhone(),
                 driverDataRequest.getCompany()
-        );
-    }
-
-    private ConsigneeData createConsigneeData(ConsigneeDataRequest consigneeDataRequest) {
-        // Crear una instancia de ConsigneeData a partir de ConsigneeDataRequest
-        return new ConsigneeData(
-                consigneeDataRequest.getName(),
-                consigneeDataRequest.getCuit()
-        );
-    }
-
-    private Container createContainer(ContainerRequest containerRequest) {
-        // Crear una instancia de Container a partir de ContainerRequest
-        return new Container(
-                containerRequest.getCode(),
-                containerRequest.getMeasures(),
-                containerRequest.isRepackage(),
-                containerRequest.getPema()
         );
     }
 
@@ -310,7 +366,6 @@ public class OrderController {
                 customsDataResponse,
                 containerResponse,
                 consigneeDataResponse
-
 
 
         );
