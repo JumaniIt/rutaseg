@@ -2,6 +2,7 @@ package com.jumani.rutaseg.domain;
 
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.experimental.FieldNameConstants;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDate;
@@ -11,6 +12,7 @@ import java.time.LocalTime;
 @Entity
 @Table(name = "arrival_datas")
 @Slf4j
+@FieldNameConstants
 public class ArrivalData {
 
     @Id
