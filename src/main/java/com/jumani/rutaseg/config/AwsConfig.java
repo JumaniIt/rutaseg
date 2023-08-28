@@ -11,10 +11,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
-@Configuration
-@Profile("!local & !integration_test")
 public class AwsConfig {
-    
+
     @Value("${aws.credentials.access-key}")
     private String accessKey;
     @Value("${aws.credentials.secret-key}")
@@ -24,17 +22,15 @@ public class AwsConfig {
 
     @Value("${aws.s3.files-bucket}")
     private String filesBucket;
-    
 
-    @Bean
+
     public AmazonS3 s3Client() {
         final AWSCredentials credentials = new BasicAWSCredentials(accessKey, accessSecret);
         return AmazonS3ClientBuilder.standard()
                 .withCredentials(new AWSStaticCredentialsProvider(credentials))
                 .withRegion(region).build();
     }
-    
-    @Bean
+
     public AwsFileRepository awsFileRepository(AmazonS3 client) {
         return new AwsFileRepository(client, filesBucket);
     }

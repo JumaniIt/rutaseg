@@ -19,7 +19,6 @@ import java.util.Optional;
 
 @Slf4j
 @AllArgsConstructor
-@Profile("!local & !integration_test")
 // TODO revisar AmazonServiceException status code para posibles retries
 public class AwsFileRepository implements FileRepository, DateGen {
     private final AmazonS3 client;
