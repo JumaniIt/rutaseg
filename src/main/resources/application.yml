@@ -38,7 +38,7 @@ email:
   username: ${EMAIL_USERNAME}
   password: ${EMAIL_PASSWORD}
   internal:
-    to: ${$INTERNAL_EMAIL_TO:email@host.com}
+    to: ${INTERNAL_EMAIL_TO:email@host.com}
 
 server:
   port: 5000
