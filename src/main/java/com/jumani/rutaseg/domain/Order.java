@@ -9,6 +9,7 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import static com.jumani.rutaseg.domain.OrderStatus.DRAFT;
 
@@ -122,4 +123,17 @@ public class Order implements DateGen {
 
     }
 
+    public void addDocument(Document document) {
+        documents.add(document);
+    }
+
+    public Optional<Document> removeDocument(long documentId) {
+        Optional<Document> documentToRemove = documents.stream()
+                .filter(doc -> doc.getId() == documentId)
+                .findFirst();
+
+        documentToRemove.ifPresent(doc -> documents.remove(doc));
+
+        return documentToRemove;
+    }
 }
