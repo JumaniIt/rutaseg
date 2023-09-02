@@ -38,7 +38,6 @@ public class SessionFilter extends OncePerRequestFilter {
 
     static {
         SKIPPED_ENDPOINTS = new ArrayList<>();
-        SKIPPED_ENDPOINTS.add("/");
         SKIPPED_ENDPOINTS.add("/login");
         SKIPPED_ENDPOINTS.add("/internal/send-email");
     }
@@ -65,6 +64,8 @@ public class SessionFilter extends OncePerRequestFilter {
     private void validateSession(HttpServletRequest request) {
         if (this.isPreFlight(request)) return;
 
+        if (this.isHealthCheck(request)) return;
+
         if (!this.isValidRequestOrigin(request)) {
             throw new InvalidRequestOriginException();
         }
@@ -85,6 +86,10 @@ public class SessionFilter extends OncePerRequestFilter {
         if (ADMIN_ENDPOINTS.stream().anyMatch(endpoint::startsWith) && !jwtService.isAdminToken(token)) {
             throw new ForbiddenException();
         }
+    }
+
+    private boolean isHealthCheck(HttpServletRequest request) {
+        return "/".equals(request.getRequestURI()) && "GET".equalsIgnoreCase(request.getMethod());
     }
 
     private boolean isPreFlight(HttpServletRequest request) {
