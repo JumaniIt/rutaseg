@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 
+import java.util.List;
 import java.util.Properties;
 
 @Configuration
@@ -44,7 +45,7 @@ public class EmailConfig {
 
     @Bean
     public InternalEmailService internalEmailService(EmailSender emailSender,
-                                                     @Value("${email.internal.to}") String to) {
+                                                     @Value("${email.internal.to}") List<String> to) {
 
         return new InternalEmailService(emailSender, to);
     }
