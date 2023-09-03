@@ -1,15 +1,19 @@
 package com.jumani.rutaseg.controller;
 
+import com.jumani.rutaseg.domain.Order;
 import com.jumani.rutaseg.domain.User;
 import com.jumani.rutaseg.dto.request.UserRequest;
+import com.jumani.rutaseg.dto.response.OrderResponse;
 import com.jumani.rutaseg.dto.response.SessionInfo;
 import com.jumani.rutaseg.dto.response.UserResponse;
+import com.jumani.rutaseg.dto.result.PaginatedResult;
 import com.jumani.rutaseg.exception.ForbiddenException;
 import com.jumani.rutaseg.exception.NotFoundException;
 import com.jumani.rutaseg.exception.ValidationException;
 import com.jumani.rutaseg.handler.Session;
 import com.jumani.rutaseg.repository.UserRepository;
 import com.jumani.rutaseg.service.PasswordService;
+import com.jumani.rutaseg.util.PaginationUtil;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -71,28 +75,36 @@ public class UserController {
         return ResponseEntity.ok(userResponse);
     }
 
-    @GetMapping("/search")
-    public ResponseEntity<List<UserResponse>> searchUsers(
-            @RequestParam(required = false, defaultValue = "10") int pageSize,
-            @RequestParam(required = false) Boolean admin,
-            @RequestParam(required = false) String nickname,
-            @RequestParam(required = false) String email,
-            @Session SessionInfo session,
-            Pageable pageable) {
+    @GetMapping
+    public ResponseEntity<PaginatedResult<UserResponse>> searchUsers(
+            @RequestParam(value = "page_size", required = false, defaultValue = "10") Integer pageSize,
+            @RequestParam(value = "page", required = false, defaultValue = "1") Integer page,
+            @RequestParam(value = "admin", required = false) Boolean admin,
+            @RequestParam(value = "nickname", required = false) String nickname,
+            @RequestParam(value = "email", required = false) String email,
+            @Session SessionInfo session) {
 
         if (!session.admin()) {
             throw new ForbiddenException();
         }
 
-        List<User> users = userRepo.search(admin, nickname, email, pageSize);
+        final long totalElements = userRepo.count(admin, nickname, email);
 
-        List<UserResponse> userResponses = users.stream()
-                .map(this::createResponse)
-                .collect(Collectors.toList());
+        final PaginatedResult<UserResponse> result = PaginationUtil.get(totalElements, pageSize, page, (startIndex, limit) -> {
+            List<User> users = userRepo.search(
+                    admin,
+                    nickname,
+                    email
+            );
 
-        return ResponseEntity.ok(userResponses);
+            return users.stream()
+                    .map(this::createResponse)
+                    .toList();
+        });
+
+        return ResponseEntity.ok(result);
+
     }
-
 }
 
 
