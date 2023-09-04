@@ -1,9 +1,7 @@
 package com.jumani.rutaseg.controller;
 
-import com.jumani.rutaseg.domain.Order;
 import com.jumani.rutaseg.domain.User;
 import com.jumani.rutaseg.dto.request.UserRequest;
-import com.jumani.rutaseg.dto.response.OrderResponse;
 import com.jumani.rutaseg.dto.response.SessionInfo;
 import com.jumani.rutaseg.dto.response.UserResponse;
 import com.jumani.rutaseg.dto.result.PaginatedResult;
@@ -20,12 +18,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 @RestController
 @Transactional
@@ -91,11 +86,13 @@ public class UserController {
         final long totalElements = userRepo.count(admin, nickname, email);
 
 
-        final PaginatedResult<UserResponse> result = PaginationUtil.get(totalElements, pageSize, page, (startIndex, limit) -> {
+        final PaginatedResult<UserResponse> result = PaginationUtil.get(totalElements, pageSize, page, (offset, limit) -> {
             List<User> users = userRepo.search(
                     admin,
                     nickname,
-                    email
+                    email,
+                    offset,
+                    limit
             );
 
             return users.stream()
