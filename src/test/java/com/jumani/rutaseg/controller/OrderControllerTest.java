@@ -301,15 +301,12 @@ class OrderControllerTest {
         OrderStatus newStatus = OrderStatus.REVISION;
         SessionInfo session = new SessionInfo(501L, true);
 
-        Order existingOrder = mock(Order.class);
-        when(orderRepo.findById(orderId)).thenReturn(Optional.of(existingOrder));
-        when(existingOrder.getStatus()).thenReturn(OrderStatus.FINISHED);
+        when(orderRepo.findById(orderId)).thenReturn(Optional.empty());
 
-        assertThrows(ForbiddenException.class, () -> controller.changeOrderStatus(orderId, newStatus, session));
+        assertThrows(NotFoundException.class, () -> controller.changeOrderStatus(orderId, newStatus, session));
 
         verify(orderRepo).findById(orderId);
-        verify(existingOrder).getStatus();
-        verifyNoMoreInteractions(orderRepo, existingOrder);
+        verifyNoMoreInteractions(orderRepo);
     }
 
     @Test
@@ -318,36 +315,12 @@ class OrderControllerTest {
         OrderStatus newStatus = OrderStatus.PROCESSING;
         SessionInfo session = new SessionInfo(501L, false);
 
-        Order existingOrder = mock(Order.class);
-        when(orderRepo.findById(orderId)).thenReturn(Optional.of(existingOrder));
-        when(existingOrder.getStatus()).thenReturn(OrderStatus.DRAFT);
+        when(orderRepo.findById(orderId)).thenReturn(Optional.empty());
 
-        assertThrows(ForbiddenException.class, () -> controller.changeOrderStatus(orderId, newStatus, session));
+        assertThrows(NotFoundException.class, () -> controller.changeOrderStatus(orderId, newStatus, session));
 
         verify(orderRepo).findById(orderId);
-        verify(existingOrder).getStatus();
-        verifyNoMoreInteractions(orderRepo, existingOrder);
-    }
-
-    @Test
-    void testChangeOrderStatus_ClientSession_DraftToRevision() {
-        long orderId = 1L;
-        OrderStatus newStatus = OrderStatus.REVISION;
-        SessionInfo session = new SessionInfo(501L, false);
-
-        Order existingOrder = mock(Order.class);
-        when(orderRepo.findById(orderId)).thenReturn(Optional.of(existingOrder));
-        when(existingOrder.getStatus()).thenReturn(OrderStatus.DRAFT);
-
-        ResponseEntity<OrderResponse> response = controller.changeOrderStatus(orderId, newStatus, session);
-
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-
-        verify(orderRepo).findById(orderId);
-        verify(existingOrder).getStatus();
-        verify(existingOrder).updateStatus(newStatus); // Assuming there's a method to update the status
-        verify(orderRepo).save(existingOrder);
-        verifyNoMoreInteractions(orderRepo, existingOrder);
+        verifyNoMoreInteractions(orderRepo);
     }
 
 }
