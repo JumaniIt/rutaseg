@@ -90,6 +90,7 @@ public class UserController {
 
         final long totalElements = userRepo.count(admin, nickname, email);
 
+
         final PaginatedResult<UserResponse> result = PaginationUtil.get(totalElements, pageSize, page, (startIndex, limit) -> {
             List<User> users = userRepo.search(
                     admin,
