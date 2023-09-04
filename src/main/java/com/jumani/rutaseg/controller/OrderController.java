@@ -371,4 +371,30 @@ public class OrderController {
         );
     }
 
+    @PutMapping("/{id}/status/{newStatus}")
+    public ResponseEntity<OrderResponse> changeOrderStatus(
+            @PathVariable("id") long id,
+            @PathVariable("newStatus") OrderStatus newStatus,
+            @Session SessionInfo session
+    ) {
+        Order order = orderRepo.findById(id)
+            .orElseThrow(() -> new NotFoundException(String.format("Order with id [%s] not found", id)));
+
+        if (!session.admin() && !Objects.equals(order.getClient().getUserId(), session.id())) {
+            throw new ForbiddenException();
+        }
+
+        if (!session.admin() && (order.getStatus() != OrderStatus.DRAFT || newStatus != OrderStatus.REVISION)) {
+            throw new ValidationException("invalid_order_status", "Status [" + order.getStatus() + "] cannot be changed to [" + newStatus + "]");
+        }
+
+        order.updateStatus(newStatus);
+
+        Order updatedOrder = orderRepo.save(order);
+
+        OrderResponse orderResponse = createOrderResponse(updatedOrder);
+
+        return ResponseEntity.ok(orderResponse);
+    }
+
 }
