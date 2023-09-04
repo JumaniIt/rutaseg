@@ -385,7 +385,7 @@ public class OrderController {
         }
 
         if (!session.admin() && (order.getStatus() != OrderStatus.DRAFT || newStatus != OrderStatus.REVISION)) {
-            throw new ValidationException("invalid_order_status", "Status [" + order.getStatus() + "] cannot be changed to [" + newStatus + "]");
+            throw new ValidationException("invalid_order_status", "status [" + order.getStatus() + "] cannot be changed to [" + newStatus + "]");
         }
 
         order.updateStatus(newStatus);
