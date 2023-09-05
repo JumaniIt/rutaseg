@@ -9,6 +9,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.core.annotation.Order;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -38,6 +39,7 @@ public class SessionFilter extends OncePerRequestFilter {
     static {
         SKIPPED_ENDPOINTS = new ArrayList<>();
         SKIPPED_ENDPOINTS.add("/login");
+        SKIPPED_ENDPOINTS.add("/internal/send-email");
     }
 
     static {
@@ -51,8 +53,8 @@ public class SessionFilter extends OncePerRequestFilter {
      * Si es válido llama al filterChain.doFilter() lo cual significa seguir el curso natural de la petición (ir al controller)
      */
     @Override
-    protected void doFilterInternal(HttpServletRequest request,
-                                    HttpServletResponse httpServletResponse,
+    protected void doFilterInternal(@NotNull HttpServletRequest request,
+                                    @NotNull HttpServletResponse httpServletResponse,
                                     FilterChain filterChain) throws ServletException, IOException {
 
         this.validateSession(request);
@@ -61,6 +63,8 @@ public class SessionFilter extends OncePerRequestFilter {
 
     private void validateSession(HttpServletRequest request) {
         if (this.isPreFlight(request)) return;
+
+        if (this.isHealthCheck(request)) return;
 
         if (!this.isValidRequestOrigin(request)) {
             throw new InvalidRequestOriginException();
@@ -82,6 +86,10 @@ public class SessionFilter extends OncePerRequestFilter {
         if (ADMIN_ENDPOINTS.stream().anyMatch(endpoint::startsWith) && !jwtService.isAdminToken(token)) {
             throw new ForbiddenException();
         }
+    }
+
+    private boolean isHealthCheck(HttpServletRequest request) {
+        return "/".equals(request.getRequestURI()) && "GET".equalsIgnoreCase(request.getMethod());
     }
 
     private boolean isPreFlight(HttpServletRequest request) {
