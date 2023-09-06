@@ -39,5 +39,9 @@ email:
   internal:
     to: ${INTERNAL_EMAIL_TO:email@host.com}
 
+web:
+  cors:
+    allowed-origin-patterns: ${ALLOWED_ORIGINS_PATTERNS:*}
+
 server:
   port: 5000
