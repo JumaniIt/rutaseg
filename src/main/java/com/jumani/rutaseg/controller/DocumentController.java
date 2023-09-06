@@ -18,8 +18,10 @@ import com.jumani.rutaseg.repository.file.FileRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import com.jumani.rutaseg.dto.result.Error;
 
 
 
@@ -27,7 +29,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/orders/{orderId}/documents")
 public class DocumentController {
     private final OrderRepository orderRepo;
     private final FileRepository fileRepo;
@@ -57,11 +59,11 @@ public class DocumentController {
         String key = String.format("o_%d-ts_%d-%s", orderId, System.currentTimeMillis(), fileName);
 
         // Guardar el archivo en el repositorio de archivos
-        Optional<com.jumani.rutaseg.dto.result.Error> saveResult = fileRepo.save(key, file);
+        Optional<Error> saveResult = fileRepo.save(key, file);
 
         if (saveResult.isPresent()) {
-            // En caso de error al guardar el archivo, devolver un error interno del servidor
-            throw new InternalServerErrorException(saveResult.get().message());
+            // En caso de error al guardar el archivo, devolver un ResponseEntity con el status code INTERNAL_SERVER_ERROR (500)
+            return ResponseEntity.internalServerError().build();
         }
 
         // Crear un nuevo Document con el nombre del archivo y la key del recurso
@@ -99,19 +101,20 @@ public class DocumentController {
             throw new ForbiddenException();
         }
 
-        // Buscar el documento en la orden
-        Optional<Document> optionalDocument = order.getDocuments().stream()
-                .filter(doc -> doc.getId() == docId)
-                .findFirst();
+        // Buscar el documento en la orden usando el nuevo método findDocument
+        Optional<Document> optionalDocument = order.findDocument(docId);
+
+
 
         if (optionalDocument.isPresent()) {
             Document document = optionalDocument.get();
 
             Result<Optional<String>> linkResult = fileRepo.findLinkToFile(document.getResource());
 
-            if (!linkResult.isSuccessful() || !linkResult.getResponse().isPresent()) {
-                // En caso de error o si el enlace no existe, devolver un error interno del servidor
-                throw new InternalServerErrorException("Failed to retrieve the document link.");
+            if (!linkResult.isSuccessful()) {
+                return ResponseEntity.internalServerError().body(linkResult.getError());
+            } else if (!linkResult.getResponse().isPresent()) {
+                return ResponseEntity.internalServerError().body("File not found in file repository");
             }
 
             // Crear la respuesta con los datos del documento y el enlace
@@ -127,7 +130,7 @@ public class DocumentController {
             return ResponseEntity.ok(documentResponse);
         } else {
             // Si el documento no se encuentra en la orden, devolver un error de recurso no encontrado
-            throw new NotFoundException(String.format("Document with id [%s] not found in order [%s]", docId, orderId));
+            throw new NotFoundException(String.format("document with id [%s] not found in order [%s]", docId, orderId));
         }
     }
     @DeleteMapping("/orders/{orderId}/documents/{docId}")

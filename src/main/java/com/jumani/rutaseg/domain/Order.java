@@ -71,7 +71,7 @@ public class Order implements DateGen {
     @JoinColumn(name = "id")
     private ConsigneeData consignee;
 
-    @OneToMany(cascade=CascadeType.ALL, orphanRemoval = true, fetch=FetchType.LAZY)
+    @OneToMany(cascade=CascadeType.ALL, orphanRemoval = true, fetch=FetchType.EAGER)
     @JoinColumn(name="order_id")
     private List<Document> documents;
 
@@ -135,5 +135,10 @@ public class Order implements DateGen {
         documentToRemove.ifPresent(doc -> documents.remove(doc));
 
         return documentToRemove;
+    }
+    public Optional<Document> findDocument(long documentId) {
+        return documents.stream()
+                .filter(doc -> doc.getId() == documentId)
+                .findFirst();
     }
 }
