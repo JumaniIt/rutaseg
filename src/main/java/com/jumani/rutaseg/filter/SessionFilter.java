@@ -6,16 +6,16 @@ import com.jumani.rutaseg.exception.UnauthorizedException;
 import com.jumani.rutaseg.service.auth.JwtService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.core.annotation.Order;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Order(2)
 @AllArgsConstructor
@@ -27,6 +27,7 @@ public class SessionFilter extends OncePerRequestFilter {
 
     public static final String ACCESS_CONTROL_REQUEST_HEADERS = "access-control-request-headers";
     public static final String AUTHORIZATION_HEADER = "x-auth-token";
+    public static final String JWT_TOKEN_COOKIE_NAME = "jwtToken";
     public static final String ORIGIN_HEADER = "x-auth-origin";
     public static final String BEARER_SUFFIX = "Bearer ";
 
@@ -38,6 +39,7 @@ public class SessionFilter extends OncePerRequestFilter {
     static {
         SKIPPED_ENDPOINTS = new ArrayList<>();
         SKIPPED_ENDPOINTS.add("/login");
+        SKIPPED_ENDPOINTS.add("/internal/send-email");
     }
 
     static {
@@ -51,8 +53,8 @@ public class SessionFilter extends OncePerRequestFilter {
      * Si es válido llama al filterChain.doFilter() lo cual significa seguir el curso natural de la petición (ir al controller)
      */
     @Override
-    protected void doFilterInternal(HttpServletRequest request,
-                                    HttpServletResponse httpServletResponse,
+    protected void doFilterInternal(@NotNull HttpServletRequest request,
+                                    @NotNull HttpServletResponse httpServletResponse,
                                     FilterChain filterChain) throws ServletException, IOException {
 
         this.validateSession(request);
@@ -62,6 +64,8 @@ public class SessionFilter extends OncePerRequestFilter {
     private void validateSession(HttpServletRequest request) {
         if (this.isPreFlight(request)) return;
 
+        if (this.isHealthCheck(request)) return;
+
         if (!this.isValidRequestOrigin(request)) {
             throw new InvalidRequestOriginException();
         }
@@ -69,12 +73,7 @@ public class SessionFilter extends OncePerRequestFilter {
         final String endpoint = request.getRequestURI();
         if (SKIPPED_ENDPOINTS.contains(endpoint)) return;
 
-        final String authorizationHeader = request.getHeader(AUTHORIZATION_HEADER);
-        if (authorizationHeader == null || !authorizationHeader.startsWith(BEARER_SUFFIX)) {
-            throw new UnauthorizedException();
-        }
-
-        final String token = authorizationHeader.substring(BEARER_SUFFIX.length());
+        final String token = this.getJwtToken(request).orElseThrow(UnauthorizedException::new);
         if (!jwtService.isTokenValid(token)) {
             throw new UnauthorizedException();
         }
@@ -82,6 +81,27 @@ public class SessionFilter extends OncePerRequestFilter {
         if (ADMIN_ENDPOINTS.stream().anyMatch(endpoint::startsWith) && !jwtService.isAdminToken(token)) {
             throw new ForbiddenException();
         }
+    }
+
+    private Optional<String> getJwtToken(HttpServletRequest request) {
+        return Optional.ofNullable(request.getHeader(AUTHORIZATION_HEADER))
+                .filter(ah -> ah.startsWith(BEARER_SUFFIX))
+                .map(ah -> ah.substring(BEARER_SUFFIX.length()))
+                .or(() -> {
+                    final Cookie[] cookies = request.getCookies();
+                    if (Objects.isNull(cookies)) {
+                        return Optional.empty();
+                    }
+
+                    return Arrays.stream(cookies)
+                            .filter(cookie -> cookie.getName().equals(JWT_TOKEN_COOKIE_NAME))
+                            .map(Cookie::getValue)
+                            .findFirst();
+                });
+    }
+
+    private boolean isHealthCheck(HttpServletRequest request) {
+        return "/".equals(request.getRequestURI()) && "GET".equalsIgnoreCase(request.getMethod());
     }
 
     private boolean isPreFlight(HttpServletRequest request) {

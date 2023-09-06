@@ -33,5 +33,15 @@ session:
   knownOrigins: ${KNOWN_ORIGINS:}
   allowAllOrigins: ${ALLOW_ALL_ORIGINS:true}
 
+email:
+  username: ${EMAIL_USERNAME}
+  password: ${EMAIL_PASSWORD}
+  internal:
+    to: ${INTERNAL_EMAIL_TO:email@host.com}
+
+web:
+  cors:
+    allowed-origin-patterns: ${ALLOWED_ORIGINS_PATTERNS:*}
+
 server:
   port: 5000

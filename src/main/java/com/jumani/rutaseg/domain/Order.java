@@ -3,6 +3,7 @@ package com.jumani.rutaseg.domain;
 import com.jumani.rutaseg.util.DateGen;
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.experimental.FieldNameConstants;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.ZonedDateTime;
@@ -14,6 +15,7 @@ import static com.jumani.rutaseg.domain.OrderStatus.DRAFT;
 
 @Getter
 @Entity
+@FieldNameConstants
 @Table(name = "orders")
 @Slf4j
 public class Order implements DateGen {
@@ -139,4 +141,9 @@ public class Order implements DateGen {
                 .filter(doc -> doc.getId() == documentId)
                 .findFirst();
     }
+
+    public void updateStatus(OrderStatus newStatus) {
+        this.status = newStatus;
+    }
+
 }
