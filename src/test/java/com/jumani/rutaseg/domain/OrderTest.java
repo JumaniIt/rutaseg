@@ -140,4 +140,40 @@ public class OrderTest {
         assertSame(updatedContainers, order.getContainers());
         assertSame(updatedConsigneeData, order.getConsignee());
     }
+
+    @Test
+    void testUpdateStatusMethod() {
+        Client client = new Client(new User("John", "password", "john@example.com", false),
+                "name", "1234567890", 123456789L);
+
+        boolean pema = randomBoolean();
+        boolean port = randomBoolean();
+        boolean transport = randomBoolean();
+        long createdByUserId = randomId();
+        final DestinationType destinationType = randomEnum(DestinationType.class);
+        final String destinationName = randomShortString();
+        final Origin origin = randomEnum(Origin.class);
+
+        ArrivalData arrivalData = new ArrivalData(LocalDate.now(), LocalTime.now(), origin,
+                "Morning", true, destinationType, destinationName, "FOB", "USD");
+        DriverData driverData = new DriverData("John Doe", "1234567890", "ABC Company");
+        CustomsData customsData = new CustomsData("Customs Name", "9876543210");
+        List<Container> containers = new ArrayList<>();
+        ConsigneeData consigneeData = new ConsigneeData("Consignee Name", 123456789L);
+
+        Container container1 = new Container("ABC123", Measures.STANDARD_DRY_20_20_ST, false, "PEMA1");
+        Container container2 = new Container("XYZ789", Measures.STANDARD_OPEN_SIDE_20_20_OS, true, "PEMA2");
+        containers.addAll(Arrays.asList(container1, container2));
+
+        Order order = new Order(client, pema, port, transport, arrivalData, driverData, customsData,
+                createdByUserId, containers, consigneeData);
+
+        OrderStatus newStatus = OrderStatus.DRAFT;
+
+        order.updateStatus(newStatus);
+
+        assertEquals(newStatus, order.getStatus());
+    }
+
+
 }

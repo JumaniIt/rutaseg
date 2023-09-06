@@ -294,6 +294,35 @@ class OrderControllerTest {
         verify(orderRepo).save(any(Order.class));
         verifyNoMoreInteractions(orderRepo, clientRepo);
     }
+
+    @Test
+    void testChangeOrderStatus_AdminSession_FinishedToRevision() {
+        long orderId = 1L;
+        OrderStatus newStatus = OrderStatus.REVISION;
+        SessionInfo session = new SessionInfo(501L, true);
+
+        when(orderRepo.findById(orderId)).thenReturn(Optional.empty());
+
+        assertThrows(NotFoundException.class, () -> controller.changeOrderStatus(orderId, newStatus, session));
+
+        verify(orderRepo).findById(orderId);
+        verifyNoMoreInteractions(orderRepo);
+    }
+
+    @Test
+    void testChangeOrderStatus_ClientSession_DraftToProcessing_ThrowsForbiddenException() {
+        long orderId = 1L;
+        OrderStatus newStatus = OrderStatus.PROCESSING;
+        SessionInfo session = new SessionInfo(501L, false);
+
+        when(orderRepo.findById(orderId)).thenReturn(Optional.empty());
+
+        assertThrows(NotFoundException.class, () -> controller.changeOrderStatus(orderId, newStatus, session));
+
+        verify(orderRepo).findById(orderId);
+        verifyNoMoreInteractions(orderRepo);
+    }
+
 }
 
 

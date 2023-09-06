@@ -118,4 +118,8 @@ public class Order implements DateGen {
 
     }
 
+    public void updateStatus(OrderStatus newStatus) {
+        this.status = newStatus;
+    }
+
 }
