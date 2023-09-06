@@ -99,7 +99,6 @@ public class OrderController {
                 consigneeData
         );
 
-
         // Realizar la lógica adicional de creación de la orden, como persistencia en la base de datos
         Order createdOrder = orderRepo.save(order);
 
@@ -349,6 +348,18 @@ public class OrderController {
                 ))
                 .collect(Collectors.toList());
 
+        // Crear una lista de DocumentResponse a partir de los objetos Document
+        List<DocumentResponse> documentResponse = order.getDocuments().stream()
+                .map(document -> new DocumentResponse(
+                        document.getId(),
+                        document.getCreatedAt(),
+                        document.getName(),
+                        document.getResource(),
+                    null
+                ))
+                .collect(Collectors.toList());
+
+
 
         // Crear una instancia de OrderResponse con los datos de ArrivalDataResponse, CustomsDataResponse y DriverDataResponse
         return new OrderResponse(
@@ -365,9 +376,8 @@ public class OrderController {
                 driverDataResponse,
                 customsDataResponse,
                 containerResponse,
-                consigneeDataResponse
-
-
+                consigneeDataResponse,
+                documentResponse
         );
     }
 

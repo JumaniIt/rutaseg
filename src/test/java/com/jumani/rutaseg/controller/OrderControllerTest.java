@@ -67,7 +67,8 @@ class OrderControllerTest {
                 null,
                 null,
                 Collections.emptyList(),
-                null
+                null,
+                Collections.emptyList()
         );
 
         Order order = mock(Order.class);
@@ -159,7 +160,7 @@ class OrderControllerTest {
         OrderResponse expectedOrderResponse = new OrderResponse(
                 1L, clientId, createdByUserId, pema, port, transport, OrderStatus.DRAFT,
                 ZonedDateTime.now(), null, null, null, null, Collections.emptyList(),
-                null
+                null, Collections.emptyList()
         );
 
         // Act

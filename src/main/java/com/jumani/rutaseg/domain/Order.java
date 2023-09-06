@@ -7,8 +7,9 @@ import lombok.experimental.FieldNameConstants;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.ZonedDateTime;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static com.jumani.rutaseg.domain.OrderStatus.DRAFT;
 
@@ -71,6 +72,10 @@ public class Order implements DateGen {
     @JoinColumn(name = "id")
     private ConsigneeData consignee;
 
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @JoinColumn(name = "order_id")
+    private List<Document> documents;
+
     //constructor
     public Order(Client client,
                  boolean pema, boolean port, boolean transport,
@@ -92,6 +97,7 @@ public class Order implements DateGen {
         this.createdByUserId = createdByUserId;
         this.containers = containers;
         this.consignee = consignee;
+        this.documents = new ArrayList<>();
     }
 
     public Long getClientId() {
@@ -106,16 +112,34 @@ public class Order implements DateGen {
                        CustomsData customsData, List<Container> containers, ConsigneeData consignee) {
 
 
-            this.client = client;
-            this.pema = pema;
-            this.port = port;
-            this.transport = transport;
-            this.arrivalData = arrivalData;
-            this.driverData = driverData;
-            this.customsData = customsData;
-            this.containers = containers;
-            this.consignee = consignee;
+        this.client = client;
+        this.pema = pema;
+        this.port = port;
+        this.transport = transport;
+        this.arrivalData = arrivalData;
+        this.driverData = driverData;
+        this.customsData = customsData;
+        this.containers = containers;
+        this.consignee = consignee;
 
+    }
+
+    public void addDocument(Document document) {
+        documents.add(document);
+    }
+
+    public Optional<Document> removeDocument(long documentId) {
+        Optional<Document> documentToRemove = this.findDocument(documentId);
+
+        documentToRemove.ifPresent(doc -> documents.remove(doc));
+
+        return documentToRemove;
+    }
+
+    public Optional<Document> findDocument(long documentId) {
+        return documents.stream()
+                .filter(doc -> doc.getId() == documentId)
+                .findFirst();
     }
 
     public void updateStatus(OrderStatus newStatus) {

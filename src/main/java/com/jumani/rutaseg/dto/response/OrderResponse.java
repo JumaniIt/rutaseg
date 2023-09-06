@@ -29,6 +29,7 @@ public class OrderResponse {
     private CustomsDataResponse customsData;
     private List<ContainerResponse> containers;
     private ConsigneeDataResponse consigneeData;
+    private List<DocumentResponse> documentResponse;
 
 }
 
