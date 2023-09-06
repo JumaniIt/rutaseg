@@ -33,6 +33,7 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
-                .allowedOriginPatterns(allowedOriginPatterns.toArray(new String[0]));
+                .allowedOriginPatterns(allowedOriginPatterns.toArray(new String[0]))
+                .allowCredentials(true);
     }
 }
