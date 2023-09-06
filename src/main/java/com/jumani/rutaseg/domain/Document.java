@@ -1,5 +1,6 @@
 package com.jumani.rutaseg.domain;
 
+import com.jumani.rutaseg.util.DateGen;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -9,7 +10,7 @@ import java.time.ZonedDateTime;
 @Entity
 @Table(name = "documents")
 @Slf4j
-public class Document {
+public class Document implements DateGen {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,13 +26,13 @@ public class Document {
     @Column(name = "resource")
     private String resource;
 
-    public Document(String fileName, String key) {
-        this.name = name;
-        this.resource = resource;
-        this.createdAt = ZonedDateTime.now();
-    }
-
-
     private Document() {
     }
+
+    public Document(String name, String resource) {
+        this.name = name;
+        this.resource = resource;
+        this.createdAt = this.currentDateUTC();
+    }
+
 }

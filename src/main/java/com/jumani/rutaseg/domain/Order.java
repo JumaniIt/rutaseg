@@ -7,7 +7,6 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -71,8 +70,8 @@ public class Order implements DateGen {
     @JoinColumn(name = "id")
     private ConsigneeData consignee;
 
-    @OneToMany(cascade=CascadeType.ALL, orphanRemoval = true, fetch=FetchType.EAGER)
-    @JoinColumn(name="order_id")
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @JoinColumn(name = "order_id")
     private List<Document> documents;
 
     //constructor
@@ -111,15 +110,15 @@ public class Order implements DateGen {
                        CustomsData customsData, List<Container> containers, ConsigneeData consignee) {
 
 
-            this.client = client;
-            this.pema = pema;
-            this.port = port;
-            this.transport = transport;
-            this.arrivalData = arrivalData;
-            this.driverData = driverData;
-            this.customsData = customsData;
-            this.containers = containers;
-            this.consignee = consignee;
+        this.client = client;
+        this.pema = pema;
+        this.port = port;
+        this.transport = transport;
+        this.arrivalData = arrivalData;
+        this.driverData = driverData;
+        this.customsData = customsData;
+        this.containers = containers;
+        this.consignee = consignee;
 
     }
 
@@ -128,14 +127,13 @@ public class Order implements DateGen {
     }
 
     public Optional<Document> removeDocument(long documentId) {
-        Optional<Document> documentToRemove = documents.stream()
-                .filter(doc -> doc.getId() == documentId)
-                .findFirst();
+        Optional<Document> documentToRemove = this.findDocument(documentId);
 
         documentToRemove.ifPresent(doc -> documents.remove(doc));
 
         return documentToRemove;
     }
+
     public Optional<Document> findDocument(long documentId) {
         return documents.stream()
                 .filter(doc -> doc.getId() == documentId)
