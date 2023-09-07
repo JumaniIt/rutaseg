@@ -54,7 +54,7 @@ public class OrderController {
     }
 
     @PostMapping
-    public ResponseEntity<OrderResponse> createOrder(@RequestBody OrderRequest orderRequest, @Session SessionInfo session) {
+    public ResponseEntity<OrderResponse> createOrder(@RequestBody @Valid OrderRequest orderRequest, @Session SessionInfo session) {
         Client client = clientRepo.findById(orderRequest.getClientId())
                 .orElseThrow(() -> new NotFoundException("client not found"));
 
@@ -113,7 +113,7 @@ public class OrderController {
     @PutMapping("/{id}")
     public ResponseEntity<OrderResponse> updateOrder(
             @PathVariable("id") long id,
-            @RequestBody OrderRequest orderRequest,
+            @RequestBody @Valid OrderRequest orderRequest,
             @Session SessionInfo session
     ) {
         Order order = orderRepo.findById(id)
@@ -176,6 +176,8 @@ public class OrderController {
         // Actualizar los atributos de la orden utilizando el método update() de la clase Order
         order.update(orderRequest.getCode(), client, pema, port, transport, arrivalData, driverData, customsData, containers, consigneeData);
 
+        order.addSystemNote(String.format("usuario [%s] de tipo [%s] actualizó datos de solicitud", session.id(),
+                session.getUserType().getTranslation()));
 
         // Actualizar la orden en la base de datos
         Order updatedOrder = orderRepo.save(order);
@@ -398,6 +400,11 @@ public class OrderController {
         if (!session.admin() && (order.getStatus() != OrderStatus.DRAFT || newStatus != OrderStatus.REVISION)) {
             throw new ValidationException("invalid_order_status", "status [" + order.getStatus() + "] cannot be changed to [" + newStatus + "]");
         }
+
+        final OrderStatus previousStatus = order.getStatus();
+
+        order.addSystemNote(String.format("usuario [%s] de tipo [%s] cambió estado de solicitud de [%s] a [%s]", session.id(),
+                session.getUserType().getTranslation(), previousStatus.getTranslation(), newStatus.getTranslation()));
 
         order.updateStatus(newStatus);
 
