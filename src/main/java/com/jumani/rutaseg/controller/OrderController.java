@@ -54,7 +54,7 @@ public class OrderController {
     }
 
     @PostMapping
-    public ResponseEntity<OrderResponse> createOrder(@RequestBody @Valid OrderRequest orderRequest, @Session SessionInfo session) {
+    public ResponseEntity<OrderResponse> createOrder(@RequestBody OrderRequest orderRequest, @Session SessionInfo session) {
         Client client = clientRepo.findById(orderRequest.getClientId())
                 .orElseThrow(() -> new NotFoundException("client not found"));
 

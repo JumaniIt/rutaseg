@@ -17,21 +17,13 @@ public class OrderRequest {
     private String code;
     @NotNull
     @Positive
-    @JsonProperty("client_id")
     private Long clientId;
     private boolean pema;
     private boolean port;
     private boolean transport;
-    @JsonProperty("arrival_data")
     private ArrivalDataRequest arrivalData;
-
-    @JsonProperty("driver_data")
     private DriverDataRequest driverData;
-
-    @JsonProperty("customs_data")
     private CustomsDataRequest customsData;
     private List<ContainerRequest> containers;
-
-    @JsonProperty("consignee_data")
     private ConsigneeDataRequest consigneeData;
 }
