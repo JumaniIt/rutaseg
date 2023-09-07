@@ -15,8 +15,6 @@ import java.io.IOException;
 import java.util.Optional;
 
 @Slf4j
-@Component
-@Profile("local")
 public class OnDiskFileRepository implements FileRepository {
 
     @Value("${files.directory}")

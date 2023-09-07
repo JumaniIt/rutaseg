@@ -11,6 +11,7 @@ import com.jumani.rutaseg.exception.NotFoundException;
 import com.jumani.rutaseg.handler.Session;
 import com.jumani.rutaseg.repository.OrderRepository;
 import com.jumani.rutaseg.util.PaginationUtil;
+import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -53,6 +54,7 @@ public class NoteController {
     }
 
     @PostMapping
+    @Transactional
     public ResponseEntity<Note> addNoteToOrder(@PathVariable("orderId") long orderId,
                                                @RequestBody @Valid NoteRequest noteRequest,
                                                @Session SessionInfo session) {
@@ -69,9 +71,10 @@ public class NoteController {
         final Note note = new Note(author, noteRequest.getContent(), session.id());
         order.addNote(note);
 
-        orderRepo.save(order);
+        final Order updatedOrder = orderRepo.save(order);
+        final Note createdNote = updatedOrder.getNotes().stream().filter(note::equals).findFirst().orElseThrow();
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(note);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdNote);
     }
 
     @PutMapping("/{noteId}")

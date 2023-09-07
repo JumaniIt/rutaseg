@@ -9,7 +9,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.*;
 
 @Component
-@Profile("integration_test")
+@Profile("local")
 public class DummyFileRepository implements FileRepository {
     private final List<String> links = new ArrayList<>();
 

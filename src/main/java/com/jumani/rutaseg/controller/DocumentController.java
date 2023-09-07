@@ -68,14 +68,16 @@ public class DocumentController {
                 session.getUserType().getTranslation(), key));
 
         // Actualizar la orden en la base de datos
-        orderRepo.save(order);
+        final Order updatedOrder = orderRepo.save(order);
+        final Document createdDocument = updatedOrder.getDocuments().stream()
+                .filter(document::equals).findFirst().orElseThrow();
 
         // Crear la respuesta con los datos del documento creado
         DocumentResponse documentResponse = new DocumentResponse(
-                document.getId(),
-                document.getCreatedAt(),
-                document.getName(),
-                document.getResource(),
+                createdDocument.getId(),
+                createdDocument.getCreatedAt(),
+                createdDocument.getName(),
+                createdDocument.getResource(),
                 null
         );
 

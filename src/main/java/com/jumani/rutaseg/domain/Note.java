@@ -2,6 +2,7 @@ package com.jumani.rutaseg.domain;
 
 import com.jumani.rutaseg.util.DateGen;
 import jakarta.persistence.*;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
 
@@ -10,11 +11,12 @@ import java.time.ZonedDateTime;
 @Getter
 @Entity
 @Table(name = "notes")
+@EqualsAndHashCode(exclude = "id")
 public class Note implements DateGen {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
     @Column(name = "author")
     @Enumerated(EnumType.STRING)
