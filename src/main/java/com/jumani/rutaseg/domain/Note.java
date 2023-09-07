@@ -32,7 +32,7 @@ public class Note implements DateGen {
     private ZonedDateTime updatedAt;
 
     @Column(name = "created_by_user_id")
-    private Long createByUserId;
+    private Long createdByUserId;
 
     private Note() {
     }
@@ -41,7 +41,7 @@ public class Note implements DateGen {
     public Note(Author author, String content, Long createByUserId) {
         this.author = author;
         this.content = content;
-        this.createByUserId = createByUserId;
+        this.createdByUserId = createByUserId;
         this.createdAt = this.currentDateUTC();
     }
 
