@@ -20,7 +20,6 @@ import static com.jumani.rutaseg.domain.OrderStatus.DRAFT;
 @Slf4j
 public class Order implements DateGen {
 
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -78,6 +77,10 @@ public class Order implements DateGen {
     @JoinColumn(name = "order_id")
     private List<Document> documents;
 
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JoinColumn(name = "order_id")
+    private List<Note> notes;
+
     //constructor
     public Order(String code, Client client,
                  boolean pema, boolean port, boolean transport,
@@ -101,6 +104,7 @@ public class Order implements DateGen {
         this.containers = containers;
         this.consignee = consignee;
         this.documents = new ArrayList<>();
+        this.notes = new ArrayList<>();
     }
 
     public Long getClientId() {
@@ -125,7 +129,6 @@ public class Order implements DateGen {
         this.customsData = customsData;
         this.containers = containers;
         this.consignee = consignee;
-
     }
 
     public void addDocument(Document document) {
@@ -150,4 +153,26 @@ public class Order implements DateGen {
         this.status = newStatus;
     }
 
+    public void addNote(Note note) {
+        this.notes.add(note);
+    }
+
+    public Optional<Note> findNote(long noteId) {
+        return notes.stream()
+                .filter(note -> note.getId() == noteId)
+                .findFirst();
+    }
+
+    public Optional<Note> removeNote(long noteId) {
+        Optional<Note> documentToRemove = this.findNote(noteId);
+
+        documentToRemove.ifPresent(doc -> notes.remove(doc));
+
+        return documentToRemove;
+    }
+
+    public void addSystemNote(String content) {
+        final Note note = new Note(Author.SYSTEM, content, null);
+        this.addNote(note);
+    }
 }
