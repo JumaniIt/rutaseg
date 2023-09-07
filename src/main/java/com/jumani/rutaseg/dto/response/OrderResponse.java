@@ -1,8 +1,6 @@
 package com.jumani.rutaseg.dto.response;
 
 import com.jumani.rutaseg.domain.OrderStatus;
-import com.jumani.rutaseg.dto.request.ConsigneeDataRequest;
-import com.jumani.rutaseg.dto.request.ContainerRequest;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -14,22 +12,21 @@ import java.util.List;
 @AllArgsConstructor
 @Getter
 public class OrderResponse {
-    private long id;
-    private String code;
-    private long clientId;
-    private long createdByUserId;
-    private boolean pema;
-    private boolean port;
-    private boolean transport;
-    private OrderStatus status;
-    private ZonedDateTime createdAt;
-    private ZonedDateTime finishedAt;
-    private ArrivalDataResponse arrivalData;
-    private DriverDataResponse driverData;
-    private CustomsDataResponse customsData;
-    private List<ContainerResponse> containers;
-    private ConsigneeDataResponse consigneeData;
-    private List<DocumentResponse> documentResponse;
-
+    private final long id;
+    private final String code;
+    private final long clientId;
+    private final long createdByUserId;
+    private final boolean pema;
+    private final boolean port;
+    private final boolean transport;
+    private final OrderStatus status;
+    private final ZonedDateTime createdAt;
+    private final ZonedDateTime finishedAt;
+    private final ArrivalDataResponse arrivalData;
+    private final DriverDataResponse driverData;
+    private final CustomsDataResponse customsData;
+    private final List<ContainerResponse> containers;
+    private final ConsigneeDataResponse consignee;
+    private final List<DocumentResponse> documents;
 }
 
