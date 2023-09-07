@@ -175,4 +175,8 @@ public class Order implements DateGen {
         final Note note = new Note(Author.SYSTEM, content, null);
         this.addNote(note);
     }
+
+    public long getAmountOfNotes() {
+        return this.notes.size();
+    }
 }

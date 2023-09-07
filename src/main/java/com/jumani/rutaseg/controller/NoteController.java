@@ -5,16 +5,19 @@ import com.jumani.rutaseg.domain.Note;
 import com.jumani.rutaseg.domain.Order;
 import com.jumani.rutaseg.dto.request.NoteRequest;
 import com.jumani.rutaseg.dto.response.SessionInfo;
+import com.jumani.rutaseg.dto.result.PaginatedResult;
 import com.jumani.rutaseg.exception.ForbiddenException;
 import com.jumani.rutaseg.exception.NotFoundException;
 import com.jumani.rutaseg.handler.Session;
 import com.jumani.rutaseg.repository.OrderRepository;
+import com.jumani.rutaseg.util.PaginationUtil;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
@@ -25,8 +28,10 @@ public class NoteController {
     private final OrderRepository orderRepo;
 
     @GetMapping
-    public ResponseEntity<List<Note>> getAll(@PathVariable("orderId") long orderId,
-                                             @Session SessionInfo session) {
+    public ResponseEntity<PaginatedResult<Note>> search(@PathVariable("orderId") long orderId,
+                                                        @RequestParam(value = "page", defaultValue = "1") int page,
+                                                        @RequestParam(value = "page_size", defaultValue = "100") int pageSize,
+                                                        @Session SessionInfo session) {
 
         final Order order = orderRepo.findById(orderId)
                 .orElseThrow(() -> new NotFoundException(String.format("order with id [%s] not found", orderId)));
@@ -35,7 +40,16 @@ public class NoteController {
             throw new ForbiddenException();
         }
 
-        return ResponseEntity.ok(order.getNotes());
+        final List<Note> notes = order.getNotes();
+        final PaginatedResult<Note> result = PaginationUtil.get(notes.size(), pageSize, page,
+                (offset, limit) -> notes.stream()
+                        .sorted(Comparator.comparing(Note::getCreatedAt))
+                        .skip(offset)
+                        .limit(limit)
+                        .toList()
+        );
+
+        return ResponseEntity.ok(result);
     }
 
     @PostMapping
