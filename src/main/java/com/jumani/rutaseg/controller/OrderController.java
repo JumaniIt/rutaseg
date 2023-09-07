@@ -87,6 +87,7 @@ public class OrderController {
 
         // Crear la instancia de Order con los datos proporcionados
         Order order = new Order(
+                orderRequest.getCode(),
                 client,
                 orderRequest.isPema(),
                 orderRequest.isPort(),
@@ -173,7 +174,7 @@ public class OrderController {
                 ) : null;
 
         // Actualizar los atributos de la orden utilizando el método update() de la clase Order
-        order.update(client, pema, port, transport, arrivalData, driverData, customsData, containers, consigneeData);
+        order.update(orderRequest.getCode(), client, pema, port, transport, arrivalData, driverData, customsData, containers, consigneeData);
 
 
         // Actualizar la orden en la base de datos
@@ -355,15 +356,15 @@ public class OrderController {
                         document.getCreatedAt(),
                         document.getName(),
                         document.getResource(),
-                    null
+                        null
                 ))
                 .collect(Collectors.toList());
-
 
 
         // Crear una instancia de OrderResponse con los datos de ArrivalDataResponse, CustomsDataResponse y DriverDataResponse
         return new OrderResponse(
                 order.getId(),
+                order.getCode(),
                 order.getClientId(),
                 order.getCreatedByUserId(),
                 order.isPema(),
@@ -388,7 +389,7 @@ public class OrderController {
             @Session SessionInfo session
     ) {
         Order order = orderRepo.findById(id)
-            .orElseThrow(() -> new NotFoundException(String.format("Order with id [%s] not found", id)));
+                .orElseThrow(() -> new NotFoundException(String.format("Order with id [%s] not found", id)));
 
         if (!session.admin() && !Objects.equals(order.getClient().getUserId(), session.id())) {
             throw new ForbiddenException();

@@ -16,6 +16,7 @@ public class OrderTest {
     @Test
     public void testOrderInitialization() {
         // Arrange
+        String code = randomShortString();
         boolean pema = randomBoolean();
         boolean port = randomBoolean();
         boolean transport = randomBoolean();
@@ -36,9 +37,10 @@ public class OrderTest {
         ConsigneeData consigneeData = new ConsigneeData("Consignee Name", 123456789L);
 
         // Act
-        Order order = new Order(client, pema, port, transport, arrivalData, driverData, customsData, createdByUserId, containers, consigneeData);
+        Order order = new Order(code, client, pema, port, transport, arrivalData, driverData, customsData, createdByUserId, containers, consigneeData);
 
         // Assert
+        assertEquals(code, order.getCode());
         assertEquals(pema, order.isPema());
         assertEquals(port, order.isPort());
         assertEquals(transport, order.isTransport());
@@ -87,10 +89,11 @@ public class OrderTest {
                 67890L
         );
 
-        Order order = new Order(originalClient, originalPema, originalPort, originalTransport,
+        Order order = new Order("code-1", originalClient, originalPema, originalPort, originalTransport,
                 originalArrivalData, originalDriverData, originalCustomsData, originalCreatedByUserId,
                 originalContainers, originalConsigneeData);
 
+        String updatedCode = "code-2";
         Client updatedClient = new Client(new User("Jane", "password", "jane@example.com", false),
                 "Updated Client", "9876543210", 987654321L);
         boolean updatedPema = true;
@@ -125,11 +128,12 @@ public class OrderTest {
         );
 
         // Act
-        order.update(updatedClient, updatedPema, updatedPort, updatedTransport,
+        order.update(updatedCode, updatedClient, updatedPema, updatedPort, updatedTransport,
                 updatedArrivalData, updatedDriverData, updatedCustomsData,
                 updatedContainers, updatedConsigneeData);
 
         // Assert
+        assertEquals(updatedCode, order.getCode());
         assertEquals(updatedClient, order.getClient());
         assertEquals(updatedPema, order.isPema());
         assertEquals(updatedPort, order.isPort());
@@ -165,7 +169,7 @@ public class OrderTest {
         Container container2 = new Container("XYZ789", Measures.STANDARD_OPEN_SIDE_20_20_OS, true, "PEMA2");
         containers.addAll(Arrays.asList(container1, container2));
 
-        Order order = new Order(client, pema, port, transport, arrivalData, driverData, customsData,
+        Order order = new Order(randomShortString(), client, pema, port, transport, arrivalData, driverData, customsData,
                 createdByUserId, containers, consigneeData);
 
         OrderStatus newStatus = OrderStatus.DRAFT;

@@ -25,6 +25,8 @@ public class Order implements DateGen {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "code")
+    private String code;
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "client_id", foreignKey = @ForeignKey(name = "fk_orders_clients"))
     private Client client;
@@ -77,13 +79,14 @@ public class Order implements DateGen {
     private List<Document> documents;
 
     //constructor
-    public Order(Client client,
+    public Order(String code, Client client,
                  boolean pema, boolean port, boolean transport,
                  ArrivalData arrivalData,
                  DriverData driverData,
                  CustomsData customsData,
                  long createdByUserId, List<Container> containers, ConsigneeData consignee) {
 
+        this.code = code;
         this.client = client;
         this.pema = pema;
         this.port = port;
@@ -107,11 +110,12 @@ public class Order implements DateGen {
     private Order() {
     }
 
-    public void update(Client client, boolean pema, boolean port, boolean transport,
+    public void update(String code, Client client, boolean pema, boolean port, boolean transport,
                        ArrivalData arrivalData, DriverData driverData,
                        CustomsData customsData, List<Container> containers, ConsigneeData consignee) {
 
 
+        this.code = code;
         this.client = client;
         this.pema = pema;
         this.port = port;

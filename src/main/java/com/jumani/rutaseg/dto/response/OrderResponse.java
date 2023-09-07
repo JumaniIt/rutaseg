@@ -14,8 +14,8 @@ import java.util.List;
 @AllArgsConstructor
 @Getter
 public class OrderResponse {
-
-    private Long id;
+    private long id;
+    private String code;
     private long clientId;
     private long createdByUserId;
     private boolean pema;
