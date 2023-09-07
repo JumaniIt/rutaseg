@@ -30,6 +30,7 @@ public class OrderResponse {
     private List<ContainerResponse> containers;
     private ConsigneeDataResponse consigneeData;
     private List<DocumentResponse> documentResponse;
+    private List<CostResponse> costs;
 
 }
 
