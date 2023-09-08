@@ -8,26 +8,22 @@ import com.jumani.rutaseg.dto.response.SessionInfo;
 import com.jumani.rutaseg.exception.ForbiddenException;
 import com.jumani.rutaseg.exception.NotFoundException;
 import com.jumani.rutaseg.handler.Session;
-import com.jumani.rutaseg.repository.CostRepository;
 import com.jumani.rutaseg.repository.OrderRepository;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/orders/{id}/costs")
+@RequestMapping("/orders/{orderId}/costs")
 public class CostController {
 
     private final OrderRepository orderRepo;
-    private final CostRepository costRepo;
 
-    public CostController(OrderRepository orderRepo, CostRepository costRepo) {
+    public CostController(OrderRepository orderRepo) {
         this.orderRepo = orderRepo;
-        this.costRepo = costRepo;
     }
 
     @PostMapping
@@ -41,21 +37,19 @@ public class CostController {
         }
 
         Order order = orderRepo.findById(orderId)
-                .orElseThrow(() -> new NotFoundException("order not found"));
+                .orElseThrow(() -> new NotFoundException(String.format("order with id [%s] not found", orderId)));
 
         Cost newCost = new Cost(
                 costRequest.getAmount(),
                 costRequest.getDescription(),
                 costRequest.getType(),
-                order
+                session.id()
         );
 
-        Cost savedCost = costRepo.save(newCost);
-
-        order.updateCost(savedCost);
+        order.updateCost(newCost);
         orderRepo.save(order);
 
-        CostResponse costResponse = createCostResponse(savedCost);
+        CostResponse costResponse = createCostResponse(newCost);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(costResponse);
     }
@@ -72,7 +66,7 @@ public class CostController {
 
     @PutMapping("/{costId}")
     public ResponseEntity<CostResponse> updateCost(
-            @PathVariable("id") long orderId,
+            @PathVariable("orderId") long orderId,
             @PathVariable("costId") long costId,
             @RequestBody @Valid CostRequest costRequest,
             @Session SessionInfo session
@@ -82,32 +76,31 @@ public class CostController {
         }
 
         Order order = orderRepo.findById(orderId)
-                .orElseThrow(() -> new NotFoundException("order not found"));
+                .orElseThrow(() -> new NotFoundException(String.format("order with id [%s] not found", orderId)));
 
-        Optional<Cost> costOptional = costRepo.findById(costId);
+        Optional<Cost> costOptional = order.findCost(costId);
         if (costOptional.isEmpty()) {
-            throw new NotFoundException("cost not found");
+            throw new NotFoundException(String.format("cost with id [%s] not found in order [%s]", costId, orderId));
         }
 
         Cost existingCost = costOptional.get();
 
-        existingCost.setAmount(costRequest.getAmount());
-        existingCost.setDescription(costRequest.getDescription());
-        existingCost.setType(costRequest.getType());
+        existingCost.update(
+                costRequest.getAmount(),
+                costRequest.getDescription(),
+                costRequest.getType()
+        );
 
-        Cost updatedCost = costRepo.save(existingCost);
-
-        order.updateCost(updatedCost);
         orderRepo.save(order);
 
-        CostResponse costResponse = createCostResponse(updatedCost);
+        CostResponse costResponse = createCostResponse(existingCost);
 
         return ResponseEntity.ok(costResponse);
     }
 
     @DeleteMapping("/{costId}")
     public ResponseEntity<Void> deleteCost(
-            @PathVariable("id") long orderId,
+            @PathVariable("orderId") long orderId,
             @PathVariable("costId") long costId,
             @Session SessionInfo session
     ) {
@@ -116,7 +109,7 @@ public class CostController {
         }
 
         Order order = orderRepo.findById(orderId)
-                .orElseThrow(() -> new NotFoundException("order not found"));
+                .orElseThrow(() -> new NotFoundException(String.format("order with id [%s] not found", orderId)));
 
         Optional<Cost> costToRemoveOptional = order.removeCost(costId);
 

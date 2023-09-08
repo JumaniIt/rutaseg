@@ -1,5 +1,6 @@
 package com.jumani.rutaseg.domain;
 
+import com.jumani.rutaseg.util.DateGen;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -9,7 +10,7 @@ import java.time.ZonedDateTime;
 @Getter
 @Setter
 @Table(name = "costs")
-public class Cost {
+public class Cost implements DateGen {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,22 +25,32 @@ public class Cost {
     @Column(name = "created_at")
     private ZonedDateTime createdAt;
 
+    @Column(name = "updated_at")
+    private ZonedDateTime updatedAt;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "type")
     private CostType type;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "order_id")
-    private Order order;
+    @Column(name = "created_by_user_id")
+    private long createdByUserId;
 
-    public Cost(double amount, String description, CostType type, Order order) {
+    public Cost(double amount, String description, CostType type, long createdByUserId) {
         this.amount = amount;
         this.description = description;
         this.type = type;
-        this.order = order;
         this.createdAt = ZonedDateTime.now();
+        this.updatedAt = null;
+        this.createdByUserId = createdByUserId;
     }
 
     public Cost() {
+    }
+
+    public void update(double amount, String description, CostType type) {
+        this.amount = amount;
+        this.description = description;
+        this.type = type;
+        this.updatedAt = ZonedDateTime.now();
     }
 }
