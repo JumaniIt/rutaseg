@@ -118,7 +118,6 @@ public class Order implements DateGen {
                        ArrivalData arrivalData, DriverData driverData,
                        CustomsData customsData, List<Container> containers, ConsigneeData consignee) {
 
-
         this.code = code;
         this.client = client;
         this.pema = pema;

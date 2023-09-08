@@ -191,6 +191,7 @@ public class OrderController {
 
     @GetMapping
     public ResponseEntity<PaginatedResult<OrderResponse>> search(
+            @RequestParam(value = "code", required = false) String code,
             @RequestParam(value = "pema", required = false) Boolean pema,
             @RequestParam(value = "transport", required = false) Boolean transport,
             @RequestParam(value = "port", required = false) Boolean port,
@@ -226,6 +227,7 @@ public class OrderController {
         }
 
         final long totalElements = orderRepo.count(
+                code,
                 pema,
                 transport,
                 port,
@@ -239,6 +241,7 @@ public class OrderController {
 
         final PaginatedResult<OrderResponse> result = PaginationUtil.get(totalElements, pageSize, page, (offset, limit) -> {
             List<Order> orders = orderRepo.search(
+                    code,
                     pema,
                     transport,
                     port,
