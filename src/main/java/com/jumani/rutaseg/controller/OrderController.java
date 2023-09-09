@@ -110,7 +110,7 @@ public class OrderController {
         return ResponseEntity.status(HttpStatus.CREATED).body(orderResponse);
     }
 
-    @PutMapping("/{userId}")
+    @PutMapping("/{id}")
     public ResponseEntity<OrderResponse> updateOrder(
             @PathVariable("id") long id,
             @RequestBody @Valid OrderRequest orderRequest,
@@ -398,7 +398,7 @@ public class OrderController {
         );
     }
 
-    @PutMapping("/{userId}/status/{newStatus}")
+    @PutMapping("/{id}/status/{newStatus}")
     public ResponseEntity<OrderResponse> changeOrderStatus(
             @PathVariable("id") long id,
             @PathVariable("newStatus") OrderStatus newStatus,

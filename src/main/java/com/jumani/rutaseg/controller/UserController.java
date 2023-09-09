@@ -58,8 +58,8 @@ public class UserController {
         return new UserResponse(user.getId(), user.getNickname(), user.getEmail(), user.isAdmin());
     }
 
-    @GetMapping("/{userId}")
-    public ResponseEntity<UserResponse> getUserById(@PathVariable Long id, @Session SessionInfo session) {
+    @GetMapping("/{id}")
+    public ResponseEntity<UserResponse> getUserById(@PathVariable("id") Long id, @Session SessionInfo session) {
         User user = userRepo.findById(id)
                 .orElseThrow(() -> new NotFoundException("user not found"));
 

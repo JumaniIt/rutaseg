@@ -99,7 +99,7 @@ public class ClientController {
         return ResponseEntity.ok(result);
     }
 
-    @GetMapping("/{userId}")
+    @GetMapping("/{id}")
     public ResponseEntity<ClientResponse> getById(@PathVariable("id") long id,
                                                   @RequestParam(value = "with_consignees", required = false, defaultValue = "false") boolean withConsignees,
                                                   @Session SessionInfo session) {
