@@ -39,7 +39,7 @@ public class Cost implements DateGen {
         this.amount = amount;
         this.description = description;
         this.type = type;
-        this.createdAt = ZonedDateTime.now();
+        this.createdAt = this.currentDateUTC();
         this.updatedAt = null;
         this.createdByUserId = createdByUserId;
     }
@@ -51,6 +51,6 @@ public class Cost implements DateGen {
         this.amount = amount;
         this.description = description;
         this.type = type;
-        this.updatedAt = ZonedDateTime.now();
+        this.updatedAt = this.currentDateUTC();
     }
 }
