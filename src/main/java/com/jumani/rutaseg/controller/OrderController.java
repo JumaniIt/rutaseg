@@ -365,6 +365,16 @@ public class OrderController {
                 ))
                 .collect(Collectors.toList());
 
+        // Crear una lista de CostResponse a partir de los objetos Cost
+        List<CostResponse> costResponse= order.getCosts().stream()
+                .map(cost -> new CostResponse(
+                        cost.getId(),
+                        cost.getAmount(),
+                        cost.getDescription(),
+                        cost.getType(),
+                        cost.getCreatedAt()
+                ))
+                .collect(Collectors.toList());
 
         // Crear una instancia de OrderResponse con los datos de ArrivalDataResponse, CustomsDataResponse y DriverDataResponse
         return new OrderResponse(
@@ -383,7 +393,8 @@ public class OrderController {
                 customsDataResponse,
                 containerResponse,
                 consigneeDataResponse,
-                documentResponse
+                documentResponse,
+                costResponse
         );
     }
 

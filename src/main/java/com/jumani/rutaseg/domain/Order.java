@@ -77,6 +77,10 @@ public class Order implements DateGen {
     @JoinColumn(name = "order_id")
     private List<Document> documents;
 
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @JoinColumn(name = "order_id")
+    private List<Cost> costs;
+
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id")
     private List<Note> notes;
@@ -104,6 +108,7 @@ public class Order implements DateGen {
         this.containers = containers;
         this.consignee = consignee;
         this.documents = new ArrayList<>();
+        this.costs = new ArrayList<>();
         this.notes = new ArrayList<>();
     }
 
@@ -150,6 +155,28 @@ public class Order implements DateGen {
 
     public void updateStatus(OrderStatus newStatus) {
         this.status = newStatus;
+    }
+
+    public void updateCost(Cost cost) {
+        costs.add(cost);
+    }
+
+    public Optional<Cost> removeCost(long costId) {
+        Optional<Cost> costToRemove = this.findCost(costId);
+
+        if (costToRemove.isPresent()) {
+            Cost cost = costToRemove.get();
+            costs.remove(cost);
+            return costToRemove;
+        }
+
+        return Optional.empty();
+    }
+
+    public Optional<Cost> findCost(long costId) {
+        return costs.stream()
+                .filter(c -> c.getId() == costId)
+                .findFirst();
     }
 
     public void addNote(Note note) {

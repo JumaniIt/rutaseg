@@ -28,5 +28,6 @@ public class OrderResponse {
     private final List<ContainerResponse> containers;
     private final ConsigneeDataResponse consignee;
     private final List<DocumentResponse> documents;
+    private final List<CostResponse> costs;
 }
 
