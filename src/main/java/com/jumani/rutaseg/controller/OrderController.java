@@ -40,7 +40,7 @@ public class OrderController {
 
     }
 
-    @GetMapping("/{userId}")
+    @GetMapping("/{id}")
     public ResponseEntity<OrderResponse> getById(@PathVariable("id") long id, @Session SessionInfo session) {
         Order order = orderRepo.findById(id)
                 .orElseThrow(() -> new NotFoundException(String.format("order with id [%s] not found", id)));
