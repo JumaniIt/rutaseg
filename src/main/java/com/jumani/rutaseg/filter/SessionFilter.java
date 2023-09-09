@@ -17,7 +17,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -74,12 +73,6 @@ public class SessionFilter extends OncePerRequestFilter {
 
         final String endpoint = request.getRequestURI();
         if (SKIPPED_ENDPOINTS.contains(endpoint)) return;
-
-        Optional.ofNullable(request.getCookies())
-                .stream()
-                .findFirst()
-                .ifPresentOrElse(cookies -> Arrays.stream(cookies).forEach(cookie -> log.info("the cookie key {} the cookie value {}", cookie.getName(), cookie.getValue())),
-                        () -> log.warn("there is no cookies!"));
 
         final String token = JwtUtil.extractToken(request).orElseThrow(UnauthorizedException::new);
         if (!jwtService.isTokenValid(token)) {
