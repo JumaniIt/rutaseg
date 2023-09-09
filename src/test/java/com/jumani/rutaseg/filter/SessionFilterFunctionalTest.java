@@ -6,6 +6,7 @@ import com.jumani.rutaseg.IntegrationTest;
 import com.jumani.rutaseg.dto.result.Error;
 import com.jumani.rutaseg.repository.client.ClientRepository;
 import com.jumani.rutaseg.service.auth.JwtService;
+import com.jumani.rutaseg.util.JwtUtil;
 import jakarta.servlet.http.Cookie;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -136,7 +137,7 @@ class SessionFilterFunctionalTest extends IntegrationTest {
     void doFilterInternal_InvalidAuthorizationHeader_Unauthorized() throws Exception {
         final MvcResult mvcResult = mvc.perform(get(SIMPLE_GET)
                         .header(SessionFilter.ORIGIN_HEADER, KNOWN_ORIGIN)
-                        .header(SessionFilter.AUTHORIZATION_HEADER, "invalid-auth-header"))
+                        .header(JwtUtil.AUTHORIZATION_HEADER, "invalid-auth-header"))
                 .andDo(print())
                 .andReturn();
 
@@ -156,7 +157,7 @@ class SessionFilterFunctionalTest extends IntegrationTest {
 
         final MvcResult mvcResult = mvc.perform(get(SIMPLE_GET)
                         .header(SessionFilter.ORIGIN_HEADER, KNOWN_ORIGIN)
-                        .header(SessionFilter.AUTHORIZATION_HEADER, SessionFilter.BEARER_SUFFIX + token))
+                        .header(JwtUtil.AUTHORIZATION_HEADER, JwtUtil.BEARER_SUFFIX + token))
                 .andDo(print())
                 .andReturn();
 
@@ -177,7 +178,7 @@ class SessionFilterFunctionalTest extends IntegrationTest {
 
         final MvcResult mvcResult = mvc.perform(get(ADMIN_ENDPOINT)
                         .header(SessionFilter.ORIGIN_HEADER, KNOWN_ORIGIN)
-                        .header(SessionFilter.AUTHORIZATION_HEADER, SessionFilter.BEARER_SUFFIX + token))
+                        .header(JwtUtil.AUTHORIZATION_HEADER, JwtUtil.BEARER_SUFFIX + token))
                 .andDo(print())
                 .andReturn();
 
@@ -197,7 +198,7 @@ class SessionFilterFunctionalTest extends IntegrationTest {
 
         mvc.perform(get(SIMPLE_GET)
                         .header(SessionFilter.ORIGIN_HEADER, KNOWN_ORIGIN)
-                        .header(SessionFilter.AUTHORIZATION_HEADER, SessionFilter.BEARER_SUFFIX + token))
+                        .header(JwtUtil.AUTHORIZATION_HEADER, JwtUtil.BEARER_SUFFIX + token))
                 .andDo(print())
                 .andExpect(status().is(HttpStatus.NO_CONTENT.value()))
                 .andReturn();
@@ -226,7 +227,7 @@ class SessionFilterFunctionalTest extends IntegrationTest {
 
         mvc.perform(get(ADMIN_ENDPOINT)
                         .header(SessionFilter.ORIGIN_HEADER, KNOWN_ORIGIN)
-                        .header(SessionFilter.AUTHORIZATION_HEADER, SessionFilter.BEARER_SUFFIX + token))
+                        .header(JwtUtil.AUTHORIZATION_HEADER, JwtUtil.BEARER_SUFFIX + token))
                 .andDo(print())
                 .andExpect(status().is(HttpStatus.NO_CONTENT.value()))
                 .andReturn();
@@ -241,7 +242,7 @@ class SessionFilterFunctionalTest extends IntegrationTest {
         when(jwtService.isTokenValid(token)).thenReturn(true);
 
         mvc.perform(get(SIMPLE_GET)
-                        .header(SessionFilter.AUTHORIZATION_HEADER, SessionFilter.BEARER_SUFFIX + token))
+                        .header(JwtUtil.AUTHORIZATION_HEADER, JwtUtil.BEARER_SUFFIX + token))
                 .andDo(print())
                 .andExpect(status().is(HttpStatus.NO_CONTENT.value()))
                 .andReturn();

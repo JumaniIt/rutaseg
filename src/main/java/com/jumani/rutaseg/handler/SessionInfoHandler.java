@@ -1,7 +1,9 @@
 package com.jumani.rutaseg.handler;
 
 import com.jumani.rutaseg.dto.response.SessionInfo;
+import com.jumani.rutaseg.exception.UnauthorizedException;
 import com.jumani.rutaseg.service.auth.JwtService;
+import com.jumani.rutaseg.util.JwtUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
@@ -11,9 +13,6 @@ import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
-
-import static com.jumani.rutaseg.filter.SessionFilter.AUTHORIZATION_HEADER;
-import static com.jumani.rutaseg.filter.SessionFilter.BEARER_SUFFIX;
 
 @Component
 @AllArgsConstructor
@@ -33,8 +32,7 @@ public class SessionInfoHandler implements HandlerMethodArgumentResolver {
                                        WebDataBinderFactory webDataBinderFactory) {
 
         final HttpServletRequest request = (HttpServletRequest) nativeWebRequest.getNativeRequest();
-        final String authorizationHeader = request.getHeader(AUTHORIZATION_HEADER);
-        final String token = authorizationHeader.substring(BEARER_SUFFIX.length());
+        final String token = JwtUtil.extractToken(request).orElseThrow(UnauthorizedException::new);
 
         final long userId = Long.parseLong(jwtService.extractSubject(token));
         final boolean admin = jwtService.isAdminToken(token);

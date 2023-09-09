@@ -4,9 +4,9 @@ import com.jumani.rutaseg.exception.ForbiddenException;
 import com.jumani.rutaseg.exception.InvalidRequestOriginException;
 import com.jumani.rutaseg.exception.UnauthorizedException;
 import com.jumani.rutaseg.service.auth.JwtService;
+import com.jumani.rutaseg.util.JwtUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
@@ -15,7 +15,9 @@ import org.springframework.core.annotation.Order;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 @Order(2)
 @AllArgsConstructor
@@ -26,10 +28,7 @@ public class SessionFilter extends OncePerRequestFilter {
     private final boolean allowAllOrigins;
 
     public static final String ACCESS_CONTROL_REQUEST_HEADERS = "access-control-request-headers";
-    public static final String AUTHORIZATION_HEADER = "x-auth-token";
-    public static final String JWT_TOKEN_COOKIE_NAME = "jwtToken";
     public static final String ORIGIN_HEADER = "x-auth-origin";
-    public static final String BEARER_SUFFIX = "Bearer ";
 
     // Endpoints que NO necesitan ser autorizados con JWT
     private static final List<String> SKIPPED_ENDPOINTS;
@@ -73,7 +72,7 @@ public class SessionFilter extends OncePerRequestFilter {
         final String endpoint = request.getRequestURI();
         if (SKIPPED_ENDPOINTS.contains(endpoint)) return;
 
-        final String token = this.getJwtToken(request).orElseThrow(UnauthorizedException::new);
+        final String token = JwtUtil.extractToken(request).orElseThrow(UnauthorizedException::new);
         if (!jwtService.isTokenValid(token)) {
             throw new UnauthorizedException();
         }
@@ -81,23 +80,6 @@ public class SessionFilter extends OncePerRequestFilter {
         if (ADMIN_ENDPOINTS.stream().anyMatch(endpoint::startsWith) && !jwtService.isAdminToken(token)) {
             throw new ForbiddenException();
         }
-    }
-
-    private Optional<String> getJwtToken(HttpServletRequest request) {
-        return Optional.ofNullable(request.getHeader(AUTHORIZATION_HEADER))
-                .filter(ah -> ah.startsWith(BEARER_SUFFIX))
-                .map(ah -> ah.substring(BEARER_SUFFIX.length()))
-                .or(() -> {
-                    final Cookie[] cookies = request.getCookies();
-                    if (Objects.isNull(cookies)) {
-                        return Optional.empty();
-                    }
-
-                    return Arrays.stream(cookies)
-                            .filter(cookie -> cookie.getName().equals(JWT_TOKEN_COOKIE_NAME))
-                            .map(Cookie::getValue)
-                            .findFirst();
-                });
     }
 
     private boolean isHealthCheck(HttpServletRequest request) {
