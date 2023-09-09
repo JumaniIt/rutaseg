@@ -64,15 +64,20 @@ public class DocumentController {
         // Asociar el documento con la orden
         order.addDocument(document);
 
+        order.addSystemNote(String.format("usuario [%s] de tipo [%s] agregó documento [%s]", session.id(),
+                session.getUserType().getTranslation(), key));
+
         // Actualizar la orden en la base de datos
-        orderRepo.save(order);
+        final Order updatedOrder = orderRepo.save(order);
+        final Document createdDocument = updatedOrder.getDocuments().stream()
+                .filter(document::equals).findFirst().orElseThrow();
 
         // Crear la respuesta con los datos del documento creado
         DocumentResponse documentResponse = new DocumentResponse(
-                document.getId(),
-                document.getCreatedAt(),
-                document.getName(),
-                document.getResource(),
+                createdDocument.getId(),
+                createdDocument.getCreatedAt(),
+                createdDocument.getName(),
+                createdDocument.getResource(),
                 null
         );
 
@@ -145,8 +150,12 @@ public class DocumentController {
 
         if (removedDocument.isPresent()) {
             // Documento encontrado y eliminado de la orden, procede a eliminarlo del repositorio de archivos
-            String resourceKey = removedDocument.get().getResource();
+            final Document document = removedDocument.get();
+            String resourceKey = document.getResource();
             fileRepo.delete(resourceKey);
+
+            order.addSystemNote(String.format("usuario [%s] de tipo [%s] borró documento [%s]", session.id(),
+                    session.getUserType().getTranslation(), document.getName()));
 
             // Actualizar la orden en la base de datos
             orderRepo.save(order);

@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:mysql://localhost:3306/rutaseg
+    url: jdbc:mysql://localhost:3306/gexlog
     username: root
     password:
   jpa:
@@ -10,6 +10,6 @@ spring:
     generate-ddl: true
     show-sql: true
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: none
 files:
   directory: ${FILES_DIRECTORY}

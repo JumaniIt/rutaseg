@@ -29,7 +29,8 @@ public class OrderRepositoryImpl implements OrderRepositoryExtended {
 
     private final EntityManager entityManager;
 
-    public List<Order> search(@Nullable Boolean pema,
+    public List<Order> search(@Nullable String codeLike,
+                              @Nullable Boolean pema,
                               @Nullable Boolean transport,
                               @Nullable Boolean port,
                               @Nullable LocalDate arrivalDateFrom,
@@ -46,7 +47,8 @@ public class OrderRepositoryImpl implements OrderRepositoryExtended {
         final Root<Order> root = criteriaQuery.from(Order.class);
 
         criteriaQuery.select(root);
-        criteriaQuery.where(createPredicates(builder, root, pema, transport, port, arrivalDateFrom, arrivalDateTo, arrivalTimeFrom, arrivalTimeTo, clientId, status));
+        criteriaQuery.where(createPredicates(builder, root, codeLike, pema, transport, port, arrivalDateFrom,
+                arrivalDateTo, arrivalTimeFrom, arrivalTimeTo, clientId, status));
         criteriaQuery.orderBy(builder.asc(root.get(Order.Fields.id)));
 
         return entityManager.createQuery(criteriaQuery)
@@ -56,7 +58,8 @@ public class OrderRepositoryImpl implements OrderRepositoryExtended {
     }
 
     @Override
-    public long count(@Nullable Boolean pema,
+    public long count(@Nullable String codeLike,
+                      @Nullable Boolean pema,
                       @Nullable Boolean transport,
                       @Nullable Boolean port,
                       @Nullable LocalDate arrivalDateFrom,
@@ -71,13 +74,14 @@ public class OrderRepositoryImpl implements OrderRepositoryExtended {
         final Root<Order> root = criteriaQuery.from(Order.class);
 
         criteriaQuery.select(builder.count(root));
-        criteriaQuery.where(createPredicates(builder, root, pema, transport, port, arrivalDateFrom,
+        criteriaQuery.where(createPredicates(builder, root, codeLike, pema, transport, port, arrivalDateFrom,
                 arrivalDateTo, arrivalTimeFrom, arrivalTimeTo, clientId, status));
 
         return entityManager.createQuery(criteriaQuery).getSingleResult();
     }
 
     private Predicate[] createPredicates(CriteriaBuilder builder, Root<Order> root,
+                                         @Nullable String codeLike,
                                          @Nullable Boolean pema,
                                          @Nullable Boolean transport,
                                          @Nullable Boolean port,
@@ -89,6 +93,10 @@ public class OrderRepositoryImpl implements OrderRepositoryExtended {
                                          @Nullable OrderStatus status) {
 
         final List<Predicate> predicates = new ArrayList<>();
+
+        if (Objects.nonNull(codeLike)) {
+            predicates.add(builder.like(root.get(Order.Fields.code), "%" + codeLike + "%"));
+        }
 
         if (Objects.nonNull(pema)) {
             predicates.add(builder.equal(root.get(Order.Fields.pema), pema));

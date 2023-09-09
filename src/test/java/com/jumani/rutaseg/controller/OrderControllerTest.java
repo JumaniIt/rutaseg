@@ -1,9 +1,14 @@
 package com.jumani.rutaseg.controller;
 
-import com.jumani.rutaseg.TestDataGen;
-import com.jumani.rutaseg.domain.*;
-import com.jumani.rutaseg.dto.request.*;
-import com.jumani.rutaseg.dto.response.*;
+import com.jumani.rutaseg.domain.Client;
+import com.jumani.rutaseg.domain.Order;
+import com.jumani.rutaseg.domain.OrderStatus;
+import com.jumani.rutaseg.dto.request.ArrivalDataRequest;
+import com.jumani.rutaseg.dto.request.CustomsDataRequest;
+import com.jumani.rutaseg.dto.request.DriverDataRequest;
+import com.jumani.rutaseg.dto.request.OrderRequest;
+import com.jumani.rutaseg.dto.response.OrderResponse;
+import com.jumani.rutaseg.dto.response.SessionInfo;
 import com.jumani.rutaseg.exception.ForbiddenException;
 import com.jumani.rutaseg.exception.NotFoundException;
 import com.jumani.rutaseg.repository.OrderRepository;
@@ -12,7 +17,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +25,7 @@ import java.time.ZonedDateTime;
 import java.util.Collections;
 import java.util.Optional;
 
+import static com.jumani.rutaseg.TestDataGen.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -42,6 +47,7 @@ class OrderControllerTest {
     @Test
     public void getById_WithValidIdAndMatchingClient_ShouldReturnOrderResponse() {
         // Arrange
+        String code = randomShortString();
         long orderId = 1L;
         long clientId = 1L;
         long createdByUserId = 2L;
@@ -55,6 +61,7 @@ class OrderControllerTest {
 
         OrderResponse expectedResponse = new OrderResponse(
                 orderId,
+                code,
                 clientId,
                 createdByUserId,
                 pema,
@@ -68,12 +75,14 @@ class OrderControllerTest {
                 null,
                 Collections.emptyList(),
                 null,
+                Collections.emptyList(),
                 Collections.emptyList()
         );
 
         Order order = mock(Order.class);
         when(orderRepo.findById(orderId)).thenReturn(Optional.of(order));
         when(order.getId()).thenReturn(orderId);
+        when(order.getCode()).thenReturn(code);
         when(order.getClientId()).thenReturn(clientId);
         when(order.getCreatedByUserId()).thenReturn(createdByUserId);
         when(order.isPema()).thenReturn(pema);
@@ -124,25 +133,26 @@ class OrderControllerTest {
     @Test
     void createOrder_WithValidData_ReturnsOrderResponse() {
         // Arrange
-        boolean pema = TestDataGen.randomBoolean();
-        boolean port = TestDataGen.randomBoolean();
-        boolean transport = TestDataGen.randomBoolean();
-        long clientId = TestDataGen.randomId();
+        String code = randomShortString();
+        boolean pema = randomBoolean();
+        boolean port = randomBoolean();
+        boolean transport = randomBoolean();
+        long clientId = randomId();
 
         ArrivalDataRequest arrivalDataRequest = new ArrivalDataRequest();
         DriverDataRequest driverDataRequest = new DriverDataRequest();
         CustomsDataRequest customsDataRequest = new CustomsDataRequest();
         OrderRequest orderRequest = new OrderRequest(
-                clientId, pema, port, transport, arrivalDataRequest, driverDataRequest, customsDataRequest, Collections.emptyList(), null
+                code, clientId, pema, port, transport, arrivalDataRequest, driverDataRequest, customsDataRequest, Collections.emptyList(), null
         );
 
-        SessionInfo session = new SessionInfo(TestDataGen.randomId(), true);
+        SessionInfo session = new SessionInfo(randomId(), true);
 
         Client client = mock(Client.class);
 
         Order savedOrder = mock(Order.class);
         when(savedOrder.getClientId()).thenReturn(clientId);
-        long createdByUserId = TestDataGen.randomId(); // Generar un número aleatorio para createdByUserId
+        long createdByUserId = randomId(); // Generar un número aleatorio para createdByUserId
         when(savedOrder.getCreatedByUserId()).thenReturn(createdByUserId); // Configurar el mock para devolver el número aleatorio
 
         when(clientRepo.findById(clientId)).thenReturn(Optional.of(client));
@@ -150,6 +160,7 @@ class OrderControllerTest {
         when(savedOrder.getClientId()).thenReturn(clientId);
 
         when(savedOrder.getId()).thenReturn(1L);
+        when(savedOrder.getCode()).thenReturn(code);
         when(savedOrder.isPema()).thenReturn(pema);
         when(savedOrder.isPort()).thenReturn(port);
         when(savedOrder.isTransport()).thenReturn(transport);
@@ -158,9 +169,9 @@ class OrderControllerTest {
         when(savedOrder.getFinishedAt()).thenReturn(null);
 
         OrderResponse expectedOrderResponse = new OrderResponse(
-                1L, clientId, createdByUserId, pema, port, transport, OrderStatus.DRAFT,
+                1L, code, clientId, createdByUserId, pema, port, transport, OrderStatus.DRAFT,
                 ZonedDateTime.now(), null, null, null, null, Collections.emptyList(),
-                null, Collections.emptyList()
+                null, Collections.emptyList(), Collections.emptyList()
         );
 
         // Act
@@ -180,8 +191,8 @@ class OrderControllerTest {
     @Test
     void createOrder_WithNonAdminUserAndDifferentUserId_ThrowsForbiddenException() {
         // Arrange
-        long createdByUserId = TestDataGen.randomId();
-        long clientId = TestDataGen.randomId();
+        long createdByUserId = randomId();
+        long clientId = randomId();
 
         OrderRequest orderRequest = mock(OrderRequest.class);
         when(orderRequest.getClientId()).thenReturn(clientId);
@@ -205,8 +216,8 @@ class OrderControllerTest {
     @Test
     void createOrder_WithNonExistentClient_ThrowsNotFoundException() {
         // Arrange
-        long createdByUserId = TestDataGen.randomId();
-        long clientId = TestDataGen.randomId();
+        long createdByUserId = randomId();
+        long clientId = randomId();
 
         OrderRequest orderRequest = mock(OrderRequest.class);
         when(orderRequest.getClientId()).thenReturn(clientId);
@@ -228,7 +239,9 @@ class OrderControllerTest {
     void updateOrder_WithNonExistingOrder_ReturnsNotFound() {
         // Arrange
         long orderId = 1L;
-        OrderRequest orderRequest = new OrderRequest(101L, true, true, true, null, null, null, Collections.emptyList(), null);
+        String code = randomShortString();
+
+        OrderRequest orderRequest = new OrderRequest(code, 101L, true, true, true, null, null, null, Collections.emptyList(), null);
         SessionInfo session = new SessionInfo(501L, true);
 
         when(orderRepo.findById(orderId)).thenReturn(Optional.empty());
@@ -247,7 +260,7 @@ class OrderControllerTest {
     void updateOrder_WithNonDraftOrderAndNonAdminUser_ReturnsForbidden() {
         // Arrange
         long orderId = 1L;
-        OrderRequest orderRequest = new OrderRequest(101L, true, true, true, null, null, null, Collections.emptyList(), null);
+        OrderRequest orderRequest = new OrderRequest(randomShortString(), 101L, true, true, true, null, null, null, Collections.emptyList(), null);
         SessionInfo session = new SessionInfo(501L, false);
 
         Client existingClient = mock(Client.class);
@@ -270,7 +283,7 @@ class OrderControllerTest {
     void updateOrder_WithValidDataAndAdminUser_ReturnsUpdatedOrderResponse() {
         // Arrange
         long orderId = 1L;
-        OrderRequest orderRequest = new OrderRequest(101L, true, true, true, null, null, null, Collections.emptyList(), null);
+        OrderRequest orderRequest = new OrderRequest(randomShortString(), 101L, true, true, true, null, null, null, Collections.emptyList(), null);
         SessionInfo session = new SessionInfo(501L, true);
 
         Client existingClient = mock(Client.class);

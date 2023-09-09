@@ -12,6 +12,8 @@ import java.util.List;
 @AllArgsConstructor
 @Getter
 public class OrderRequest {
+
+    private String code;
     @NotNull
     @Positive
     private Long clientId;

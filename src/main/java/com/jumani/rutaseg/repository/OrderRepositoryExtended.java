@@ -10,7 +10,8 @@ import java.util.List;
 
 public interface OrderRepositoryExtended {
 
-    List<Order> search(@Nullable Boolean pema,
+    List<Order> search(@Nullable String codeLike,
+                       @Nullable Boolean pema,
                        @Nullable Boolean transport,
                        @Nullable Boolean port,
                        @Nullable LocalDate arrivalDateFrom,
@@ -22,7 +23,8 @@ public interface OrderRepositoryExtended {
                        int offset,
                        int limit);
 
-    long count(@Nullable Boolean pema,
+    long count(@Nullable String codeLike,
+               @Nullable Boolean pema,
                @Nullable Boolean transport,
                @Nullable Boolean port,
                @Nullable LocalDate arrivalDateFrom,

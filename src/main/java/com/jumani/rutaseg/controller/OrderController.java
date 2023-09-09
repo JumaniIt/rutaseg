@@ -87,6 +87,7 @@ public class OrderController {
 
         // Crear la instancia de Order con los datos proporcionados
         Order order = new Order(
+                orderRequest.getCode(),
                 client,
                 orderRequest.isPema(),
                 orderRequest.isPort(),
@@ -112,7 +113,7 @@ public class OrderController {
     @PutMapping("/{id}")
     public ResponseEntity<OrderResponse> updateOrder(
             @PathVariable("id") long id,
-            @RequestBody OrderRequest orderRequest,
+            @RequestBody @Valid OrderRequest orderRequest,
             @Session SessionInfo session
     ) {
         Order order = orderRepo.findById(id)
@@ -173,8 +174,10 @@ public class OrderController {
                 ) : null;
 
         // Actualizar los atributos de la orden utilizando el método update() de la clase Order
-        order.update(client, pema, port, transport, arrivalData, driverData, customsData, containers, consigneeData);
+        order.update(orderRequest.getCode(), client, pema, port, transport, arrivalData, driverData, customsData, containers, consigneeData);
 
+        order.addSystemNote(String.format("usuario [%s] de tipo [%s] actualizó datos de solicitud", session.id(),
+                session.getUserType().getTranslation()));
 
         // Actualizar la orden en la base de datos
         Order updatedOrder = orderRepo.save(order);
@@ -188,6 +191,7 @@ public class OrderController {
 
     @GetMapping
     public ResponseEntity<PaginatedResult<OrderResponse>> search(
+            @RequestParam(value = "code", required = false) String code,
             @RequestParam(value = "pema", required = false) Boolean pema,
             @RequestParam(value = "transport", required = false) Boolean transport,
             @RequestParam(value = "port", required = false) Boolean port,
@@ -223,6 +227,7 @@ public class OrderController {
         }
 
         final long totalElements = orderRepo.count(
+                code,
                 pema,
                 transport,
                 port,
@@ -236,6 +241,7 @@ public class OrderController {
 
         final PaginatedResult<OrderResponse> result = PaginationUtil.get(totalElements, pageSize, page, (offset, limit) -> {
             List<Order> orders = orderRepo.search(
+                    code,
                     pema,
                     transport,
                     port,
@@ -355,7 +361,7 @@ public class OrderController {
                         document.getCreatedAt(),
                         document.getName(),
                         document.getResource(),
-                    null
+                        null
                 ))
                 .collect(Collectors.toList());
 
@@ -370,10 +376,10 @@ public class OrderController {
                 ))
                 .collect(Collectors.toList());
 
-
         // Crear una instancia de OrderResponse con los datos de ArrivalDataResponse, CustomsDataResponse y DriverDataResponse
         return new OrderResponse(
                 order.getId(),
+                order.getCode(),
                 order.getClientId(),
                 order.getCreatedByUserId(),
                 order.isPema(),
@@ -399,7 +405,7 @@ public class OrderController {
             @Session SessionInfo session
     ) {
         Order order = orderRepo.findById(id)
-            .orElseThrow(() -> new NotFoundException(String.format("Order with id [%s] not found", id)));
+                .orElseThrow(() -> new NotFoundException(String.format("Order with id [%s] not found", id)));
 
         if (!session.admin() && !Objects.equals(order.getClient().getUserId(), session.id())) {
             throw new ForbiddenException();
@@ -408,6 +414,11 @@ public class OrderController {
         if (!session.admin() && (order.getStatus() != OrderStatus.DRAFT || newStatus != OrderStatus.REVISION)) {
             throw new ValidationException("invalid_order_status", "status [" + order.getStatus() + "] cannot be changed to [" + newStatus + "]");
         }
+
+        final OrderStatus previousStatus = order.getStatus();
+
+        order.addSystemNote(String.format("usuario [%s] de tipo [%s] cambió estado de solicitud de [%s] a [%s]", session.id(),
+                session.getUserType().getTranslation(), previousStatus.getTranslation(), newStatus.getTranslation()));
 
         order.updateStatus(newStatus);
 

@@ -20,11 +20,12 @@ import static com.jumani.rutaseg.domain.OrderStatus.DRAFT;
 @Slf4j
 public class Order implements DateGen {
 
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "code")
+    private String code;
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "client_id", foreignKey = @ForeignKey(name = "fk_orders_clients"))
     private Client client;
@@ -80,14 +81,19 @@ public class Order implements DateGen {
     @JoinColumn(name = "order_id")
     private List<Cost> costs;
 
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JoinColumn(name = "order_id")
+    private List<Note> notes;
+
     //constructor
-    public Order(Client client,
+    public Order(String code, Client client,
                  boolean pema, boolean port, boolean transport,
                  ArrivalData arrivalData,
                  DriverData driverData,
                  CustomsData customsData,
                  long createdByUserId, List<Container> containers, ConsigneeData consignee) {
 
+        this.code = code;
         this.client = client;
         this.pema = pema;
         this.port = port;
@@ -103,6 +109,7 @@ public class Order implements DateGen {
         this.consignee = consignee;
         this.documents = new ArrayList<>();
         this.costs = new ArrayList<>();
+        this.notes = new ArrayList<>();
     }
 
     public Long getClientId() {
@@ -112,11 +119,11 @@ public class Order implements DateGen {
     private Order() {
     }
 
-    public void update(Client client, boolean pema, boolean port, boolean transport,
+    public void update(String code, Client client, boolean pema, boolean port, boolean transport,
                        ArrivalData arrivalData, DriverData driverData,
                        CustomsData customsData, List<Container> containers, ConsigneeData consignee) {
 
-
+        this.code = code;
         this.client = client;
         this.pema = pema;
         this.port = port;
@@ -126,7 +133,6 @@ public class Order implements DateGen {
         this.customsData = customsData;
         this.containers = containers;
         this.consignee = consignee;
-
     }
 
     public void addDocument(Document document) {
@@ -173,4 +179,30 @@ public class Order implements DateGen {
                 .findFirst();
     }
 
+    public void addNote(Note note) {
+        this.notes.add(note);
+    }
+
+    public Optional<Note> findNote(long noteId) {
+        return notes.stream()
+                .filter(note -> note.getId() == noteId)
+                .findFirst();
+    }
+
+    public Optional<Note> removeNote(long noteId) {
+        Optional<Note> documentToRemove = this.findNote(noteId);
+
+        documentToRemove.ifPresent(doc -> notes.remove(doc));
+
+        return documentToRemove;
+    }
+
+    public void addSystemNote(String content) {
+        final Note note = new Note(Author.SYSTEM, content, null);
+        this.addNote(note);
+    }
+
+    public long getAmountOfNotes() {
+        return this.notes.size();
+    }
 }
