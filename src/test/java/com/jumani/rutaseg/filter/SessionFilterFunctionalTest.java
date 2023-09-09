@@ -6,6 +6,7 @@ import com.jumani.rutaseg.IntegrationTest;
 import com.jumani.rutaseg.dto.result.Error;
 import com.jumani.rutaseg.repository.client.ClientRepository;
 import com.jumani.rutaseg.service.auth.JwtService;
+import jakarta.servlet.http.Cookie;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -117,7 +118,7 @@ class SessionFilterFunctionalTest extends IntegrationTest {
     }
 
     @Test
-    void doFilterInternal_WithoutAuthorizationHeader_Unauthorized() throws Exception {
+    void doFilterInternal_WithoutAuthorizationHeader_WithoutCookie_Unauthorized() throws Exception {
         final MvcResult mvcResult = mvc.perform(get(SIMPLE_GET)
                         .header(SessionFilter.ORIGIN_HEADER, KNOWN_ORIGIN))
                 .andDo(print())
@@ -197,6 +198,20 @@ class SessionFilterFunctionalTest extends IntegrationTest {
         mvc.perform(get(SIMPLE_GET)
                         .header(SessionFilter.ORIGIN_HEADER, KNOWN_ORIGIN)
                         .header(SessionFilter.AUTHORIZATION_HEADER, SessionFilter.BEARER_SUFFIX + token))
+                .andDo(print())
+                .andExpect(status().is(HttpStatus.NO_CONTENT.value()))
+                .andReturn();
+    }
+
+    @Test
+    void doFilterInternal_WithCookie_Ok() throws Exception {
+        final String token = randomShortString();
+
+        when(jwtService.isTokenValid(token)).thenReturn(true);
+
+        mvc.perform(get(SIMPLE_GET)
+                        .cookie(new Cookie("jwtToken", token))
+                        .header(SessionFilter.ORIGIN_HEADER, KNOWN_ORIGIN))
                 .andDo(print())
                 .andExpect(status().is(HttpStatus.NO_CONTENT.value()))
                 .andReturn();
