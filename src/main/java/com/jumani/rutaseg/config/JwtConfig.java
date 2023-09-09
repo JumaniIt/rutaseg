@@ -12,7 +12,7 @@ import org.springframework.context.annotation.Profile;
 public class JwtConfig {
     @Bean
     @Profile("!local & !integration_test")
-    public JwtService jwtService(@Value("${jwt.secretKey}") String secretKey) {
+    public JwtService jwtService(@Value("${jwt.secret-key}") String secretKey) {
         return new JwtServiceImpl(secretKey);
     }
 

@@ -13,8 +13,8 @@ public class SessionConfig {
 
     @Bean
     public SessionFilter sessionFilter(JwtService jwtService,
-                                       @Value("${session.knownOrigins}") List<String> knownOrigins,
-                                       @Value("${session.allowAllOrigins}") boolean allowAllOrigins) {
+                                       @Value("${session.known-origins}") List<String> knownOrigins,
+                                       @Value("${session.allow-all-origins}") boolean allowAllOrigins) {
         return new SessionFilter(jwtService, knownOrigins, allowAllOrigins);
     }
 }

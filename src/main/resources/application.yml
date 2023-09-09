@@ -27,11 +27,11 @@ logging:
     console: '%d{yyyy-MM-dd HH:mm:ss} [%t] %-5p %logger{0} [request_id:%X{requestId}] - %m%n'
 
 jwt:
-  secretKey: ${JWT_SECRET_KEY}
+  secret-key: ${JWT_SECRET_KEY}
 
 session:
-  knownOrigins: ${KNOWN_ORIGINS:}
-  allowAllOrigins: ${ALLOW_ALL_ORIGINS:true}
+  known-origins: ${KNOWN_ORIGINS:}
+  allow-all-origins: ${ALLOW_ALL_ORIGINS:true}
 
 email:
   username: ${EMAIL_USERNAME}
