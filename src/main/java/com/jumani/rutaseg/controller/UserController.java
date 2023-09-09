@@ -58,12 +58,12 @@ public class UserController {
         return new UserResponse(user.getId(), user.getNickname(), user.getEmail(), user.isAdmin());
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/{userId}")
     public ResponseEntity<UserResponse> getUserById(@PathVariable Long id, @Session SessionInfo session) {
         User user = userRepo.findById(id)
                 .orElseThrow(() -> new NotFoundException("user not found"));
 
-        if (!session.admin() && !Objects.equals(user.getId(), session.id())) {
+        if (!session.admin() && !Objects.equals(user.getId(), session.userId())) {
             throw new ForbiddenException();
         }
         UserResponse userResponse = createResponse(user);

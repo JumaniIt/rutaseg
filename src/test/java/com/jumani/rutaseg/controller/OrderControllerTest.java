@@ -268,7 +268,7 @@ class OrderControllerTest {
         when(orderRepo.findById(orderId)).thenReturn(Optional.of(existingOrder));
         when(clientRepo.findById(orderRequest.getClientId())).thenReturn(Optional.of(existingClient));
         when(existingOrder.getStatus()).thenReturn(OrderStatus.PROCESSING);
-        when(existingClient.getUserId()).thenReturn(session.id());
+        when(existingClient.getUserId()).thenReturn(session.userId());
 
         // Act
         assertThrows(ForbiddenException.class, () -> controller.updateOrder(orderId, orderRequest, session));

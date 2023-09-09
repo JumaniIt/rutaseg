@@ -37,7 +37,7 @@ public class NoteController {
         final Order order = orderRepo.findById(orderId)
                 .orElseThrow(() -> new NotFoundException(String.format("order with id [%s] not found", orderId)));
 
-        if (!session.admin() && !Objects.equals(order.getClient().getUserId(), session.id())) {
+        if (!session.admin() && !Objects.equals(order.getClient().getUserId(), session.userId())) {
             throw new ForbiddenException();
         }
 
@@ -62,13 +62,13 @@ public class NoteController {
         final Order order = orderRepo.findById(orderId)
                 .orElseThrow(() -> new NotFoundException(String.format("order with id [%s] not found", orderId)));
 
-        if (!session.admin() && !Objects.equals(order.getClient().getUserId(), session.id())) {
+        if (!session.admin() && !Objects.equals(order.getClient().getUserId(), session.userId())) {
             throw new ForbiddenException();
         }
 
         final Author author = session.admin() ? Author.ADMIN : Author.CLIENT;
 
-        final Note note = new Note(author, noteRequest.getContent(), session.id());
+        final Note note = new Note(author, noteRequest.getContent(), session.userId());
         order.addNote(note);
 
         final Order updatedOrder = orderRepo.save(order);
@@ -86,7 +86,7 @@ public class NoteController {
         final Order order = orderRepo.findById(orderId)
                 .orElseThrow(() -> new NotFoundException(String.format("order with id [%s] not found", orderId)));
 
-        if (!session.admin() && !Objects.equals(order.getClient().getUserId(), session.id())) {
+        if (!session.admin() && !Objects.equals(order.getClient().getUserId(), session.userId())) {
             throw new ForbiddenException();
         }
 
@@ -111,7 +111,7 @@ public class NoteController {
         final Order order = orderRepo.findById(orderId)
                 .orElseThrow(() -> new NotFoundException(String.format("order with id [%s] not found", orderId)));
 
-        if (!session.admin() && !Objects.equals(order.getClient().getUserId(), session.id())) {
+        if (!session.admin() && !Objects.equals(order.getClient().getUserId(), session.userId())) {
             throw new ForbiddenException();
         }
 

@@ -50,7 +50,7 @@ public class ConsigneeController {
     }
 
     private boolean clientMatchesSession(Client client, SessionInfo session) {
-        return session.admin() || (session.id() == client.getUserId());
+        return session.admin() || (session.userId() == client.getUserId());
     }
 
     @GetMapping

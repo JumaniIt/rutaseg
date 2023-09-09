@@ -84,7 +84,7 @@ public class ClientController {
             thePage = page;
             theTotalElements = clientRepo.count(theUserId, name, phone, cuit);
         } else {
-            theUserId = session.id();
+            theUserId = session.userId();
             thePageSize = 1;
             thePage = 1;
             theTotalElements = 1L;
@@ -99,13 +99,13 @@ public class ClientController {
         return ResponseEntity.ok(result);
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/{userId}")
     public ResponseEntity<ClientResponse> getById(@PathVariable("id") long id,
                                                   @RequestParam(value = "with_consignees", required = false, defaultValue = "false") boolean withConsignees,
                                                   @Session SessionInfo session) {
 
         final Client client = clientRepo.findById(id)
-                .filter(c -> session.admin() || Objects.equals(session.id(), c.getUserId()))
+                .filter(c -> session.admin() || Objects.equals(session.userId(), c.getUserId()))
                 .orElseThrow(() -> new NotFoundException(String.format("client with id [%s] not found", id)));
 
         final ClientResponse response = this.createResponse(client, withConsignees);

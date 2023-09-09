@@ -40,12 +40,12 @@ public class OrderController {
 
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/{userId}")
     public ResponseEntity<OrderResponse> getById(@PathVariable("id") long id, @Session SessionInfo session) {
         Order order = orderRepo.findById(id)
                 .orElseThrow(() -> new NotFoundException(String.format("order with id [%s] not found", id)));
 
-        if (!session.admin() && !Objects.equals(order.getClient().getUserId(), session.id())) {
+        if (!session.admin() && !Objects.equals(order.getClient().getUserId(), session.userId())) {
             throw new NotFoundException(String.format("order with id [%s] not found", id));
         }
 
@@ -58,7 +58,7 @@ public class OrderController {
         Client client = clientRepo.findById(orderRequest.getClientId())
                 .orElseThrow(() -> new NotFoundException("client not found"));
 
-        if (!session.admin() && !Objects.equals(client.getUserId(), session.id())) {
+        if (!session.admin() && !Objects.equals(client.getUserId(), session.userId())) {
             throw new ForbiddenException();
         }
 
@@ -95,7 +95,7 @@ public class OrderController {
                 arrivalData,
                 driverData,
                 customsData,
-                session.id(),
+                session.userId(),
                 containers,
                 consigneeData
         );
@@ -110,7 +110,7 @@ public class OrderController {
         return ResponseEntity.status(HttpStatus.CREATED).body(orderResponse);
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/{userId}")
     public ResponseEntity<OrderResponse> updateOrder(
             @PathVariable("id") long id,
             @RequestBody @Valid OrderRequest orderRequest,
@@ -123,7 +123,7 @@ public class OrderController {
                 .orElseThrow(() -> new NotFoundException("client not found"));
 
         // Verificar que la sesión sea de un usuario administrador o que la orden sea del cliente asociado al usuario de la sesión.
-        if (!session.admin() && !Objects.equals(client.getUserId(), session.id())) {
+        if (!session.admin() && !Objects.equals(client.getUserId(), session.userId())) {
             throw new ForbiddenException();
         }
 
@@ -176,7 +176,7 @@ public class OrderController {
         // Actualizar los atributos de la orden utilizando el método update() de la clase Order
         order.update(orderRequest.getCode(), client, pema, port, transport, arrivalData, driverData, customsData, containers, consigneeData);
 
-        order.addSystemNote(String.format("usuario [%s] de tipo [%s] actualizó datos de solicitud", session.id(),
+        order.addSystemNote(String.format("usuario [%s] de tipo [%s] actualizó datos de solicitud", session.userId(),
                 session.getUserType().getTranslation()));
 
         // Actualizar la orden en la base de datos
@@ -207,7 +207,7 @@ public class OrderController {
     ) {
         final Long theClientId;
         if (!session.admin()) {
-            Optional<Client> clientOptional = clientRepo.findOneByUser_Id(session.id());
+            Optional<Client> clientOptional = clientRepo.findOneByUser_Id(session.userId());
             if (clientOptional.isPresent()) {
                 theClientId = clientOptional.get().getId();
             } else {
@@ -398,16 +398,16 @@ public class OrderController {
         );
     }
 
-    @PutMapping("/{id}/status/{newStatus}")
+    @PutMapping("/{userId}/status/{newStatus}")
     public ResponseEntity<OrderResponse> changeOrderStatus(
             @PathVariable("id") long id,
             @PathVariable("newStatus") OrderStatus newStatus,
             @Session SessionInfo session
     ) {
         Order order = orderRepo.findById(id)
-                .orElseThrow(() -> new NotFoundException(String.format("Order with id [%s] not found", id)));
+                .orElseThrow(() -> new NotFoundException(String.format("order with id [%s] not found", id)));
 
-        if (!session.admin() && !Objects.equals(order.getClient().getUserId(), session.id())) {
+        if (!session.admin() && !Objects.equals(order.getClient().getUserId(), session.userId())) {
             throw new ForbiddenException();
         }
 
@@ -417,7 +417,7 @@ public class OrderController {
 
         final OrderStatus previousStatus = order.getStatus();
 
-        order.addSystemNote(String.format("usuario [%s] de tipo [%s] cambió estado de solicitud de [%s] a [%s]", session.id(),
+        order.addSystemNote(String.format("usuario [%s] de tipo [%s] cambió estado de solicitud de [%s] a [%s]", session.userId(),
                 session.getUserType().getTranslation(), previousStatus.getTranslation(), newStatus.getTranslation()));
 
         order.updateStatus(newStatus);

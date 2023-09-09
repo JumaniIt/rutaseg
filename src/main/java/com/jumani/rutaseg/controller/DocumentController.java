@@ -42,7 +42,7 @@ public class DocumentController {
                 .orElseThrow(() -> new NotFoundException(String.format("order with id [%s] not found", orderId)));
 
         // Verificar que el usuario tenga permisos para agregar documentos a esta orden
-        if (!session.admin() && !Objects.equals(order.getClient().getUserId(), session.id())) {
+        if (!session.admin() && !Objects.equals(order.getClient().getUserId(), session.userId())) {
             throw new ForbiddenException();
         }
 
@@ -64,7 +64,7 @@ public class DocumentController {
         // Asociar el documento con la orden
         order.addDocument(document);
 
-        order.addSystemNote(String.format("usuario [%s] de tipo [%s] agregó documento [%s]", session.id(),
+        order.addSystemNote(String.format("usuario [%s] de tipo [%s] agregó documento [%s]", session.userId(),
                 session.getUserType().getTranslation(), key));
 
         // Actualizar la orden en la base de datos
@@ -95,7 +95,7 @@ public class DocumentController {
                 .orElseThrow(() -> new NotFoundException(String.format("order with id [%s] not found", orderId)));
 
         // Verificar que el usuario tenga permisos para acceder a esta orden
-        if (!session.admin() && !Objects.equals(order.getClient().getUserId(), session.id())) {
+        if (!session.admin() && !Objects.equals(order.getClient().getUserId(), session.userId())) {
             throw new ForbiddenException();
         }
 
@@ -141,7 +141,7 @@ public class DocumentController {
                 .orElseThrow(() -> new NotFoundException(String.format("order with id [%s] not found", orderId)));
 
         // Verificar que el usuario tenga permisos para acceder a esta orden
-        if (!session.admin() && !Objects.equals(order.getClient().getUserId(), session.id())) {
+        if (!session.admin() && !Objects.equals(order.getClient().getUserId(), session.userId())) {
             throw new ForbiddenException();
         }
 
@@ -154,7 +154,7 @@ public class DocumentController {
             String resourceKey = document.getResource();
             fileRepo.delete(resourceKey);
 
-            order.addSystemNote(String.format("usuario [%s] de tipo [%s] borró documento [%s]", session.id(),
+            order.addSystemNote(String.format("usuario [%s] de tipo [%s] borró documento [%s]", session.userId(),
                     session.getUserType().getTranslation(), document.getName()));
 
             // Actualizar la orden en la base de datos

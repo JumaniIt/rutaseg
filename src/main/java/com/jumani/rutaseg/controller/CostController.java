@@ -43,7 +43,7 @@ public class CostController {
                 costRequest.getAmount(),
                 costRequest.getDescription(),
                 costRequest.getType(),
-                session.id()
+                session.userId()
         );
 
         order.updateCost(newCost);
