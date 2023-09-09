@@ -4,6 +4,7 @@ import com.jumani.rutaseg.util.DateGen;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import lombok.extern.slf4j.Slf4j;
 
 import java.time.ZonedDateTime;
 import java.util.Date;
@@ -11,6 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 
+@Slf4j
 public class JwtServiceImpl implements JwtService, DateGen {
 
     private final String secretKey;
@@ -33,7 +35,12 @@ public class JwtServiceImpl implements JwtService, DateGen {
 
     @Override
     public boolean isTokenValid(String token) {
-        return !isTokenExpired(token);
+        try {
+            return !isTokenExpired(token);
+        } catch (Exception e) {
+            log.error("could not validate token", e);
+            return false;
+        }
     }
 
     @Override
