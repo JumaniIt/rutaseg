@@ -45,6 +45,7 @@ public class ControllerExceptionHandler {
 
     @ExceptionHandler(UnauthorizedException.class)
     private ResponseEntity<Error> handleUnauthorizedException(UnauthorizedException exception) {
+        log.error("this is the unauthorized ex", exception);
         final Error error = new Error(exception.getCode(), exception.getMessage());
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
     }

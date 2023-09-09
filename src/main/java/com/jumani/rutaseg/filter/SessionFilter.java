@@ -10,17 +10,20 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.core.annotation.Order;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
 @Order(2)
 @AllArgsConstructor
+@Slf4j
 public class SessionFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
@@ -71,6 +74,12 @@ public class SessionFilter extends OncePerRequestFilter {
 
         final String endpoint = request.getRequestURI();
         if (SKIPPED_ENDPOINTS.contains(endpoint)) return;
+
+        Optional.ofNullable(request.getCookies())
+                .stream()
+                .findFirst()
+                .ifPresentOrElse(cookies -> Arrays.stream(cookies).forEach(cookie -> log.info("the cookie key {} the cookie value {}", cookie.getName(), cookie.getValue())),
+                        () -> log.warn("there is no cookies!"));
 
         final String token = JwtUtil.extractToken(request).orElseThrow(UnauthorizedException::new);
         if (!jwtService.isTokenValid(token)) {
