@@ -34,4 +34,11 @@ public class User {
 
     private User() {
     }
+
+    public void update(String nickname, String password, String email, boolean admin) {
+        this.nickname = nickname;
+        this.password = password;
+        this.email = email;
+        this.admin = admin;
+    }
 }

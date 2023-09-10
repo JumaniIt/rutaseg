@@ -39,7 +39,6 @@ public class Client {
 
     public Client(User user, String name, String phone, Long cuit) {
         this.user = user;
-
         this.name = name;
         this.phone = phone;
         this.cuit = cuit;
@@ -64,8 +63,16 @@ public class Client {
         consignees.add(consignee);
         return Optional.empty();
     }
+    public void update(String name, String phone, Long cuit, User user) {
+            this.name = name;
+            this.phone = phone;
+            this.cuit = cuit;
+            this.user = user;
+    }
 
     public Long getUserId() {
         return Optional.ofNullable(this.user).map(User::getId).orElse(null);
     }
+
+
 }
