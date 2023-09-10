@@ -113,6 +113,7 @@ public class NoteController {
     public ResponseEntity<?> deleteNote(@PathVariable("orderId") long orderId,
                                         @PathVariable("noteId") long noteId,
                                         @Session SessionInfo session) {
+
         final Order order = orderRepo.findById(orderId)
                 .orElseThrow(() -> new NotFoundException(String.format("order with id [%s] not found", orderId)));
 
@@ -126,6 +127,11 @@ public class NoteController {
                     if (!session.admin() && !note.isClient()) {
                         throw new ForbiddenException();
                     }
+
+                    if (note.isSystem()) {
+                        throw new ValidationException("note_not_deletable", "system notes cannot be deleted");
+                    }
+
                 }).findFirst()
                 .orElseThrow(() -> new NotFoundException(String.format("note with id [%s] not found in order [%s]", noteId, orderId)));
 
