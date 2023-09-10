@@ -8,6 +8,7 @@ import com.jumani.rutaseg.dto.response.SessionInfo;
 import com.jumani.rutaseg.dto.result.PaginatedResult;
 import com.jumani.rutaseg.exception.ForbiddenException;
 import com.jumani.rutaseg.exception.NotFoundException;
+import com.jumani.rutaseg.exception.ValidationException;
 import com.jumani.rutaseg.handler.Session;
 import com.jumani.rutaseg.repository.OrderRepository;
 import com.jumani.rutaseg.util.PaginationUtil;
@@ -93,8 +94,12 @@ public class NoteController {
         final Note note = order.findNote(noteId)
                 .orElseThrow(() -> new NotFoundException(String.format("note with id [%s] not found in order [%s]", noteId, orderId)));
 
-        if (!note.isClient() && !session.admin()) {
+        if (!session.admin() && !note.isClient()) {
             throw new ForbiddenException();
+        }
+
+        if (note.isSystem()) {
+            throw new ValidationException("note_not_updatable", "system notes cannot be updated");
         }
 
         note.update(noteRequest.getContent());
@@ -116,6 +121,12 @@ public class NoteController {
         }
 
         order.removeNote(noteId)
+                .stream()
+                .peek(note -> {
+                    if (!session.admin() && !note.isClient()) {
+                        throw new ForbiddenException();
+                    }
+                }).findFirst()
                 .orElseThrow(() -> new NotFoundException(String.format("note with id [%s] not found in order [%s]", noteId, orderId)));
 
         orderRepo.save(order);

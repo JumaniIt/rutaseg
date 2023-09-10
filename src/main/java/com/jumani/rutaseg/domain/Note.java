@@ -53,4 +53,8 @@ public class Note implements DateGen {
     public boolean isClient() {
         return Author.CLIENT.equals(this.author);
     }
+
+    public boolean isSystem() {
+        return Author.SYSTEM.equals(this.author);
+    }
 }

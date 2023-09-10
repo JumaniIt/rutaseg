@@ -62,6 +62,7 @@ class LoginControllerTest {
         expectedCookie.setHttpOnly(true);
         expectedCookie.setMaxAge(7200); // 2 hours in seconds
         expectedCookie.setPath("/");
+        expectedCookie.setDomain(null);
 
         // Act
         ResponseEntity<LoginResponse> response = loginController.login(loginRequest, this.res);
