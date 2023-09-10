@@ -129,8 +129,8 @@ public class OrderController {
 
         // Asegurarse de que, si la sesión no es de un usuario administrador, la orden esté en estado DRAFT.
         if (!session.admin() && order.getStatus() != OrderStatus.DRAFT) {
-            throw new ForbiddenException();
-
+            throw new ValidationException("order_not_updatable",
+                    String.format("cannot update an order with status [%s]", order.getStatus()));
         }
         // Obtener el ID del cliente actualmente asociado a la orden
         Long currentClientId = order.getClient().getId();

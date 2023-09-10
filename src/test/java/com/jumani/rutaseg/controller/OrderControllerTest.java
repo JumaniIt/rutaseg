@@ -11,6 +11,7 @@ import com.jumani.rutaseg.dto.response.OrderResponse;
 import com.jumani.rutaseg.dto.response.SessionInfo;
 import com.jumani.rutaseg.exception.ForbiddenException;
 import com.jumani.rutaseg.exception.NotFoundException;
+import com.jumani.rutaseg.exception.ValidationException;
 import com.jumani.rutaseg.repository.OrderRepository;
 import com.jumani.rutaseg.repository.client.ClientRepository;
 import org.junit.jupiter.api.Test;
@@ -271,7 +272,7 @@ class OrderControllerTest {
         when(existingClient.getUserId()).thenReturn(session.userId());
 
         // Act
-        assertThrows(ForbiddenException.class, () -> controller.updateOrder(orderId, orderRequest, session));
+        assertThrows(ValidationException.class, () -> controller.updateOrder(orderId, orderRequest, session));
 
         // Assert
         verify(orderRepo).findById(orderId);
