@@ -72,6 +72,11 @@ public class UserController {
         User user = userRepo.findById(id)
                 .orElseThrow(() -> new NotFoundException(String.format("user with user_id [%s] not found", id)));
 
+        // Verificar si el nuevo correo electrónico ya existe en la base de datos
+        if (!user.getEmail().equals(userRequest.getEmail()) && userRepo.existsByEmail(userRequest.getEmail())) {
+            throw new ValidationException("user_email_exists", "user with the same email already exists");
+        }
+
         // Actualizar los datos del usuario utilizando el método update
        user.update(
                 userRequest.getNickname(),
