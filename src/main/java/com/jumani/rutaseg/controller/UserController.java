@@ -70,7 +70,7 @@ public class UserController {
 
         // Buscar al usuario por ID
         User user = userRepo.findById(id)
-                .orElseThrow(() -> new NotFoundException("User not found"));
+                .orElseThrow(() -> new NotFoundException(String.format("user with user_id [%s] not found", id)));
 
         // Actualizar los datos del usuario utilizando el método update
        user.update(

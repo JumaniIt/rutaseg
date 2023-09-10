@@ -76,18 +76,27 @@ public class ClientController {
         Client existingClient = clientRepo.findById(id)
                 .orElseThrow(() -> new NotFoundException(String.format("Client with id [%s] not found", id)));
 
+        // Buscar el usuario si el campo userId está presente en la solicitud
+        User user = null;
+        if (clientRequest.getUserId() != null) {
+            user = userRepo.findById(clientRequest.getUserId())
+                    .orElseThrow(() -> new NotFoundException("user not found"));
+        }
+
         // Actualizar los datos del cliente utilizando los valores recibidos en la solicitud PUT
         existingClient.update(
                 clientRequest.getName(),
                 clientRequest.getPhone(),
-                clientRequest.getCuit()
+                clientRequest.getCuit(),
+                user
         );
+
 
         // Guardar los cambios en el repositorio
         Client updatedClient = clientRepo.save(existingClient);
 
         // Crear y devolver la respuesta con los datos actualizados del cliente
-        ClientResponse clientResponse = createResponse(updatedClient, true);
+        ClientResponse clientResponse = createResponse(updatedClient, false);
         return ResponseEntity.ok(clientResponse);
     }
 

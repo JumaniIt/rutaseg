@@ -11,12 +11,12 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Getter
 public class ClientRequest {
+
+
     @NotEmpty
     private String name;
-
     @NotEmpty
     private String phone;
-
     @NotNull
     @Positive
     private Long cuit;
