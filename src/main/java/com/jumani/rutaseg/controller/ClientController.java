@@ -62,6 +62,34 @@ public class ClientController {
         final ClientResponse clientResponse = this.createResponse(savedClient, true);
         return ResponseEntity.status(HttpStatus.CREATED).body(clientResponse);
     }
+    @PutMapping("/{id}")
+    public ResponseEntity<ClientResponse> updateClient(
+            @PathVariable("id") Long id,
+            @RequestBody @Valid ClientRequest clientRequest,
+            @Session SessionInfo session) {
+        // Verificar que el usuario sea administrador
+        if (!session.admin()) {
+            throw new ForbiddenException();
+        }
+
+        // Buscar el cliente por su ID
+        Client existingClient = clientRepo.findById(id)
+                .orElseThrow(() -> new NotFoundException(String.format("Client with id [%s] not found", id)));
+
+        // Actualizar los datos del cliente utilizando los valores recibidos en la solicitud PUT
+        existingClient.update(
+                clientRequest.getName(),
+                clientRequest.getPhone(),
+                clientRequest.getCuit()
+        );
+
+        // Guardar los cambios en el repositorio
+        Client updatedClient = clientRepo.save(existingClient);
+
+        // Crear y devolver la respuesta con los datos actualizados del cliente
+        ClientResponse clientResponse = createResponse(updatedClient, true);
+        return ResponseEntity.ok(clientResponse);
+    }
 
     @GetMapping
     public ResponseEntity<PaginatedResult<ClientResponse>> search(@RequestParam(value = "user_id", required = false) Long userId,

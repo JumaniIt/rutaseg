@@ -58,6 +58,36 @@ public class UserController {
         return new UserResponse(user.getId(), user.getNickname(), user.getEmail(), user.isAdmin());
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<UserResponse> updateUser(
+            @PathVariable("id") Long id,
+            @RequestBody @Valid UserRequest userRequest,
+            @Session SessionInfo session) {
+        // Verificar que el usuario de la sesión sea administrador
+        if (!session.admin()) {
+            throw new ForbiddenException();
+        }
+
+        // Buscar al usuario por ID
+        User user = userRepo.findById(id)
+                .orElseThrow(() -> new NotFoundException("User not found"));
+
+        // Actualizar los datos del usuario utilizando el método update
+       user.update(
+                userRequest.getNickname(),
+                passwordService.encrypt(userRequest.getPassword()),
+                userRequest.getEmail(),
+                userRequest.isAdmin()
+        );
+
+        // Guardar el usuario actualizado en la base de datos
+        User updatedUser = userRepo.save(user);
+
+        // Crear y devolver la respuesta con los datos actualizados del usuario
+        UserResponse userResponse = createResponse(updatedUser);
+        return ResponseEntity.ok(userResponse);
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<UserResponse> getUserById(@PathVariable("id") Long id, @Session SessionInfo session) {
         User user = userRepo.findById(id)

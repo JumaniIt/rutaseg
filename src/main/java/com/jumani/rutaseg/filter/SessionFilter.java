@@ -45,6 +45,7 @@ public class SessionFilter extends OncePerRequestFilter {
 
     static {
         ADMIN_ENDPOINTS = new ArrayList<>();
+        ADMIN_ENDPOINTS.add("/users");
     }
 
     /*

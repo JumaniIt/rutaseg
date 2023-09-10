@@ -64,6 +64,17 @@ public class Client {
         consignees.add(consignee);
         return Optional.empty();
     }
+    public void update(String name, String phone, Long cuit) {
+        if (name != null) {
+            this.name = name;
+        }
+        if (phone != null) {
+            this.phone = phone;
+        }
+        if (cuit != null) {
+            this.cuit = cuit;
+        }
+    }
 
     public Long getUserId() {
         return Optional.ofNullable(this.user).map(User::getId).orElse(null);
