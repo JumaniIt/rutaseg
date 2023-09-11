@@ -170,6 +170,7 @@ class ClientControllerTest {
         final String name = randomShortString();
         final String phone = randomShortString();
         final long cuit = randomId();
+        final boolean withUser = randomBoolean();
         final long totalElements = randomPositiveInt(100);
         final int pageSize = randomPositiveInt(10);
 
@@ -184,13 +185,13 @@ class ClientControllerTest {
         when(client.getCuit()).thenReturn(cuit);
         when(client.getConsignees()).thenReturn(consignees);
 
-        when(clientRepo.count(userId, name, phone, cuit)).thenReturn(totalElements);
-        when(clientRepo.search(userId, name, phone, cuit, 0, pageSize)).thenReturn(List.of(client));
+        when(clientRepo.count(userId, name, phone, cuit, null)).thenReturn(totalElements);
+        when(clientRepo.search(userId, name, phone, cuit, null, 0, pageSize)).thenReturn(List.of(client));
 
         final ClientResponse expectedResponse = new ClientResponse(id, userId, name, phone, cuit, consignees);
 
         final ResponseEntity<PaginatedResult<ClientResponse>> result =
-                controller.search(userId, name, phone, cuit, pageSize, 1, true, session);
+                controller.search(userId, name, phone, cuit, withUser, pageSize, 1, true, session);
 
         assertEquals(HttpStatus.OK, result.getStatusCode());
         assertNotNull(result.getBody());
@@ -207,6 +208,7 @@ class ClientControllerTest {
         final String name = randomShortString();
         final String phone = randomShortString();
         final long cuit = randomId();
+        final boolean withUser = randomBoolean();
         final long totalElements = 20;
         final int pageSize = 5;
 
@@ -219,13 +221,13 @@ class ClientControllerTest {
         when(client.getPhone()).thenReturn(phone);
         when(client.getCuit()).thenReturn(cuit);
 
-        when(clientRepo.count(userId, name, phone, cuit)).thenReturn(totalElements);
-        when(clientRepo.search(userId, name, phone, cuit, pageSize, pageSize)).thenReturn(List.of(client));
+        when(clientRepo.count(userId, name, phone, cuit, null)).thenReturn(totalElements);
+        when(clientRepo.search(userId, name, phone, cuit, null, pageSize, pageSize)).thenReturn(List.of(client));
 
         final ClientResponse expectedResponse = new ClientResponse(id, userId, name, phone, cuit, Collections.emptyList());
 
         final ResponseEntity<PaginatedResult<ClientResponse>> result =
-                controller.search(userId, name, phone, cuit, pageSize, 2, false, session);
+                controller.search(userId, name, phone, cuit, withUser, pageSize, 2, false, session);
 
         assertEquals(HttpStatus.OK, result.getStatusCode());
         assertNotNull(result.getBody());
@@ -258,12 +260,12 @@ class ClientControllerTest {
         when(client.getPhone()).thenReturn(phone);
         when(client.getCuit()).thenReturn(cuit);
 
-        when(clientRepo.search(sessionUserId, name, phone, cuit, 0, 1)).thenReturn(List.of(client));
+        when(clientRepo.search(sessionUserId, name, phone, cuit, null, 0, 1)).thenReturn(List.of(client));
 
         final ClientResponse expectedResponse = new ClientResponse(id, sessionUserId, name, phone, cuit, Collections.emptyList());
 
         final ResponseEntity<PaginatedResult<ClientResponse>> result =
-                controller.search(sessionUserId, name, phone, cuit, ignoredPageSize, 1, false, session);
+                controller.search(sessionUserId, name, phone, cuit, null, ignoredPageSize, 1, false, session);
 
         assertEquals(HttpStatus.OK, result.getStatusCode());
         assertNotNull(result.getBody());

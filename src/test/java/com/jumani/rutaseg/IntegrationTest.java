@@ -1,6 +1,5 @@
 package com.jumani.rutaseg;
 
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestPropertySource;
@@ -11,7 +10,4 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @TestPropertySource(properties = {"SCOPE = integration_test"})
 public class IntegrationTest {
 
-    @Test
-    void contextLoads() {
-    }
 }

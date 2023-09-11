@@ -47,51 +47,55 @@ class ClientRepositoryImplTest extends IntegrationTest {
         final List<Client> allClients = List.of(clientOne, clientTwo, clientThree);
 
         // by user id
-        assertEquals(1, clientRepo.count(clientOne.getUserId(), null, null, null));
-        assertEquals(justClientOne, clientRepo.search(clientOne.getUserId(), null, null, null, 0, 2));
-        assertEquals(1, clientRepo.count(clientTwo.getUserId(), null, null, null));
-        assertEquals(justClientTwo, clientRepo.search(clientTwo.getUserId(), null, null, null, 0, 1));
+        assertEquals(1, clientRepo.count(clientOne.getUserId(), null, null, null, null));
+        assertEquals(justClientOne, clientRepo.search(clientOne.getUserId(), null, null, null, null, 0, 2));
+        assertEquals(1, clientRepo.count(clientTwo.getUserId(), null, null, null, null));
+        assertEquals(justClientTwo, clientRepo.search(clientTwo.getUserId(), null, null, null, null, 0, 1));
 
         // by not having user
-        assertEquals(1, clientRepo.count(-1L, null, null, null));
-        assertEquals(justClientThree, clientRepo.search(-1L, null, null, null, 0, 1));
+        assertEquals(1, clientRepo.count(null, null, null, null, false));
+        assertEquals(justClientThree, clientRepo.search(null, null, null, null, false, 0, 1));
+
+        // by having user
+        assertEquals(2, clientRepo.count(null, null, null, null, true));
+        assertEquals(clientOneAndTwo, clientRepo.search(null, null, null, null, true, 0, 2));
 
         // by name like
-        assertEquals(2, clientRepo.count(null, "am", null, null));
-        assertEquals(clientOneAndTwo, clientRepo.search(null, "am", null, null, 0, 2));
-        assertEquals(1, clientRepo.count(null, "ame1", null, null));
-        assertEquals(justClientOne, clientRepo.search(null, "ame1", null, null, 0, 2));
+        assertEquals(2, clientRepo.count(null, "am", null, null, null));
+        assertEquals(clientOneAndTwo, clientRepo.search(null, "am", null, null, null, 0, 2));
+        assertEquals(1, clientRepo.count(null, "ame1", null, null, null));
+        assertEquals(justClientOne, clientRepo.search(null, "ame1", null, null, null, 0, 2));
 
         // by phone like
-        assertEquals(2, clientRepo.count(null, "name", "phone", null));
-        assertEquals(clientOneAndTwo, clientRepo.search(null, "name", "phone", null, 0, 10));
-        assertEquals(1, clientRepo.count(null, "name", "2", null));
-        assertEquals(justClientTwo, clientRepo.search(null, "name", "2", null, 0, 10));
+        assertEquals(2, clientRepo.count(null, "name", "phone", null, null));
+        assertEquals(clientOneAndTwo, clientRepo.search(null, "name", "phone", null, null, 0, 10));
+        assertEquals(1, clientRepo.count(null, "name", "2", null, null));
+        assertEquals(justClientTwo, clientRepo.search(null, "name", "2", null, null, 0, 10));
 
         // by cuit
-        assertEquals(1, clientRepo.count(null, null, null, cuitOne));
-        assertEquals(justClientOne, clientRepo.search(null, null, null, cuitOne, 0, 10));
-        assertEquals(1, clientRepo.count(null, null, null, cuitTwo));
-        assertEquals(justClientTwo, clientRepo.search(null, null, null, cuitTwo, 0, 10));
+        assertEquals(1, clientRepo.count(null, null, null, cuitOne, null));
+        assertEquals(justClientOne, clientRepo.search(null, null, null, cuitOne, null, 0, 10));
+        assertEquals(1, clientRepo.count(null, null, null, cuitTwo, null));
+        assertEquals(justClientTwo, clientRepo.search(null, null, null, cuitTwo, null, 0, 10));
 
         // by everything
-        assertEquals(1, clientRepo.count(clientOne.getUserId(), "name", "phone", cuitOne));
-        assertEquals(justClientOne, clientRepo.search(clientOne.getUserId(), "name", "phone", cuitOne, 0, 10));
-        assertEquals(1, clientRepo.count(clientTwo.getUserId(), "name", "phone", cuitTwo));
-        assertEquals(justClientTwo, clientRepo.search(clientTwo.getUserId(), "name", "phone", cuitTwo, 0, 10));
+        assertEquals(1, clientRepo.count(clientOne.getUserId(), "name", "phone", cuitOne, true));
+        assertEquals(justClientOne, clientRepo.search(clientOne.getUserId(), "name", "phone", cuitOne, true, 0, 10));
+        assertEquals(1, clientRepo.count(clientTwo.getUserId(), "name", "phone", cuitTwo, true));
+        assertEquals(justClientTwo, clientRepo.search(clientTwo.getUserId(), "name", "phone", cuitTwo, true, 0, 10));
 
         // by nothing
-        assertEquals(3, clientRepo.count(null, null, null, null));
-        assertEquals(allClients, clientRepo.search(null, null, null, null, 0, 4));
+        assertEquals(3, clientRepo.count(null, null, null, null, null));
+        assertEquals(allClients, clientRepo.search(null, null, null, null, null, 0, 4));
 
         // by nothing limit 1
-        assertEquals(3, clientRepo.count(null, null, null, null));
-        assertEquals(justClientOne, clientRepo.search(null, null, null, null, 0, 1));
+        assertEquals(3, clientRepo.count(null, null, null, null, null));
+        assertEquals(justClientOne, clientRepo.search(null, null, null, null, null, 0, 1));
 
         // by nothing limit 1 offset 2
-        assertEquals(clientTwoAndThree, clientRepo.search(null, null, null, null, 1, 2));
+        assertEquals(clientTwoAndThree, clientRepo.search(null, null, null, null, null, 1, 2));
 
         // no results
-        assertTrue(clientRepo.search(clientOne.getUserId(), "x", "phone", cuitOne, 0, 1).isEmpty());
+        assertTrue(clientRepo.search(clientOne.getUserId(), "x", "phone", cuitOne, null, 0, 1).isEmpty());
     }
 }

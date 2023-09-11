@@ -108,12 +108,13 @@ public class ClientController {
         final ClientResponse clientResponse = createResponse(updatedClient, false);
         return ResponseEntity.ok(clientResponse);
     }
-    
+
     @GetMapping
     public ResponseEntity<PaginatedResult<ClientResponse>> search(@RequestParam(value = "user_id", required = false) Long userId,
                                                                   @RequestParam(value = "name", required = false) String name,
                                                                   @RequestParam(value = "phone", required = false) String phone,
                                                                   @RequestParam(value = "cuit", required = false) Long cuit,
+                                                                  @RequestParam(value = "with_user", required = false) Boolean withUser,
                                                                   @RequestParam(value = "page_size", required = false, defaultValue = "1") int pageSize,
                                                                   @RequestParam(value = "page", required = false, defaultValue = "1") int page,
                                                                   @RequestParam(value = "with_consignees", required = false, defaultValue = "false") boolean withConsignees,
@@ -128,7 +129,7 @@ public class ClientController {
             theUserId = userId;
             thePageSize = pageSize;
             thePage = page;
-            theTotalElements = clientRepo.count(theUserId, name, phone, cuit);
+            theTotalElements = clientRepo.count(theUserId, name, phone, cuit, null);
         } else {
             theUserId = session.userId();
             thePageSize = 1;
@@ -137,7 +138,7 @@ public class ClientController {
         }
 
         final PaginatedResult<ClientResponse> result = PaginationUtil.get(theTotalElements, thePageSize, thePage,
-                (offset, limit) -> clientRepo.search(theUserId, name, phone, cuit, offset, limit)
+                (offset, limit) -> clientRepo.search(theUserId, name, phone, cuit, null, offset, limit)
                         .stream()
                         .map(client -> this.createResponse(client, withConsignees))
                         .toList());

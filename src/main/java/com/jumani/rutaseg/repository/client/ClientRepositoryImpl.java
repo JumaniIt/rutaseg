@@ -28,6 +28,7 @@ public class ClientRepositoryImpl implements ClientRepositoryExtended {
                                @Nullable String nameLike,
                                @Nullable String phoneLike,
                                @Nullable Long cuit,
+                               @Nullable Boolean withUser,
                                int offset,
                                int limit) {
 
@@ -36,7 +37,7 @@ public class ClientRepositoryImpl implements ClientRepositoryExtended {
         final Root<Client> root = criteriaQuery.from(Client.class);
 
         criteriaQuery.select(root);
-        criteriaQuery.where(this.createPredicates(builder, root, userId, nameLike, phoneLike, cuit));
+        criteriaQuery.where(this.createPredicates(builder, root, userId, nameLike, phoneLike, cuit, withUser));
         criteriaQuery.orderBy(builder.asc(root.get(Client.Fields.id)));
 
         return entityManager.createQuery(criteriaQuery)
@@ -49,14 +50,15 @@ public class ClientRepositoryImpl implements ClientRepositoryExtended {
     public long count(@Nullable Long userId,
                       @Nullable String nameLike,
                       @Nullable String phoneLike,
-                      @Nullable Long cuit) {
+                      @Nullable Long cuit,
+                      @Nullable Boolean withUser) {
 
         final CriteriaBuilder builder = entityManager.getCriteriaBuilder();
         final CriteriaQuery<Long> countQuery = builder.createQuery(Long.class);
         final Root<Client> root = countQuery.from(Client.class);
 
         countQuery.select(builder.countDistinct(root));
-        countQuery.where(this.createPredicates(builder, root, userId, nameLike, phoneLike, cuit));
+        countQuery.where(this.createPredicates(builder, root, userId, nameLike, phoneLike, cuit, withUser));
 
         return entityManager.createQuery(countQuery).getSingleResult();
 
@@ -66,15 +68,18 @@ public class ClientRepositoryImpl implements ClientRepositoryExtended {
                                          @Nullable Long userId,
                                          @Nullable String nameLike,
                                          @Nullable String phoneLike,
-                                         @Nullable Long cuit) {
+                                         @Nullable Long cuit,
+                                         @Nullable Boolean withUser) {
 
         final List<Predicate> predicates = new ArrayList<>();
 
         if (Objects.nonNull(userId)) {
-            if (userId == -1) {
-                predicates.add(builder.isNull(root.get(Client.Fields.user)));
+            predicates.add(builder.equal(root.get(Client.Fields.user).get(User.Fields.id), userId));
+        } else if (Objects.nonNull(withUser)) {
+            if (withUser) {
+                predicates.add(builder.isNotNull(root.get(Client.Fields.user)));
             } else {
-                predicates.add(builder.equal(root.get(Client.Fields.user).get(User.Fields.id), userId));
+                predicates.add(builder.isNull(root.get(Client.Fields.user)));
             }
         }
 
