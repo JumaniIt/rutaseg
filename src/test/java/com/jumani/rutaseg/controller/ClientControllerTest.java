@@ -185,8 +185,8 @@ class ClientControllerTest {
         when(client.getCuit()).thenReturn(cuit);
         when(client.getConsignees()).thenReturn(consignees);
 
-        when(clientRepo.count(userId, name, phone, cuit, null)).thenReturn(totalElements);
-        when(clientRepo.search(userId, name, phone, cuit, null, 0, pageSize)).thenReturn(List.of(client));
+        when(clientRepo.count(userId, name, phone, cuit, withUser)).thenReturn(totalElements);
+        when(clientRepo.search(userId, name, phone, cuit, withUser, 0, pageSize)).thenReturn(List.of(client));
 
         final ClientResponse expectedResponse = new ClientResponse(id, userId, name, phone, cuit, consignees);
 
@@ -221,8 +221,8 @@ class ClientControllerTest {
         when(client.getPhone()).thenReturn(phone);
         when(client.getCuit()).thenReturn(cuit);
 
-        when(clientRepo.count(userId, name, phone, cuit, null)).thenReturn(totalElements);
-        when(clientRepo.search(userId, name, phone, cuit, null, pageSize, pageSize)).thenReturn(List.of(client));
+        when(clientRepo.count(userId, name, phone, cuit, withUser)).thenReturn(totalElements);
+        when(clientRepo.search(userId, name, phone, cuit, withUser, pageSize, pageSize)).thenReturn(List.of(client));
 
         final ClientResponse expectedResponse = new ClientResponse(id, userId, name, phone, cuit, Collections.emptyList());
 
