@@ -29,5 +29,7 @@ public class OrderResponse {
     private final ConsigneeDataResponse consignee;
     private final List<DocumentResponse> documents;
     private final List<CostResponse> costs;
+    private final boolean returned;
+    private final boolean billed;
 }
 

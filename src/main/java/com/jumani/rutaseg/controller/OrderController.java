@@ -366,7 +366,7 @@ public class OrderController {
                 .collect(Collectors.toList());
 
         // Crear una lista de CostResponse a partir de los objetos Cost
-        List<CostResponse> costResponse= order.getCosts().stream()
+        List<CostResponse> costResponse = order.getCosts().stream()
                 .map(cost -> new CostResponse(
                         cost.getId(),
                         cost.getAmount(),
@@ -394,7 +394,9 @@ public class OrderController {
                 containerResponse,
                 consigneeDataResponse,
                 documentResponse,
-                costResponse
+                costResponse,
+                order.isReturned(),
+                order.isBilled()
         );
     }
 
@@ -429,4 +431,39 @@ public class OrderController {
         return ResponseEntity.ok(orderResponse);
     }
 
+    @PostMapping("/{id}/returned/{returned}")
+    public ResponseEntity<?> setReturned(@PathVariable("id") long id,
+                                         @PathVariable("returned") boolean returned,
+                                         @Session SessionInfo session) {
+        if (!session.admin()) {
+            throw new ForbiddenException();
+        }
+
+        final Order order = orderRepo.findById(id)
+                .orElseThrow(() -> new NotFoundException(String.format("order with id [%s] not found", id)));
+
+        order.setReturned(returned);
+
+        orderRepo.save(order);
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/{id}/billed/{billed}")
+    public ResponseEntity<?> setBilled(@PathVariable("id") long id,
+                                       @PathVariable("billed") boolean billed,
+                                       @Session SessionInfo session) {
+        if (!session.admin()) {
+            throw new ForbiddenException();
+        }
+
+        final Order order = orderRepo.findById(id)
+                .orElseThrow(() -> new NotFoundException(String.format("order with id [%s] not found", id)));
+
+        order.setBilled(billed);
+
+        orderRepo.save(order);
+
+        return ResponseEntity.noContent().build();
+    }
 }

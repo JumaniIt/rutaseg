@@ -85,6 +85,12 @@ public class Order implements DateGen {
     @JoinColumn(name = "order_id")
     private List<Note> notes;
 
+    @Column(name = "returned")
+    private boolean returned;
+
+    @Column(name = "billed")
+    private boolean billed;
+
     //constructor
     public Order(String code, Client client,
                  boolean pema, boolean port, boolean transport,
@@ -110,6 +116,8 @@ public class Order implements DateGen {
         this.documents = new ArrayList<>();
         this.costs = new ArrayList<>();
         this.notes = new ArrayList<>();
+        this.returned = false;
+        this.billed = false;
     }
 
     public Long getClientId() {
@@ -202,7 +210,15 @@ public class Order implements DateGen {
         this.addNote(note);
     }
 
-    public long getAmountOfNotes() {
-        return this.notes.size();
+    public void setReturned(boolean returned) {
+        this.returned = returned;
+
+        if (this.returned) {
+            this.finishedAt = this.currentDateUTC();
+        }
+    }
+
+    public void setBilled(boolean billed) {
+        this.billed = billed;
     }
 }
