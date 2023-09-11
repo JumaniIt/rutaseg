@@ -62,6 +62,7 @@ public class ClientController {
         final ClientResponse clientResponse = this.createResponse(savedClient, true);
         return ResponseEntity.status(HttpStatus.CREATED).body(clientResponse);
     }
+
     @PutMapping("/{id}")
     public ResponseEntity<ClientResponse> updateClient(
             @PathVariable("id") Long id,
@@ -74,13 +75,21 @@ public class ClientController {
 
         // Buscar el cliente por su ID
         Client existingClient = clientRepo.findById(id)
-                .orElseThrow(() -> new NotFoundException(String.format("Client with id [%s] not found", id)));
+                .orElseThrow(() -> new NotFoundException(String.format("client with id [%s] not found", id)));
 
         // Buscar el usuario si el campo userId está presente en la solicitud
         User user = null;
         if (clientRequest.getUserId() != null) {
             user = userRepo.findById(clientRequest.getUserId())
-                    .orElseThrow(() -> new NotFoundException("user not found"));
+                    .orElseThrow(() -> new NotFoundException(String.format("user with id [%s] not found", clientRequest.getUserId())));
+
+            final long userId = user.getId();
+            if (!Objects.equals(existingClient.getUserId(), userId)) {
+                clientRepo.findOneByUser_Id(userId)
+                        .ifPresent(anotherClient -> {
+                            throw new ValidationException("user_already_taken", "a client with the same user already exists");
+                        });
+            }
         }
 
         // Actualizar los datos del cliente utilizando los valores recibidos en la solicitud PUT
@@ -93,13 +102,13 @@ public class ClientController {
 
 
         // Guardar los cambios en el repositorio
-        Client updatedClient = clientRepo.save(existingClient);
+        final Client updatedClient = clientRepo.save(existingClient);
 
         // Crear y devolver la respuesta con los datos actualizados del cliente
-        ClientResponse clientResponse = createResponse(updatedClient, false);
+        final ClientResponse clientResponse = createResponse(updatedClient, false);
         return ResponseEntity.ok(clientResponse);
     }
-
+    
     @GetMapping
     public ResponseEntity<PaginatedResult<ClientResponse>> search(@RequestParam(value = "user_id", required = false) Long userId,
                                                                   @RequestParam(value = "name", required = false) String name,

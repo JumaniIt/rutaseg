@@ -112,20 +112,21 @@ public class UserController {
             @RequestParam(value = "admin", required = false) Boolean admin,
             @RequestParam(value = "nickname", required = false) String nickname,
             @RequestParam(value = "email", required = false) String email,
+            @RequestParam(value = "with_client", required = false) Boolean withClient,
             @Session SessionInfo session) {
 
         if (!session.admin()) {
             throw new ForbiddenException();
         }
 
-        final long totalElements = userRepo.count(admin, nickname, email);
-
+        final long totalElements = userRepo.count(admin, nickname, email, withClient);
 
         final PaginatedResult<UserResponse> result = PaginationUtil.get(totalElements, pageSize, page, (offset, limit) -> {
             List<User> users = userRepo.search(
                     admin,
                     nickname,
                     email,
+                    withClient,
                     offset,
                     limit
             );
