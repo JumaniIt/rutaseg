@@ -129,7 +129,7 @@ public class ClientController {
             theUserId = userId;
             thePageSize = pageSize;
             thePage = page;
-            theTotalElements = clientRepo.count(theUserId, name, phone, cuit, null);
+            theTotalElements = clientRepo.count(theUserId, name, phone, cuit, withUser);
         } else {
             theUserId = session.userId();
             thePageSize = 1;
@@ -138,7 +138,7 @@ public class ClientController {
         }
 
         final PaginatedResult<ClientResponse> result = PaginationUtil.get(theTotalElements, thePageSize, thePage,
-                (offset, limit) -> clientRepo.search(theUserId, name, phone, cuit, null, offset, limit)
+                (offset, limit) -> clientRepo.search(theUserId, name, phone, cuit, withUser, offset, limit)
                         .stream()
                         .map(client -> this.createResponse(client, withConsignees))
                         .toList());
