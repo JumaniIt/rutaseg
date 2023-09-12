@@ -32,7 +32,7 @@ public class User {
         this.admin = admin;
     }
 
-    private User() {
+    public User() {
     }
 
     public void update(String nickname, String password, String email, boolean admin) {
