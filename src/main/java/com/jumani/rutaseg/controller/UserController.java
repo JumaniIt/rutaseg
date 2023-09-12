@@ -54,7 +54,7 @@ public class UserController {
         UserResponse userResponse = createResponse(savedUser);
         return ResponseEntity.status(HttpStatus.CREATED).body(userResponse);
     }
-    private UserResponse createResponse(User user) {
+    UserResponse createResponse(User user) {
         return new UserResponse(user.getId(), user.getNickname(), user.getEmail(), user.isAdmin());
     }
 
