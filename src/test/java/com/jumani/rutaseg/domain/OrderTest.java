@@ -24,10 +24,10 @@ public class OrderTest {
         final Origin origin = randomEnum(Origin.class);
         long createdByUserId = randomId();
         final DestinationType destinationType = randomEnum(DestinationType.class);
-        final String destinationName = randomShortString();
+        final String destinationCode = randomShortString();
 
         ArrivalData arrivalData = new ArrivalData(LocalDate.now(), LocalTime.now(), origin,
-                "Morning", false, destinationType, destinationName, "FOB", "USD");
+                false, destinationType, destinationCode, "FOB", "USD", null);
         DriverData driverData = new DriverData("John Doe", "1234567890", "ABC Company");
         CustomsData customsData = new CustomsData("Customs Name", "9876543210");
         Client client = new Client(new User("John", "password", "john@example.com", false),
@@ -66,10 +66,10 @@ public class OrderTest {
         final Origin origin = randomEnum(Origin.class);
         long createdByUserId = randomId();
         final DestinationType destinationType = randomEnum(DestinationType.class);
-        final String destinationName = randomShortString();
+        final String destinationCode = randomShortString();
 
         ArrivalData arrivalData = new ArrivalData(LocalDate.now(), LocalTime.now(), origin,
-                "Morning", true, destinationType, destinationName, "FOB", "USD");
+                true, destinationType, destinationCode, "FOB", "USD", null);
         DriverData driverData = new DriverData("John Doe", "1234567890", "ABC Company");
         CustomsData customsData = new CustomsData("Customs Name", "9876543210");
         Client client = new Client(new User("John", "password", "john@example.com", false),
@@ -110,13 +110,12 @@ public class OrderTest {
                 LocalDate.of(2023, 6, 1),
                 LocalTime.of(9, 0),
                 Origin.EZEIZA,
-                "Morning",
                 true,
                 DestinationType.TLEA,
                 "Warehouse A",
                 "FOB",
-                "USD"
-        );
+                "USD",
+                null);
         DriverData originalDriverData = new DriverData(
                 "John Doe",
                 "1234567890",
@@ -147,13 +146,12 @@ public class OrderTest {
                 LocalDate.of(2023, 7, 15),
                 LocalTime.of(14, 30),
                 Origin.EXOLGAN,
-                "Afternoon",
                 false,
                 DestinationType.TLAT,
                 "Customer B",
                 "CIF",
-                "EUR"
-        );
+                "EUR",
+                null);
         DriverData updatedDriverData = new DriverData(
                 "Jane Smith",
                 "9876543210",
@@ -205,11 +203,11 @@ public class OrderTest {
         boolean transport = randomBoolean();
         long createdByUserId = randomId();
         final DestinationType destinationType = randomEnum(DestinationType.class);
-        final String destinationName = randomShortString();
+        final String destinationCode = randomShortString();
         final Origin origin = randomEnum(Origin.class);
 
         ArrivalData arrivalData = new ArrivalData(LocalDate.now(), LocalTime.now(), origin,
-                "Morning", true, destinationType, destinationName, "FOB", "USD");
+                true, destinationType, destinationCode, "FOB", "USD", null);
         DriverData driverData = new DriverData("John Doe", "1234567890", "ABC Company");
         CustomsData customsData = new CustomsData("Customs Name", "9876543210");
         ConsigneeData consigneeData = new ConsigneeData("Consignee Name", 123456789L);

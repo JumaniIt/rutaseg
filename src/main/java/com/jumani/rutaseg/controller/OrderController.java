@@ -283,13 +283,12 @@ public class OrderController {
                 arrivalDataRequest.getArrivalDate(),
                 arrivalDataRequest.getArrivalTime(),
                 arrivalDataRequest.getOrigin(),
-                arrivalDataRequest.getTurn(),
                 arrivalDataRequest.isFreeLoad(),
                 arrivalDataRequest.getDestinationType(),
-                arrivalDataRequest.getDestinationName(),
+                arrivalDataRequest.getDestinationCode(),
                 arrivalDataRequest.getFob(),
-                Optional.ofNullable(arrivalDataRequest.getCurrency()).map(String::toUpperCase).orElse(null)
-        );
+                Optional.ofNullable(arrivalDataRequest.getCurrency()).map(String::toUpperCase).orElse(null),
+                arrivalDataRequest.getProductDetails());
     }
 
     private CustomsData createCustomsData(CustomsDataRequest customsDataRequest) {
@@ -318,10 +317,9 @@ public class OrderController {
                     arrivalData.getArrivalDate(),
                     arrivalData.getArrivalTime(),
                     arrivalData.getOrigin(),
-                    arrivalData.getTurn(),
                     arrivalData.isFreeLoad(),
                     arrivalData.getDestinationType(),
-                    arrivalData.getDestinationName(),
+                    arrivalData.getDestinationCode(),
                     arrivalData.getFob(),
                     arrivalData.getCurrency()
             );

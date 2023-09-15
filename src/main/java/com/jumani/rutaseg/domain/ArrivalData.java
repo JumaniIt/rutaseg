@@ -29,17 +29,15 @@ public class ArrivalData {
     @Enumerated(EnumType.STRING)
     private Origin origin;
 
-    @Column(name = "turn")
-    private String turn;
-
     @Column(name = "free_load")
     private boolean freeLoad;
 
     @Column(name = "destination_type")
+    @Enumerated(EnumType.STRING)
     private DestinationType destinationType;
 
-    @Column(name = "destination_name")
-    private String destinationName;
+    @Column(name = "destination_code")
+    private String destinationCode;
 
     @Column(name = "fob")
     private String fob;
@@ -47,22 +45,26 @@ public class ArrivalData {
     @Column(name = "currency")
     private String currency;
 
+    @Column(name = "product_details", columnDefinition = "text")
+    private String productDetails;
+
     private ArrivalData() {
     }
 
     public ArrivalData(LocalDate arrivalDate, LocalTime arrivalTime,
-                       Origin origin, String turn, boolean freeLoad,
-                       DestinationType destinationType, String destinationName,
-                       String fob, String currency) {
+                       Origin origin, boolean freeLoad,
+                       DestinationType destinationType, String destinationCode,
+                       String fob, String currency,
+                       String productDetails) {
 
         this.arrivalDate = arrivalDate;
         this.arrivalTime = arrivalTime;
         this.origin = origin;
-        this.turn = turn;
         this.freeLoad = freeLoad;
         this.destinationType = destinationType;
-        this.destinationName = destinationName;
+        this.destinationCode = destinationCode;
         this.fob = fob;
         this.currency = currency;
+        this.productDetails = productDetails;
     }
 }
