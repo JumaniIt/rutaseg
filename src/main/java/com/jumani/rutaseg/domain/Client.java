@@ -33,7 +33,7 @@ public class Client {
     private Long cuit;
 
     @ElementCollection(fetch = FetchType.LAZY)
-    @CollectionTable(name = "consignees",
+    @CollectionTable(name = "consignees", foreignKey = @ForeignKey(name = "`fk_consignees-clients`"),
             joinColumns = @JoinColumn(name = "client_id"))
     private List<Consignee> consignees;
 

@@ -4,7 +4,6 @@ import com.jumani.rutaseg.util.DateGen;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.experimental.FieldNameConstants;
-import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -19,7 +18,6 @@ import static com.jumani.rutaseg.domain.OrderStatus.DRAFT;
 @Entity
 @FieldNameConstants
 @Table(name = "orders")
-@Slf4j
 public class Order implements DateGen {
 
     @Id
@@ -63,41 +61,41 @@ public class Order implements DateGen {
     @Column(name = "free_load")
     private boolean freeLoad;
 
-    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
-    @JoinColumn(name = "id")
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JoinColumn(name = "id", foreignKey = @ForeignKey(name = "`fk_driver-datas`"))
     private DriverData driverData;
 
-    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
-    @JoinColumn(name = "id")
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JoinColumn(name = "id", foreignKey = @ForeignKey(name = "`fk_customs_datas-orders`"))
     private CustomsData customsData;
 
     @Column(name = "created_by_user_id")
     private long createdByUserId;
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "containers",
+    @ElementCollection(fetch = FetchType.LAZY)
+    @CollectionTable(name = "containers", foreignKey = @ForeignKey(name = "`fk_containers-orders`"),
             joinColumns = @JoinColumn(name = "order_id"))
     private List<Container> containers;
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "free_loads",
+    @ElementCollection(fetch = FetchType.LAZY)
+    @CollectionTable(name = "free_loads", foreignKey = @ForeignKey(name = "`fk_free_loads-orders`"),
             joinColumns = @JoinColumn(name = "order_id"))
     private List<FreeLoad> freeLoads;
 
-    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
-    @JoinColumn(name = "id")
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JoinColumn(name = "id", foreignKey = @ForeignKey(name = "`fk_consignee_datas-orders`"))
     private ConsigneeData consignee;
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
-    @JoinColumn(name = "order_id")
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JoinColumn(name = "order_id", foreignKey = @ForeignKey(name = "`fk_documents-orders`"))
     private List<Document> documents;
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
-    @JoinColumn(name = "order_id")
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JoinColumn(name = "order_id", foreignKey = @ForeignKey(name = "`fk_costs-orders`"))
     private List<Cost> costs;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    @JoinColumn(name = "order_id")
+    @JoinColumn(name = "order_id", foreignKey = @ForeignKey(name = "`fk_notes-orders`"))
     private List<Note> notes;
 
     @Column(name = "returned")
