@@ -31,8 +31,8 @@ public class OrderTest {
         CustomsData customsData = new CustomsData("Customs Name", "9876543210");
         Client client = new Client(new User("John", "password", "john@example.com", false),
                 "name", "1234567890", 123456789L);
-        Container container1 = new Container("ABC123",Measures.STANDARD_DRY_20_20_ST , false, "PEMA1");
-        Container container2 = new Container("XYZ789", Measures.STANDARD_OPEN_SIDE_20_20_OS, true, "PEMA2");
+        Container container1 = new Container("ABC123",Measures.ST_20, false, "PEMA1");
+        Container container2 = new Container("XYZ789", Measures.OS_20, true, "PEMA2");
         List<Container> containers = Arrays.asList(container1, container2);
         ConsigneeData consigneeData = new ConsigneeData("Consignee Name", 123456789L);
 
@@ -120,8 +120,8 @@ public class OrderTest {
                 "1234567890"
         );
         List<Container> updatedContainers = new ArrayList<>();
-        updatedContainers.add(new Container("ABC123", Measures.STANDARD_DRY_20_20_ST, false, "PEMA1"));
-        updatedContainers.add(new Container("XYZ789", Measures.STANDARD_OPEN_SIDE_20_20_OS, true, "PEMA2"));
+        updatedContainers.add(new Container("ABC123", Measures.ST_20, false, "PEMA1"));
+        updatedContainers.add(new Container("XYZ789", Measures.OS_20, true, "PEMA2"));
         ConsigneeData updatedConsigneeData = new ConsigneeData(
                 "New Consignee",
                 54321L
@@ -165,8 +165,8 @@ public class OrderTest {
         List<Container> containers = new ArrayList<>();
         ConsigneeData consigneeData = new ConsigneeData("Consignee Name", 123456789L);
 
-        Container container1 = new Container("ABC123", Measures.STANDARD_DRY_20_20_ST, false, "PEMA1");
-        Container container2 = new Container("XYZ789", Measures.STANDARD_OPEN_SIDE_20_20_OS, true, "PEMA2");
+        Container container1 = new Container("ABC123", Measures.ST_20, false, "PEMA1");
+        Container container2 = new Container("XYZ789", Measures.OS_20, true, "PEMA2");
         containers.addAll(Arrays.asList(container1, container2));
 
         Order order = new Order(randomShortString(), client, pema, port, transport, arrivalData, driverData, customsData,
