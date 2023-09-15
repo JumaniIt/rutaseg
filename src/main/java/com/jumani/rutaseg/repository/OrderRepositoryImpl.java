@@ -1,19 +1,17 @@
 package com.jumani.rutaseg.repository;
 
-import com.jumani.rutaseg.domain.ArrivalData;
 import com.jumani.rutaseg.domain.Client;
 import com.jumani.rutaseg.domain.Order;
 import com.jumani.rutaseg.domain.OrderStatus;
-import lombok.RequiredArgsConstructor;
-import lombok.experimental.FieldNameConstants;
-import org.springframework.lang.Nullable;
-import org.springframework.stereotype.Repository;
-
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldNameConstants;
+import org.springframework.lang.Nullable;
+import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -111,19 +109,19 @@ public class OrderRepositoryImpl implements OrderRepositoryExtended {
         }
 
         if (Objects.nonNull(arrivalDateFrom)) {
-            predicates.add(builder.greaterThanOrEqualTo(root.get(Order.Fields.arrivalData).get(ArrivalData.Fields.arrivalDate), arrivalDateFrom));
+            predicates.add(builder.greaterThanOrEqualTo(root.get(Order.Fields.arrivalDate), arrivalDateFrom));
         }
 
         if (Objects.nonNull(arrivalDateTo)) {
-            predicates.add(builder.lessThanOrEqualTo(root.get(Order.Fields.arrivalData).get(ArrivalData.Fields.arrivalDate), arrivalDateTo));
+            predicates.add(builder.lessThanOrEqualTo(root.get(Order.Fields.arrivalDate), arrivalDateTo));
         }
 
         if (Objects.nonNull(arrivalTimeFrom)) {
-            predicates.add(builder.greaterThanOrEqualTo(root.get(Order.Fields.arrivalData).get(ArrivalData.Fields.arrivalTime), arrivalTimeFrom));
+            predicates.add(builder.greaterThanOrEqualTo(root.get(Order.Fields.arrivalTime), arrivalTimeFrom));
         }
 
         if (Objects.nonNull(arrivalTimeTo)) {
-            predicates.add(builder.lessThanOrEqualTo(root.get(Order.Fields.arrivalData).get(ArrivalData.Fields.arrivalTime), arrivalTimeTo));
+            predicates.add(builder.lessThanOrEqualTo(root.get(Order.Fields.arrivalTime), arrivalTimeTo));
         }
 
         if (Objects.nonNull(clientId)) {

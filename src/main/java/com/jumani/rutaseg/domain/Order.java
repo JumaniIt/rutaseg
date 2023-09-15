@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.experimental.FieldNameConstants;
 import lombok.extern.slf4j.Slf4j;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,6 +28,7 @@ public class Order implements DateGen {
 
     @Column(name = "code")
     private String code;
+
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "client_id", foreignKey = @ForeignKey(name = "fk_orders_clients"))
     private Client client;
@@ -43,15 +46,22 @@ public class Order implements DateGen {
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
 
-    @Column(name = "created_at")
-    private ZonedDateTime createdAt;
+    @Column(name = "arrival_date")
+    private LocalDate arrivalDate;
 
-    @Column(name = "finished_at")
-    private ZonedDateTime finishedAt;
+    @Column(name = "arrival_time")
+    private LocalTime arrivalTime;
 
-    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
-    @JoinColumn(name = "id")
-    private ArrivalData arrivalData;
+    @Column(name = "origin")
+    @Enumerated(EnumType.STRING)
+    private Terminal origin;
+
+    @Column(name = "destination")
+    @Enumerated(EnumType.STRING)
+    private Terminal target;
+
+    @Column(name = "free_load")
+    private boolean freeLoad;
 
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     @JoinColumn(name = "id")
@@ -96,10 +106,18 @@ public class Order implements DateGen {
     @Column(name = "billed")
     private boolean billed;
 
+    @Column(name = "created_at")
+    private ZonedDateTime createdAt;
+
+    @Column(name = "finished_at")
+    private ZonedDateTime finishedAt;
+
     //constructor
     public Order(String code, Client client,
                  boolean pema, boolean port, boolean transport,
-                 ArrivalData arrivalData,
+                 LocalDate arrivalDate, LocalTime arrivalTime,
+                 Terminal origin, Terminal target,
+                 boolean freeLoad,
                  DriverData driverData,
                  CustomsData customsData,
                  long createdByUserId,
@@ -112,10 +130,14 @@ public class Order implements DateGen {
         this.pema = pema;
         this.port = port;
         this.transport = transport;
+        this.arrivalDate = arrivalDate;
+        this.arrivalTime = arrivalTime;
+        this.origin = origin;
+        this.target = target;
+        this.freeLoad = freeLoad;
         this.status = DRAFT;
         this.createdAt = this.currentDateUTC();
         this.finishedAt = null;
-        this.arrivalData = arrivalData;
         this.driverData = driverData;
         this.customsData = customsData;
         this.createdByUserId = createdByUserId;
@@ -136,10 +158,11 @@ public class Order implements DateGen {
     private Order() {
     }
 
-    public void update(String code,
-                       Client client,
+    public void update(String code, Client client,
                        boolean pema, boolean port, boolean transport,
-                       ArrivalData arrivalData,
+                       LocalDate arrivalDate, LocalTime arrivalTime,
+                       Terminal origin, Terminal target,
+                       boolean freeLoad,
                        DriverData driverData,
                        CustomsData customsData,
                        List<Container> containers,
@@ -150,8 +173,12 @@ public class Order implements DateGen {
         this.client = client;
         this.pema = pema;
         this.port = port;
+        this.arrivalDate = arrivalDate;
+        this.arrivalTime = arrivalTime;
+        this.origin = origin;
+        this.target = target;
+        this.freeLoad = freeLoad;
         this.transport = transport;
-        this.arrivalData = arrivalData;
         this.driverData = driverData;
         this.customsData = customsData;
         this.containers = containers;

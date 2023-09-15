@@ -3,7 +3,7 @@ package com.jumani.rutaseg.controller;
 import com.jumani.rutaseg.domain.Client;
 import com.jumani.rutaseg.domain.Order;
 import com.jumani.rutaseg.domain.OrderStatus;
-import com.jumani.rutaseg.dto.request.ArrivalDataRequest;
+import com.jumani.rutaseg.domain.Terminal;
 import com.jumani.rutaseg.dto.request.CustomsDataRequest;
 import com.jumani.rutaseg.dto.request.DriverDataRequest;
 import com.jumani.rutaseg.dto.request.OrderRequest;
@@ -22,6 +22,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.ZonedDateTime;
 import java.util.Collections;
 import java.util.Optional;
@@ -55,6 +57,12 @@ class OrderControllerTest {
         boolean pema = true;
         boolean port = false;
         boolean transport = true;
+        final LocalDate arrivalDate = mock(LocalDate.class);
+        final LocalTime arrivalTime = mock(LocalTime.class);
+        final Terminal origin = randomEnum(Terminal.class);
+        final Terminal target = randomEnum(Terminal.class);
+        final boolean freeLoad = randomBoolean();
+
         OrderStatus status = OrderStatus.DRAFT;
         ZonedDateTime createdAt = ZonedDateTime.now().minusDays(1);
         ZonedDateTime finishedAt = ZonedDateTime.now();
@@ -68,10 +76,14 @@ class OrderControllerTest {
                 pema,
                 port,
                 transport,
+                arrivalDate,
+                arrivalTime,
+                origin,
+                target,
+                freeLoad,
                 status,
                 createdAt,
                 finishedAt,
-                null,
                 null,
                 null,
                 Collections.emptyList(),
@@ -92,6 +104,11 @@ class OrderControllerTest {
         when(order.isPema()).thenReturn(pema);
         when(order.isPort()).thenReturn(port);
         when(order.isTransport()).thenReturn(transport);
+        when(order.getArrivalDate()).thenReturn(arrivalDate);
+        when(order.getArrivalTime()).thenReturn(arrivalTime);
+        when(order.getOrigin()).thenReturn(origin);
+        when(order.getTarget()).thenReturn(target);
+        when(order.isFreeLoad()).thenReturn(freeLoad);
         when(order.getStatus()).thenReturn(status);
         when(order.getCreatedAt()).thenReturn(createdAt);
         when(order.getFinishedAt()).thenReturn(finishedAt);
@@ -142,12 +159,17 @@ class OrderControllerTest {
         boolean port = randomBoolean();
         boolean transport = randomBoolean();
         long clientId = randomId();
+        final LocalDate arrivalDate = mock(LocalDate.class);
+        final LocalTime arrivalTime = mock(LocalTime.class);
+        final Terminal origin = randomEnum(Terminal.class);
+        final Terminal target = randomEnum(Terminal.class);
+        final boolean freeLoad = randomBoolean();
 
-        ArrivalDataRequest arrivalDataRequest = new ArrivalDataRequest();
         DriverDataRequest driverDataRequest = new DriverDataRequest();
         CustomsDataRequest customsDataRequest = new CustomsDataRequest();
         OrderRequest orderRequest = new OrderRequest(
-                code, clientId, pema, port, transport, arrivalDataRequest, driverDataRequest, customsDataRequest,
+                code, clientId, pema, port, transport, arrivalDate, arrivalTime, origin, target, freeLoad,
+                driverDataRequest, customsDataRequest,
                 Collections.emptyList(), Collections.emptyList(), null
         );
 
@@ -169,13 +191,18 @@ class OrderControllerTest {
         when(savedOrder.isPema()).thenReturn(pema);
         when(savedOrder.isPort()).thenReturn(port);
         when(savedOrder.isTransport()).thenReturn(transport);
+        when(savedOrder.getArrivalDate()).thenReturn(arrivalDate);
+        when(savedOrder.getArrivalTime()).thenReturn(arrivalTime);
+        when(savedOrder.getOrigin()).thenReturn(origin);
+        when(savedOrder.getTarget()).thenReturn(target);
+        when(savedOrder.isFreeLoad()).thenReturn(freeLoad);
         when(savedOrder.getStatus()).thenReturn(OrderStatus.DRAFT);
         when(savedOrder.getCreatedAt()).thenReturn(ZonedDateTime.now());
         when(savedOrder.getFinishedAt()).thenReturn(null);
 
         OrderResponse expectedOrderResponse = new OrderResponse(
-                1L, code, clientId, createdByUserId, pema, port, transport, OrderStatus.DRAFT,
-                ZonedDateTime.now(), null, null, null, null, Collections.emptyList(),
+                1L, code, clientId, createdByUserId, pema, port, transport, arrivalDate, arrivalTime, origin, target, freeLoad,
+                OrderStatus.DRAFT, ZonedDateTime.now(), null, null, null, Collections.emptyList(),
                 Collections.emptyList(), null, Collections.emptyList(), Collections.emptyList(), false, false
         );
 
@@ -244,10 +271,8 @@ class OrderControllerTest {
     void updateOrder_WithNonExistingOrder_ReturnsNotFound() {
         // Arrange
         long orderId = 1L;
-        String code = randomShortString();
 
-        OrderRequest orderRequest = new OrderRequest(code, 101L, true, true, true, null, null, null,
-                Collections.emptyList(), Collections.emptyList(), null);
+        OrderRequest orderRequest = mock(OrderRequest.class);
         SessionInfo session = new SessionInfo(501L, true);
 
         when(orderRepo.findById(orderId)).thenReturn(Optional.empty());
@@ -266,8 +291,8 @@ class OrderControllerTest {
     void updateOrder_WithNonDraftOrderAndNonAdminUser_ReturnsForbidden() {
         // Arrange
         long orderId = 1L;
-        OrderRequest orderRequest = new OrderRequest(randomShortString(), 101L, true, true, true, null, null, null,
-                Collections.emptyList(), Collections.emptyList(), null);
+        OrderRequest orderRequest = mock(OrderRequest.class);
+
         SessionInfo session = new SessionInfo(501L, false);
 
         Client existingClient = mock(Client.class);
@@ -290,8 +315,25 @@ class OrderControllerTest {
     void updateOrder_WithValidDataAndAdminUser_ReturnsUpdatedOrderResponse() {
         // Arrange
         long orderId = 1L;
-        OrderRequest orderRequest = new OrderRequest(randomShortString(), 101L, true, true, true, null, null, null,
-                Collections.emptyList(), Collections.emptyList(), null);
+        String code = randomShortString();
+        boolean pema = randomBoolean();
+        boolean port = randomBoolean();
+        boolean transport = randomBoolean();
+        long clientId = randomId();
+        final LocalDate arrivalDate = mock(LocalDate.class);
+        final LocalTime arrivalTime = mock(LocalTime.class);
+        final Terminal origin = randomEnum(Terminal.class);
+        final Terminal target = randomEnum(Terminal.class);
+        final boolean freeLoad = randomBoolean();
+
+        DriverDataRequest driverDataRequest = new DriverDataRequest();
+        CustomsDataRequest customsDataRequest = new CustomsDataRequest();
+        OrderRequest orderRequest = new OrderRequest(
+                code, clientId, pema, port, transport, arrivalDate, arrivalTime, origin, target, freeLoad,
+                driverDataRequest, customsDataRequest,
+                Collections.emptyList(), Collections.emptyList(), null
+        );
+
         SessionInfo session = new SessionInfo(501L, true);
 
         Client existingClient = mock(Client.class);

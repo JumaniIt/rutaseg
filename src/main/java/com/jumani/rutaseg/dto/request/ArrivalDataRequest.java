@@ -1,7 +1,7 @@
 package com.jumani.rutaseg.dto.request;
 
 import com.jumani.rutaseg.domain.DestinationType;
-import com.jumani.rutaseg.domain.Origin;
+import com.jumani.rutaseg.domain.Terminal;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,7 +15,7 @@ import java.time.LocalTime;
 public class ArrivalDataRequest {
     private LocalDate arrivalDate;
     private LocalTime arrivalTime;
-    private Origin origin;
+    private Terminal terminal;
     private boolean freeLoad;
     private DestinationType destinationType;
     private String destinationCode;

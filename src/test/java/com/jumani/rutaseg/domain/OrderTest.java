@@ -11,6 +11,7 @@ import java.util.List;
 
 import static com.jumani.rutaseg.TestDataGen.*;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.mock;
 
 public class OrderTest {
 
@@ -21,13 +22,13 @@ public class OrderTest {
         boolean pema = randomBoolean();
         boolean port = randomBoolean();
         boolean transport = randomBoolean();
-        final Origin origin = randomEnum(Origin.class);
         long createdByUserId = randomId();
-        final DestinationType destinationType = randomEnum(DestinationType.class);
-        final String destinationCode = randomShortString();
+        final LocalDate arrivalDate = mock(LocalDate.class);
+        final LocalTime arrivalTime = mock(LocalTime.class);
+        final Terminal origin = randomEnum(Terminal.class);
+        final Terminal target = randomEnum(Terminal.class);
+        final boolean freeLoad = randomBoolean();
 
-        ArrivalData arrivalData = new ArrivalData(LocalDate.now(), LocalTime.now(), origin,
-                false, destinationType, destinationCode, "FOB", "USD", null);
         DriverData driverData = new DriverData("John Doe", "1234567890", "ABC Company");
         CustomsData customsData = new CustomsData("Customs Name", "9876543210");
         Client client = new Client(new User("John", "password", "john@example.com", false),
@@ -38,14 +39,18 @@ public class OrderTest {
         ConsigneeData consigneeData = new ConsigneeData("Consignee Name", 123456789L);
 
         // Act
-        Order order = new Order(code, client, pema, port, transport, arrivalData, driverData, customsData, createdByUserId, containers, null, consigneeData);
-
+        final Order order = new Order(code, client, pema, port, transport, arrivalDate, arrivalTime, origin, target, freeLoad,
+                driverData, customsData, createdByUserId, containers, Collections.emptyList(), consigneeData);
         // Assert
         assertEquals(code, order.getCode());
         assertEquals(pema, order.isPema());
         assertEquals(port, order.isPort());
         assertEquals(transport, order.isTransport());
-        assertEquals(arrivalData, order.getArrivalData());
+        assertEquals(arrivalDate, order.getArrivalDate());
+        assertEquals(arrivalTime, order.getArrivalTime());
+        assertEquals(origin, order.getOrigin());
+        assertEquals(target, order.getTarget());
+        assertEquals(freeLoad, order.isFreeLoad());
         assertEquals(driverData, order.getDriverData());
         assertEquals(customsData, order.getCustomsData());
         assertNotNull(order.getCreatedAt());
@@ -63,13 +68,14 @@ public class OrderTest {
         boolean pema = randomBoolean();
         boolean port = randomBoolean();
         boolean transport = randomBoolean();
-        final Origin origin = randomEnum(Origin.class);
-        long createdByUserId = randomId();
-        final DestinationType destinationType = randomEnum(DestinationType.class);
-        final String destinationCode = randomShortString();
+        final LocalDate arrivalDate = mock(LocalDate.class);
+        final LocalTime arrivalTime = mock(LocalTime.class);
+        final Terminal origin = randomEnum(Terminal.class);
+        final Terminal target = randomEnum(Terminal.class);
+        final boolean freeLoad = randomBoolean();
 
-        ArrivalData arrivalData = new ArrivalData(LocalDate.now(), LocalTime.now(), origin,
-                true, destinationType, destinationCode, "FOB", "USD", null);
+        long createdByUserId = randomId();
+
         DriverData driverData = new DriverData("John Doe", "1234567890", "ABC Company");
         CustomsData customsData = new CustomsData("Customs Name", "9876543210");
         Client client = new Client(new User("John", "password", "john@example.com", false),
@@ -80,14 +86,19 @@ public class OrderTest {
         ConsigneeData consigneeData = new ConsigneeData("Consignee Name", 123456789L);
 
         // Act
-        Order order = new Order(code, client, pema, port, transport, arrivalData, driverData, customsData, createdByUserId, Collections.emptyList(), freeLoads, consigneeData);
+        final Order order = new Order(code, client, pema, port, transport, arrivalDate, arrivalTime, origin, target, freeLoad,
+                driverData, customsData, createdByUserId, Collections.emptyList(), freeLoads, consigneeData);
 
         // Assert
         assertEquals(code, order.getCode());
         assertEquals(pema, order.isPema());
         assertEquals(port, order.isPort());
+        assertEquals(arrivalDate, order.getArrivalDate());
+        assertEquals(arrivalTime, order.getArrivalTime());
+        assertEquals(origin, order.getOrigin());
+        assertEquals(target, order.getTarget());
+        assertEquals(freeLoad, order.isFreeLoad());
         assertEquals(transport, order.isTransport());
-        assertEquals(arrivalData, order.getArrivalData());
         assertEquals(driverData, order.getDriverData());
         assertEquals(customsData, order.getCustomsData());
         assertNotNull(order.getCreatedAt());
@@ -106,16 +117,12 @@ public class OrderTest {
         boolean originalPema = false;
         boolean originalPort = true;
         boolean originalTransport = true;
-        ArrivalData originalArrivalData = new ArrivalData(
-                LocalDate.of(2023, 6, 1),
-                LocalTime.of(9, 0),
-                Origin.EZEIZA,
-                true,
-                DestinationType.TLEA,
-                "Warehouse A",
-                "FOB",
-                "USD",
-                null);
+        final LocalDate originalArrivalDate = mock(LocalDate.class);
+        final LocalTime originalArrivalTime = mock(LocalTime.class);
+        final Terminal originalOrigin = randomEnum(Terminal.class);
+        final Terminal originalTarget = randomEnum(Terminal.class);
+        final boolean originalFreeLoad = randomBoolean();
+
         DriverData originalDriverData = new DriverData(
                 "John Doe",
                 "1234567890",
@@ -133,8 +140,8 @@ public class OrderTest {
         );
 
         Order order = new Order("code-1", originalClient, originalPema, originalPort, originalTransport,
-                originalArrivalData, originalDriverData, originalCustomsData, originalCreatedByUserId,
-                originalContainers, null, originalConsigneeData);
+                originalArrivalDate, originalArrivalTime, originalOrigin, originalTarget, originalFreeLoad,
+                originalDriverData, originalCustomsData, originalCreatedByUserId, originalContainers, null, originalConsigneeData);
 
         String updatedCode = "code-2";
         Client updatedClient = new Client(new User("Jane", "password", "jane@example.com", false),
@@ -142,16 +149,13 @@ public class OrderTest {
         boolean updatedPema = true;
         boolean updatedPort = false;
         boolean updatedTransport = false;
-        ArrivalData updatedArrivalData = new ArrivalData(
-                LocalDate.of(2023, 7, 15),
-                LocalTime.of(14, 30),
-                Origin.EXOLGAN,
-                false,
-                DestinationType.TLAT,
-                "Customer B",
-                "CIF",
-                "EUR",
-                null);
+
+        final LocalDate updatedArrivalDate = mock(LocalDate.class);
+        final LocalTime updatedArrivalTime = mock(LocalTime.class);
+        final Terminal updatedOrigin = randomEnum(Terminal.class);
+        final Terminal updatedTarget = randomEnum(Terminal.class);
+        final boolean updatedFreeLoad = randomBoolean();
+
         DriverData updatedDriverData = new DriverData(
                 "Jane Smith",
                 "9876543210",
@@ -176,7 +180,8 @@ public class OrderTest {
 
         // Act
         order.update(updatedCode, updatedClient, updatedPema, updatedPort, updatedTransport,
-                updatedArrivalData, updatedDriverData, updatedCustomsData,
+                updatedArrivalDate, updatedArrivalTime, updatedOrigin, updatedTarget, updatedFreeLoad,
+                updatedDriverData, updatedCustomsData,
                 updatedContainers, updatedFreeLoads, updatedConsigneeData);
 
         // Assert
@@ -184,8 +189,12 @@ public class OrderTest {
         assertEquals(updatedClient, order.getClient());
         assertEquals(updatedPema, order.isPema());
         assertEquals(updatedPort, order.isPort());
+        assertEquals(updatedArrivalDate, order.getArrivalDate());
+        assertEquals(updatedArrivalTime, order.getArrivalTime());
+        assertEquals(updatedOrigin, order.getOrigin());
+        assertEquals(updatedTarget, order.getTarget());
+        assertEquals(updatedFreeLoad, order.isFreeLoad());
         assertEquals(updatedTransport, order.isTransport());
-        assertEquals(updatedArrivalData, order.getArrivalData());
         assertEquals(updatedDriverData, order.getDriverData());
         assertEquals(updatedCustomsData, order.getCustomsData());
         assertEquals(updatedContainers, order.getContainers());
@@ -202,12 +211,7 @@ public class OrderTest {
         boolean port = randomBoolean();
         boolean transport = randomBoolean();
         long createdByUserId = randomId();
-        final DestinationType destinationType = randomEnum(DestinationType.class);
-        final String destinationCode = randomShortString();
-        final Origin origin = randomEnum(Origin.class);
 
-        ArrivalData arrivalData = new ArrivalData(LocalDate.now(), LocalTime.now(), origin,
-                true, destinationType, destinationCode, "FOB", "USD", null);
         DriverData driverData = new DriverData("John Doe", "1234567890", "ABC Company");
         CustomsData customsData = new CustomsData("Customs Name", "9876543210");
         ConsigneeData consigneeData = new ConsigneeData("Consignee Name", 123456789L);
@@ -216,7 +220,8 @@ public class OrderTest {
         Container container2 = new Container("XYZ789", Measures.OS_20, true, "BL2", "PEMA2");
         List<Container> containers = new ArrayList<>(Arrays.asList(container1, container2));
 
-        Order order = new Order(randomShortString(), client, pema, port, transport, arrivalData, driverData, customsData,
+        Order order = new Order(randomShortString(), client, pema, port, transport,
+                null, null, null, null, false, driverData, customsData,
                 createdByUserId, containers, null, consigneeData);
 
         OrderStatus newStatus = OrderStatus.DRAFT;

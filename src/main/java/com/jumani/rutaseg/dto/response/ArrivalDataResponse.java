@@ -1,7 +1,7 @@
 package com.jumani.rutaseg.dto.response;
 
 import com.jumani.rutaseg.domain.DestinationType;
-import com.jumani.rutaseg.domain.Origin;
+import com.jumani.rutaseg.domain.Terminal;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -16,7 +16,7 @@ public class ArrivalDataResponse {
 
     private LocalDate arrivalDate;
     private LocalTime arrivalTime;
-    private Origin origin;
+    private Terminal terminal;
     private boolean freeLoad;
     private DestinationType destinationType;
     private String destinationCode;

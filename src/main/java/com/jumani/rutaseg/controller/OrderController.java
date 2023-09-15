@@ -64,7 +64,6 @@ public class OrderController {
 
 
         // Crear objetos ArrivalData, CustomsData y DriverData a partir de los datos de la solicitud
-        ArrivalData arrivalData = orderRequest.getArrivalData() != null ? createArrivalData(orderRequest.getArrivalData()) : null;
         CustomsData customsData = orderRequest.getCustomsData() != null ? createCustomsData(orderRequest.getCustomsData()) : null;
         DriverData driverData = orderRequest.getDriverData() != null ? createDriverData(orderRequest.getDriverData()) : null;
 
@@ -98,7 +97,8 @@ public class OrderController {
                 orderRequest.isPema(),
                 orderRequest.isPort(),
                 orderRequest.isTransport(),
-                arrivalData,
+                orderRequest.getArrivalDate(), orderRequest.getArrivalTime(),
+                orderRequest.getOrigin(), orderRequest.getTarget(), orderRequest.isFreeLoad(),
                 driverData,
                 customsData,
                 session.userId(),
@@ -151,14 +151,12 @@ public class OrderController {
         boolean pema = orderRequest.isPema();
         boolean port = orderRequest.isPort();
         boolean transport = orderRequest.isTransport();
-        ArrivalDataRequest arrivalDataRequest = orderRequest.getArrivalData();
         DriverDataRequest driverDataRequest = orderRequest.getDriverData();
         CustomsDataRequest customsDataRequest = orderRequest.getCustomsData();
         List<ContainerRequest> containerRequests = orderRequest.getContainers();
         ConsigneeDataRequest consigneeDataRequest = orderRequest.getConsigneeData();
 
         // Crear objetos ArrivalData, CustomsData y DriverData a partir de los datos de la solicitud
-        ArrivalData arrivalData = arrivalDataRequest != null ? createArrivalData(arrivalDataRequest) : null;
         DriverData driverData = driverDataRequest != null ? createDriverData(driverDataRequest) : null;
         CustomsData customsData = customsDataRequest != null ? createCustomsData(customsDataRequest) : null;
 
@@ -187,7 +185,10 @@ public class OrderController {
                 ) : null;
 
         // Actualizar los atributos de la orden utilizando el método update() de la clase Order
-        order.update(orderRequest.getCode(), client, pema, port, transport, arrivalData, driverData, customsData, containers, freeLoads, consigneeData);
+        order.update(orderRequest.getCode(), client, pema, port, transport,
+                orderRequest.getArrivalDate(), orderRequest.getArrivalTime(),
+                orderRequest.getOrigin(), orderRequest.getTarget(), orderRequest.getFreeLoad(),
+                driverData, customsData, containers, freeLoads, consigneeData);
 
         order.addSystemNote(String.format("usuario [%s] de tipo [%s] actualizó datos de solicitud", session.userId(),
                 session.getUserType().getTranslation()));
@@ -276,21 +277,6 @@ public class OrderController {
         return ResponseEntity.ok(result);
     }
 
-
-    private ArrivalData createArrivalData(ArrivalDataRequest arrivalDataRequest) {
-        // Crear una instancia de ArrivalData a partir de ArrivalDataRequest
-        return new ArrivalData(
-                arrivalDataRequest.getArrivalDate(),
-                arrivalDataRequest.getArrivalTime(),
-                arrivalDataRequest.getOrigin(),
-                arrivalDataRequest.isFreeLoad(),
-                arrivalDataRequest.getDestinationType(),
-                arrivalDataRequest.getDestinationCode(),
-                arrivalDataRequest.getFob(),
-                Optional.ofNullable(arrivalDataRequest.getCurrency()).map(String::toUpperCase).orElse(null),
-                arrivalDataRequest.getProductDetails());
-    }
-
     private CustomsData createCustomsData(CustomsDataRequest customsDataRequest) {
         // Crear una instancia de CustomsData a partir de CustomsDataRequest
         return new CustomsData(
@@ -309,22 +295,6 @@ public class OrderController {
     }
 
     private OrderResponse createOrderResponse(Order order) {
-        // Crear una instancia de ArrivalDataResponse a partir de ArrivalData
-        ArrivalDataResponse arrivalDataResponse = null;
-        ArrivalData arrivalData = order.getArrivalData();
-        if (arrivalData != null) {
-            arrivalDataResponse = new ArrivalDataResponse(
-                    arrivalData.getArrivalDate(),
-                    arrivalData.getArrivalTime(),
-                    arrivalData.getOrigin(),
-                    arrivalData.isFreeLoad(),
-                    arrivalData.getDestinationType(),
-                    arrivalData.getDestinationCode(),
-                    arrivalData.getFob(),
-                    arrivalData.getCurrency()
-            );
-        }
-
         // Crear una instancia de CustomsDataResponse a partir de CustomsData
         CustomsDataResponse customsDataResponse = null;
         CustomsData customsData = order.getCustomsData();
@@ -400,10 +370,14 @@ public class OrderController {
                 order.isPema(),
                 order.isPort(),
                 order.isTransport(),
+                order.getArrivalDate(),
+                order.getArrivalTime(),
+                order.getOrigin(),
+                order.getTarget(),
+                order.isFreeLoad(),
                 order.getStatus(),
                 order.getCreatedAt(),
                 order.getFinishedAt(),
-                arrivalDataResponse,
                 driverDataResponse,
                 customsDataResponse,
                 containerResponse,

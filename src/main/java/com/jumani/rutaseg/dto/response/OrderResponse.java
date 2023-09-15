@@ -1,10 +1,13 @@
 package com.jumani.rutaseg.dto.response;
 
 import com.jumani.rutaseg.domain.OrderStatus;
+import com.jumani.rutaseg.domain.Terminal;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.ZonedDateTime;
 import java.util.List;
 
@@ -19,10 +22,14 @@ public class OrderResponse {
     private final boolean pema;
     private final boolean port;
     private final boolean transport;
+    private final LocalDate arrivalDate;
+    private final LocalTime arrivalTime;
+    private final Terminal origin;
+    private final Terminal target;
+    private Boolean freeLoad;
     private final OrderStatus status;
     private final ZonedDateTime createdAt;
     private final ZonedDateTime finishedAt;
-    private final ArrivalDataResponse arrivalData;
     private final DriverDataResponse driverData;
     private final CustomsDataResponse customsData;
     private final List<ContainerResponse> containers;

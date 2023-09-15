@@ -27,7 +27,7 @@ public class ArrivalData {
 
     @Column(name = "origin")
     @Enumerated(EnumType.STRING)
-    private Origin origin;
+    private Terminal terminal;
 
     @Column(name = "free_load")
     private boolean freeLoad;
@@ -52,14 +52,14 @@ public class ArrivalData {
     }
 
     public ArrivalData(LocalDate arrivalDate, LocalTime arrivalTime,
-                       Origin origin, boolean freeLoad,
+                       Terminal terminal, boolean freeLoad,
                        DestinationType destinationType, String destinationCode,
                        String fob, String currency,
                        String productDetails) {
 
         this.arrivalDate = arrivalDate;
         this.arrivalTime = arrivalTime;
-        this.origin = origin;
+        this.terminal = terminal;
         this.freeLoad = freeLoad;
         this.destinationType = destinationType;
         this.destinationCode = destinationCode;
