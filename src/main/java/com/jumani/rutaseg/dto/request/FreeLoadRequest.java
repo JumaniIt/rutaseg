@@ -1,9 +1,7 @@
 package com.jumani.rutaseg.dto.request;
 
+import com.jumani.rutaseg.domain.FreeLoadType;
 import com.jumani.rutaseg.domain.Measures;
-import jakarta.persistence.Column;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -11,15 +9,15 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
-public class ContainerRequest {
+public class FreeLoadRequest {
 
-    private String code;
+    private String patent;
 
-    private Measures measures;
+    private FreeLoadType type;
 
-    private boolean repackage;
+    private String weight;
 
-    private String bl;
+    private String guide;
 
     private String pema;
 

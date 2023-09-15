@@ -74,9 +74,15 @@ public class OrderController {
                                 containerRequest.getCode(),
                                 containerRequest.getMeasures(),
                                 containerRequest.isRepackage(),
+                                containerRequest.getBl(),
                                 containerRequest.getPema()
                         ))
                         .collect(Collectors.toList()) : Collections.emptyList();
+
+        List<FreeLoad> freeLoads = Optional.ofNullable(orderRequest.getFreeLoads()).orElse(Collections.emptyList())
+                .stream()
+                .map(flr -> new FreeLoad(flr.getPatent(), flr.getType(), flr.getWeight(), flr.getGuide(), flr.getPema()))
+                .toList();
 
         // Crear el objeto ConsigneeData a partir de los datos de ConsigneeData de la solicitud, si existe
         ConsigneeData consigneeData = orderRequest.getConsigneeData() != null ?
@@ -97,6 +103,7 @@ public class OrderController {
                 customsData,
                 session.userId(),
                 containers,
+                freeLoads,
                 consigneeData
         );
 
@@ -162,9 +169,15 @@ public class OrderController {
                                 containerRequest.getCode(),
                                 containerRequest.getMeasures(),
                                 containerRequest.isRepackage(),
+                                containerRequest.getBl(),
                                 containerRequest.getPema()
                         ))
                         .collect(Collectors.toList()) : Collections.emptyList();
+
+        List<FreeLoad> freeLoads = Optional.ofNullable(orderRequest.getFreeLoads()).orElse(Collections.emptyList())
+                .stream()
+                .map(flr -> new FreeLoad(flr.getPatent(), flr.getType(), flr.getWeight(), flr.getGuide(), flr.getPema()))
+                .toList();
 
         // Crear el objeto ConsigneeData a partir de los datos de la solicitud, si existe
         ConsigneeData consigneeData = consigneeDataRequest != null ?
@@ -174,7 +187,7 @@ public class OrderController {
                 ) : null;
 
         // Actualizar los atributos de la orden utilizando el método update() de la clase Order
-        order.update(orderRequest.getCode(), client, pema, port, transport, arrivalData, driverData, customsData, containers, consigneeData);
+        order.update(orderRequest.getCode(), client, pema, port, transport, arrivalData, driverData, customsData, containers, freeLoads, consigneeData);
 
         order.addSystemNote(String.format("usuario [%s] de tipo [%s] actualizó datos de solicitud", session.userId(),
                 session.getUserType().getTranslation()));
@@ -376,6 +389,10 @@ public class OrderController {
                 ))
                 .collect(Collectors.toList());
 
+        final List<FreeLoadResponse> freeLoadResponse = order.getFreeLoads().stream()
+                .map(fl -> new FreeLoadResponse(fl.getPatent(), fl.getType(), fl.getWeight(), fl.getGuide(), fl.getPema()))
+                .toList();
+
         // Crear una instancia de OrderResponse con los datos de ArrivalDataResponse, CustomsDataResponse y DriverDataResponse
         return new OrderResponse(
                 order.getId(),
@@ -392,6 +409,7 @@ public class OrderController {
                 driverDataResponse,
                 customsDataResponse,
                 containerResponse,
+                freeLoadResponse,
                 consigneeDataResponse,
                 documentResponse,
                 costResponse,

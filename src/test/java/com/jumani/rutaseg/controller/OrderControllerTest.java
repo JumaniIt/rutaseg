@@ -75,6 +75,7 @@ class OrderControllerTest {
                 null,
                 null,
                 Collections.emptyList(),
+                Collections.emptyList(),
                 null,
                 Collections.emptyList(),
                 Collections.emptyList(),
@@ -146,7 +147,8 @@ class OrderControllerTest {
         DriverDataRequest driverDataRequest = new DriverDataRequest();
         CustomsDataRequest customsDataRequest = new CustomsDataRequest();
         OrderRequest orderRequest = new OrderRequest(
-                code, clientId, pema, port, transport, arrivalDataRequest, driverDataRequest, customsDataRequest, Collections.emptyList(), null
+                code, clientId, pema, port, transport, arrivalDataRequest, driverDataRequest, customsDataRequest,
+                Collections.emptyList(), Collections.emptyList(), null
         );
 
         SessionInfo session = new SessionInfo(randomId(), true);
@@ -174,7 +176,7 @@ class OrderControllerTest {
         OrderResponse expectedOrderResponse = new OrderResponse(
                 1L, code, clientId, createdByUserId, pema, port, transport, OrderStatus.DRAFT,
                 ZonedDateTime.now(), null, null, null, null, Collections.emptyList(),
-                null, Collections.emptyList(), Collections.emptyList(), false, false
+                Collections.emptyList(), null, Collections.emptyList(), Collections.emptyList(), false, false
         );
 
         // Act
@@ -244,7 +246,8 @@ class OrderControllerTest {
         long orderId = 1L;
         String code = randomShortString();
 
-        OrderRequest orderRequest = new OrderRequest(code, 101L, true, true, true, null, null, null, Collections.emptyList(), null);
+        OrderRequest orderRequest = new OrderRequest(code, 101L, true, true, true, null, null, null,
+                Collections.emptyList(), Collections.emptyList(), null);
         SessionInfo session = new SessionInfo(501L, true);
 
         when(orderRepo.findById(orderId)).thenReturn(Optional.empty());
@@ -263,7 +266,8 @@ class OrderControllerTest {
     void updateOrder_WithNonDraftOrderAndNonAdminUser_ReturnsForbidden() {
         // Arrange
         long orderId = 1L;
-        OrderRequest orderRequest = new OrderRequest(randomShortString(), 101L, true, true, true, null, null, null, Collections.emptyList(), null);
+        OrderRequest orderRequest = new OrderRequest(randomShortString(), 101L, true, true, true, null, null, null,
+                Collections.emptyList(), Collections.emptyList(), null);
         SessionInfo session = new SessionInfo(501L, false);
 
         Client existingClient = mock(Client.class);
@@ -286,7 +290,8 @@ class OrderControllerTest {
     void updateOrder_WithValidDataAndAdminUser_ReturnsUpdatedOrderResponse() {
         // Arrange
         long orderId = 1L;
-        OrderRequest orderRequest = new OrderRequest(randomShortString(), 101L, true, true, true, null, null, null, Collections.emptyList(), null);
+        OrderRequest orderRequest = new OrderRequest(randomShortString(), 101L, true, true, true, null, null, null,
+                Collections.emptyList(), Collections.emptyList(), null);
         SessionInfo session = new SessionInfo(501L, true);
 
         Client existingClient = mock(Client.class);

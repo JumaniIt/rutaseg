@@ -69,6 +69,11 @@ public class Order implements DateGen {
             joinColumns = @JoinColumn(name = "order_id"))
     private List<Container> containers;
 
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "free_loads",
+            joinColumns = @JoinColumn(name = "order_id"))
+    private List<FreeLoad> freeLoads;
+
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     @JoinColumn(name = "id")
     private ConsigneeData consignee;
@@ -97,7 +102,10 @@ public class Order implements DateGen {
                  ArrivalData arrivalData,
                  DriverData driverData,
                  CustomsData customsData,
-                 long createdByUserId, List<Container> containers, ConsigneeData consignee) {
+                 long createdByUserId,
+                 List<Container> containers,
+                 List<FreeLoad> freeLoads,
+                 ConsigneeData consignee) {
 
         this.code = code;
         this.client = client;
@@ -112,6 +120,7 @@ public class Order implements DateGen {
         this.customsData = customsData;
         this.createdByUserId = createdByUserId;
         this.containers = containers;
+        this.freeLoads = freeLoads;
         this.consignee = consignee;
         this.documents = new ArrayList<>();
         this.costs = new ArrayList<>();
@@ -127,9 +136,15 @@ public class Order implements DateGen {
     private Order() {
     }
 
-    public void update(String code, Client client, boolean pema, boolean port, boolean transport,
-                       ArrivalData arrivalData, DriverData driverData,
-                       CustomsData customsData, List<Container> containers, ConsigneeData consignee) {
+    public void update(String code,
+                       Client client,
+                       boolean pema, boolean port, boolean transport,
+                       ArrivalData arrivalData,
+                       DriverData driverData,
+                       CustomsData customsData,
+                       List<Container> containers,
+                       List<FreeLoad> freeLoads,
+                       ConsigneeData consignee) {
 
         this.code = code;
         this.client = client;
@@ -140,6 +155,7 @@ public class Order implements DateGen {
         this.driverData = driverData;
         this.customsData = customsData;
         this.containers = containers;
+        this.freeLoads = freeLoads;
         this.consignee = consignee;
     }
 

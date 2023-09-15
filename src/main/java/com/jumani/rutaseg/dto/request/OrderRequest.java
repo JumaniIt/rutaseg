@@ -24,5 +24,6 @@ public class OrderRequest {
     private DriverDataRequest driverData;
     private CustomsDataRequest customsData;
     private List<ContainerRequest> containers;
+    private List<FreeLoadRequest> freeLoads;
     private ConsigneeDataRequest consigneeData;
 }
