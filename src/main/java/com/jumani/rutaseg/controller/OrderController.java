@@ -287,6 +287,8 @@ public class OrderController {
         return new DriverData(
                 driverDataRequest.getName(),
                 driverDataRequest.getPhone(),
+                driverDataRequest.getChasis(),
+                driverDataRequest.getSemi(),
                 driverDataRequest.getCompany()
         );
     }
@@ -309,6 +311,8 @@ public class OrderController {
             driverDataResponse = new DriverDataResponse(
                     driverData.getName(),
                     driverData.getPhone(),
+                    driverData.getChasis(),
+                    driverData.getSemi(),
                     driverData.getCompany()
             );
         }

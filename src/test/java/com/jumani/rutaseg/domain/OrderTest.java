@@ -29,7 +29,7 @@ public class OrderTest {
         final Terminal target = randomEnum(Terminal.class);
         final boolean freeLoad = randomBoolean();
 
-        DriverData driverData = new DriverData("John Doe", "1234567890", "ABC Company");
+        DriverData driverData = new DriverData("John Doe", "1234567890", null, null, "ABC Company");
         CustomsData customsData = new CustomsData("Customs Name", "9876543210");
         Client client = new Client(new User("John", "password", "john@example.com", false),
                 "name", "1234567890", 123456789L);
@@ -76,7 +76,7 @@ public class OrderTest {
 
         long createdByUserId = randomId();
 
-        DriverData driverData = new DriverData("John Doe", "1234567890", "ABC Company");
+        DriverData driverData = new DriverData("John Doe", "1234567890", "chasis", "semi", "ABC Company");
         CustomsData customsData = new CustomsData("Customs Name", "9876543210");
         Client client = new Client(new User("John", "password", "john@example.com", false),
                 "name", "1234567890", 123456789L);
@@ -126,7 +126,7 @@ public class OrderTest {
         DriverData originalDriverData = new DriverData(
                 "John Doe",
                 "1234567890",
-                "ABC Company"
+                null, null, "ABC Company"
         );
         CustomsData originalCustomsData = new CustomsData(
                 "Customs Name",
@@ -159,7 +159,7 @@ public class OrderTest {
         DriverData updatedDriverData = new DriverData(
                 "Jane Smith",
                 "9876543210",
-                "XYZ Transport"
+                "chasis", "semi", "XYZ Transport"
         );
         CustomsData updatedCustomsData = new CustomsData(
                 "Updated Customs",
@@ -212,7 +212,7 @@ public class OrderTest {
         boolean transport = randomBoolean();
         long createdByUserId = randomId();
 
-        DriverData driverData = new DriverData("John Doe", "1234567890", "ABC Company");
+        DriverData driverData = new DriverData("John Doe", "1234567890", "chasis", "semi", "ABC Company");
         CustomsData customsData = new CustomsData("Customs Name", "9876543210");
         ConsigneeData consigneeData = new ConsigneeData("Consignee Name", 123456789L);
 

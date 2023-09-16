@@ -11,5 +11,7 @@ public class DriverDataResponse {
 
     private String name;
     private String phone;
+    private String chasis;
+    private String semi;
     private String company;
 }

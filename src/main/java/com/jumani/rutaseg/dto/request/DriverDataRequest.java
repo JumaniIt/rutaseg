@@ -11,6 +11,8 @@ public class DriverDataRequest {
 
     private String name;
     private String phone;
+    private String chasis;
+    private String semi;
     private String company;
 
 }

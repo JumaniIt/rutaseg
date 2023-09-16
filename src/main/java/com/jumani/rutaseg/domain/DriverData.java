@@ -20,15 +20,25 @@ public class DriverData {
     @Column(name = "phone")
     private String phone;
 
+    @Column(name = "chasis")
+    private String chasis;
+
+    @Column(name = "semi")
+    private String semi;
+
     @Column(name = "company")
     private String company;
 
     private DriverData() {
     }
 
-    public DriverData(String name, String phone, String company) {
+    public DriverData(String name, String phone,
+                      String chasis, String semi,
+                      String company) {
         this.name = name;
         this.phone = phone;
+        this.chasis = chasis;
+        this.semi = semi;
         this.company = company;
     }
 }
