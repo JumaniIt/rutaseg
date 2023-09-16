@@ -40,7 +40,7 @@ public class OrderTest {
 
         // Act
         final Order order = new Order(code, client, pema, port, transport, arrivalDate, arrivalTime, origin, target, freeLoad,
-                driverData, customsData, createdByUserId, containers, Collections.emptyList(), consigneeData);
+                driverData, customsData, containers, Collections.emptyList(), consigneeData, createdByUserId);
         // Assert
         assertEquals(code, order.getCode());
         assertEquals(pema, order.isPema());
@@ -87,7 +87,7 @@ public class OrderTest {
 
         // Act
         final Order order = new Order(code, client, pema, port, transport, arrivalDate, arrivalTime, origin, target, freeLoad,
-                driverData, customsData, createdByUserId, Collections.emptyList(), freeLoads, consigneeData);
+                driverData, customsData, Collections.emptyList(), freeLoads, consigneeData, createdByUserId);
 
         // Assert
         assertEquals(code, order.getCode());
@@ -141,7 +141,7 @@ public class OrderTest {
 
         Order order = new Order("code-1", originalClient, originalPema, originalPort, originalTransport,
                 originalArrivalDate, originalArrivalTime, originalOrigin, originalTarget, originalFreeLoad,
-                originalDriverData, originalCustomsData, originalCreatedByUserId, originalContainers, null, originalConsigneeData);
+                originalDriverData, originalCustomsData, originalContainers, null, originalConsigneeData, originalCreatedByUserId);
 
         String updatedCode = "code-2";
         Client updatedClient = new Client(new User("Jane", "password", "jane@example.com", false),
@@ -222,7 +222,7 @@ public class OrderTest {
 
         Order order = new Order(randomShortString(), client, pema, port, transport,
                 null, null, null, null, false, driverData, customsData,
-                createdByUserId, containers, null, consigneeData);
+                containers, null, consigneeData, createdByUserId);
 
         OrderStatus newStatus = OrderStatus.DRAFT;
 

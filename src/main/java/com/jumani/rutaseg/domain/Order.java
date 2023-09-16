@@ -17,12 +17,19 @@ import static com.jumani.rutaseg.domain.OrderStatus.DRAFT;
 @Getter
 @Entity
 @FieldNameConstants
-@Table(name = "orders")
+@Table(name = "orders", indexes = {
+        @Index(name = "IDX_ORDERS_CODE", columnList = "code"),
+        @Index(name = "IDX_ORDERS_ARRIVAL_DATE_CLIENT_ID", columnList = "arrival_date, client_id")
+})
 public class Order implements DateGen {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(name = "status")
+    @Enumerated(EnumType.STRING)
+    private OrderStatus status;
 
     @Column(name = "code")
     private String code;
@@ -39,10 +46,6 @@ public class Order implements DateGen {
 
     @Column(name = "transport")
     private boolean transport;
-
-    @Column(name = "status")
-    @Enumerated(EnumType.STRING)
-    private OrderStatus status;
 
     @Column(name = "arrival_date")
     private LocalDate arrivalDate;
@@ -68,9 +71,6 @@ public class Order implements DateGen {
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @JoinColumn(name = "id", foreignKey = @ForeignKey(name = "`fk_customs_datas-orders`"))
     private CustomsData customsData;
-
-    @Column(name = "created_by_user_id")
-    private long createdByUserId;
 
     @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "containers", foreignKey = @ForeignKey(name = "`fk_containers-orders`"),
@@ -104,13 +104,18 @@ public class Order implements DateGen {
     @Column(name = "billed")
     private boolean billed;
 
+    @Column(name = "created_by_user_id")
+    private long createdByUserId;
+
     @Column(name = "created_at")
     private ZonedDateTime createdAt;
 
     @Column(name = "finished_at")
     private ZonedDateTime finishedAt;
 
-    //constructor
+    private Order() {
+    }
+
     public Order(String code, Client client,
                  boolean pema, boolean port, boolean transport,
                  LocalDate arrivalDate, LocalTime arrivalTime,
@@ -118,10 +123,10 @@ public class Order implements DateGen {
                  boolean freeLoad,
                  DriverData driverData,
                  CustomsData customsData,
-                 long createdByUserId,
                  List<Container> containers,
                  List<FreeLoad> freeLoads,
-                 ConsigneeData consignee) {
+                 ConsigneeData consignee,
+                 long createdByUserId) {
 
         this.code = code;
         this.client = client;
@@ -133,27 +138,26 @@ public class Order implements DateGen {
         this.origin = origin;
         this.target = target;
         this.freeLoad = freeLoad;
-        this.status = DRAFT;
-        this.createdAt = this.currentDateUTC();
-        this.finishedAt = null;
         this.driverData = driverData;
         this.customsData = customsData;
-        this.createdByUserId = createdByUserId;
         this.containers = containers;
         this.freeLoads = freeLoads;
         this.consignee = consignee;
+
+        this.status = DRAFT;
         this.documents = new ArrayList<>();
         this.costs = new ArrayList<>();
         this.notes = new ArrayList<>();
         this.returned = false;
         this.billed = false;
+
+        this.createdAt = this.currentDateUTC();
+        this.finishedAt = null;
+        this.createdByUserId = createdByUserId;
     }
 
     public Long getClientId() {
         return this.client.getId();
-    }
-
-    private Order() {
     }
 
     public void update(String code, Client client,

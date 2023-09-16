@@ -101,10 +101,7 @@ public class OrderController {
                 orderRequest.getOrigin(), orderRequest.getTarget(), orderRequest.isFreeLoad(),
                 driverData,
                 customsData,
-                session.userId(),
-                containers,
-                freeLoads,
-                consigneeData
+                containers, freeLoads, consigneeData, session.userId()
         );
 
         // Realizar la lógica adicional de creación de la orden, como persistencia en la base de datos
