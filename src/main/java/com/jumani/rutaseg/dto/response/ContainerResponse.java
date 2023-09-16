@@ -12,14 +12,14 @@ import java.util.List;
 @Getter
 public class ContainerResponse {
 
-    private String code;
+    private final String code;
 
-    private ContainerType type;
+    private final ContainerType type;
 
-    private boolean repackage;
+    private final boolean repackage;
 
-    private String pema;
+    private final String pema;
 
-    private List<DestinationResponse> destinations;
+    private final List<DestinationResponse> destinations;
 
 }

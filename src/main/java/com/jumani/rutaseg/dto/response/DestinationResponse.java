@@ -2,8 +2,10 @@ package com.jumani.rutaseg.dto.response;
 
 import com.jumani.rutaseg.domain.DestinationType;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 
 @AllArgsConstructor
+@Getter
 public class DestinationResponse {
     private final DestinationType type;
     private final String code;

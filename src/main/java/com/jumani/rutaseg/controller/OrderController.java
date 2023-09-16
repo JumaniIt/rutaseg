@@ -401,7 +401,10 @@ public class OrderController {
                 .collect(Collectors.toList());
 
         final List<FreeLoadResponse> freeLoadResponse = order.getFreeLoads().stream()
-                .map(fl -> new FreeLoadResponse(fl.getPatent(), fl.getType(), fl.getWeight(), fl.getGuide(), fl.getPema()))
+                .map(fl -> new FreeLoadResponse(fl.getPatent(), fl.getType(), fl.getWeight(), fl.getGuide(), fl.getPema(),
+                        fl.getDestinations().stream().map(d -> new DestinationResponse(
+                                        d.getType(), d.getCode(), d.getFob(), d.getCurrency(), d.getProductDetails()))
+                                .toList()))
                 .toList();
 
         // Crear una instancia de OrderResponse con los datos de ArrivalDataResponse, CustomsDataResponse y DriverDataResponse
