@@ -71,16 +71,21 @@ public class OrderController {
                 orderRequest.getContainers().stream()
                         .map(containerRequest -> new Container(
                                 containerRequest.getCode(),
-                                containerRequest.getMeasures(),
+                                containerRequest.getContainerType(),
                                 containerRequest.isRepackage(),
                                 containerRequest.getBl(),
-                                containerRequest.getPema()
-                        ))
+                                containerRequest.getPema(),
+                                Optional.ofNullable(containerRequest.getDestinations()).orElse(Collections.emptyList())
+                                        .stream().map(d -> new Destination(d.getType(), d.getCode(), d.getFob(), d.getCurrency(), d.getProductDetails()
+                                        )).toList()))
                         .collect(Collectors.toList()) : Collections.emptyList();
 
         List<FreeLoad> freeLoads = Optional.ofNullable(orderRequest.getFreeLoads()).orElse(Collections.emptyList())
                 .stream()
-                .map(flr -> new FreeLoad(flr.getPatent(), flr.getType(), flr.getWeight(), flr.getGuide(), flr.getPema()))
+                .map(flr -> new FreeLoad(flr.getPatent(), flr.getType(), flr.getWeight(), flr.getGuide(), flr.getPema(),
+                        Optional.ofNullable(flr.getDestinations()).orElse(Collections.emptyList())
+                                .stream().map(d -> new Destination(d.getType(), d.getCode(), d.getFob(), d.getCurrency(), d.getProductDetails()
+                                )).toList()))
                 .toList();
 
         // Crear el objeto ConsigneeData a partir de los datos de ConsigneeData de la solicitud, si existe
@@ -162,16 +167,21 @@ public class OrderController {
                 containerRequests.stream()
                         .map(containerRequest -> new Container(
                                 containerRequest.getCode(),
-                                containerRequest.getMeasures(),
+                                containerRequest.getContainerType(),
                                 containerRequest.isRepackage(),
                                 containerRequest.getBl(),
-                                containerRequest.getPema()
-                        ))
+                                containerRequest.getPema(),
+                                Optional.ofNullable(containerRequest.getDestinations()).orElse(Collections.emptyList())
+                                        .stream().map(d -> new Destination(d.getType(), d.getCode(), d.getFob(), d.getCurrency(), d.getProductDetails()
+                                        )).toList()))
                         .collect(Collectors.toList()) : Collections.emptyList();
 
         List<FreeLoad> freeLoads = Optional.ofNullable(orderRequest.getFreeLoads()).orElse(Collections.emptyList())
                 .stream()
-                .map(flr -> new FreeLoad(flr.getPatent(), flr.getType(), flr.getWeight(), flr.getGuide(), flr.getPema()))
+                .map(flr -> new FreeLoad(flr.getPatent(), flr.getType(), flr.getWeight(), flr.getGuide(), flr.getPema(),
+                        Optional.ofNullable(flr.getDestinations()).orElse(Collections.emptyList())
+                                .stream().map(d -> new Destination(d.getType(), d.getCode(), d.getFob(), d.getCurrency(), d.getProductDetails()
+                                )).toList()))
                 .toList();
 
         // Crear el objeto ConsigneeData a partir de los datos de la solicitud, si existe
@@ -359,9 +369,12 @@ public class OrderController {
         List<ContainerResponse> containerResponse = order.getContainers().stream()
                 .map(container -> new ContainerResponse(
                         container.getCode(),
-                        container.getMeasures(),
+                        container.getType(),
                         container.isRepackage(),
-                        container.getPema()
+                        container.getPema(),
+                        container.getDestinations().stream().map(d -> new DestinationResponse(
+                                        d.getType(), d.getCode(), d.getFob(), d.getCurrency(), d.getProductDetails()))
+                                .toList()
                 ))
                 .collect(Collectors.toList());
 

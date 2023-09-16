@@ -1,6 +1,6 @@
 package com.jumani.rutaseg.domain;
 
-public enum Measures {
+public enum ContainerType {
     ST_20, ST_40,
     FL_20, FL_40,
     OT_20, OT_40,

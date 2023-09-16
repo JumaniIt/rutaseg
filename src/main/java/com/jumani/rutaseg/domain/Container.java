@@ -3,17 +3,23 @@ package com.jumani.rutaseg.domain;
 import jakarta.persistence.*;
 import lombok.Getter;
 
+import java.util.List;
+
 
 @Getter
-@Embeddable
+@Entity
+@Table(name = "containers")
 public class Container {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
     @Column(name = "code")
     private String code;
 
-    @Column(name = "measures")
+    @Column(name = "type")
     @Enumerated(EnumType.STRING)
-    private Measures measures;
+    private ContainerType type;
 
     @Column(name = "repackage")
     private boolean repackage;
@@ -24,19 +30,26 @@ public class Container {
     @Column(name = "pema")
     private String pema;
 
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "container_destinations", foreignKey = @ForeignKey(name = "`fk_destinations-containers`"),
+            joinColumns = @JoinColumn(name = "id"))
+    private List<Destination> destinations;
+
     public Container() {
     }
 
     public Container(String code,
-                     Measures measures,
+                     ContainerType type,
                      boolean repackage,
                      String bl,
-                     String pema) {
+                     String pema,
+                     List<Destination> destinations) {
         this.code = code;
-        this.measures = measures;
+        this.type = type;
         this.repackage = repackage;
         this.bl = bl;
         this.pema = pema;
+        this.destinations = destinations;
     }
 }
 

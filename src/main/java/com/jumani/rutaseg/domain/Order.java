@@ -72,14 +72,12 @@ public class Order implements DateGen {
     @JoinColumn(name = "id", foreignKey = @ForeignKey(name = "`fk_customs_datas-orders`"))
     private CustomsData customsData;
 
-    @ElementCollection(fetch = FetchType.LAZY)
-    @CollectionTable(name = "containers", foreignKey = @ForeignKey(name = "`fk_containers-orders`"),
-            joinColumns = @JoinColumn(name = "order_id"))
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JoinColumn(name = "order_id", foreignKey = @ForeignKey(name = "`fk_containers-orders`"))
     private List<Container> containers;
 
-    @ElementCollection(fetch = FetchType.LAZY)
-    @CollectionTable(name = "free_loads", foreignKey = @ForeignKey(name = "`fk_free_loads-orders`"),
-            joinColumns = @JoinColumn(name = "order_id"))
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JoinColumn(name = "order_id", foreignKey = @ForeignKey(name = "`fk_free_loads-orders`"))
     private List<FreeLoad> freeLoads;
 
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)

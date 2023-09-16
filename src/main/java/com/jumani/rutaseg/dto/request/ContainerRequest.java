@@ -1,12 +1,11 @@
 package com.jumani.rutaseg.dto.request;
 
-import com.jumani.rutaseg.domain.Measures;
-import jakarta.persistence.Column;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
+import com.jumani.rutaseg.domain.ContainerType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -15,12 +14,14 @@ public class ContainerRequest {
 
     private String code;
 
-    private Measures measures;
+    private ContainerType containerType;
 
     private boolean repackage;
 
     private String bl;
 
     private String pema;
+
+    private List<DestinationRequest> destinations;
 
 }

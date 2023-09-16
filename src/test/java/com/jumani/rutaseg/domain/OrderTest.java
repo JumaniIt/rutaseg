@@ -29,12 +29,13 @@ public class OrderTest {
         final Terminal target = randomEnum(Terminal.class);
         final boolean freeLoad = randomBoolean();
 
-        DriverData driverData = new DriverData("John Doe", "1234567890", null, null, "ABC Company");
+        DriverData driverData = new DriverData("John Doe", "1234567890", "chasis", "semi", "ABC Company");
         CustomsData customsData = new CustomsData("Customs Name", "9876543210");
         Client client = new Client(new User("John", "password", "john@example.com", false),
                 "name", "1234567890", 123456789L);
-        Container container1 = new Container("ABC123", Measures.ST_20, false, "BL1", "PEMA1");
-        Container container2 = new Container("XYZ789", Measures.OS_20, true, "BL2", "PEMA2");
+        List<Destination> destinations = List.of(new Destination(randomEnum(DestinationType.class), "code", "fob", "currency", "details"));
+        Container container1 = new Container("ABC123", ContainerType.ST_20, false, "BL1", "PEMA1", destinations);
+        Container container2 = new Container("XYZ789", ContainerType.OS_20, true, "BL2", "PEMA2", destinations);
         List<Container> containers = Arrays.asList(container1, container2);
         ConsigneeData consigneeData = new ConsigneeData("Consignee Name", 123456789L);
 
@@ -80,8 +81,8 @@ public class OrderTest {
         CustomsData customsData = new CustomsData("Customs Name", "9876543210");
         Client client = new Client(new User("John", "password", "john@example.com", false),
                 "name", "1234567890", 123456789L);
-        FreeLoad freeLoad1 = new FreeLoad("123456", FreeLoadType.SEMI, "20kg", "Guide1", "PEMA1");
-        FreeLoad freeLoad2 = new FreeLoad("123456", FreeLoadType.SEMI, "20kg", "Guide1", "PEMA1");
+        FreeLoad freeLoad1 = new FreeLoad("123456", FreeLoadType.SEMI, "20kg", "Guide1", "PEMA1", null);
+        FreeLoad freeLoad2 = new FreeLoad("123456", FreeLoadType.SEMI, "20kg", "Guide1", "PEMA1", null);
         List<FreeLoad> freeLoads = Arrays.asList(freeLoad1, freeLoad2);
         ConsigneeData consigneeData = new ConsigneeData("Consignee Name", 123456789L);
 
@@ -166,11 +167,12 @@ public class OrderTest {
                 "1234567890"
         );
         List<Container> updatedContainers = new ArrayList<>();
-        updatedContainers.add(new Container("ABC123", Measures.ST_20, false, "BL1", "PEMA1"));
-        updatedContainers.add(new Container("XYZ789", Measures.OS_20, true, "BL2", "PEMA2"));
+        List<Destination> destinations = List.of(new Destination(randomEnum(DestinationType.class), "code", "fob", "currency", "details"));
+        updatedContainers.add(new Container("ABC123", ContainerType.ST_20, false, "BL1", "PEMA1", destinations));
+        updatedContainers.add(new Container("XYZ789", ContainerType.OS_20, true, "BL2", "PEMA2", destinations));
 
-        FreeLoad freeLoad1 = new FreeLoad("123456", FreeLoadType.SEMI, "20kg", "Guide1", "PEMA1");
-        FreeLoad freeLoad2 = new FreeLoad("123456", FreeLoadType.SEMI, "20kg", "Guide1", "PEMA1");
+        FreeLoad freeLoad1 = new FreeLoad("123456", FreeLoadType.SEMI, "20kg", "Guide1", "PEMA1", destinations);
+        FreeLoad freeLoad2 = new FreeLoad("123456", FreeLoadType.SEMI, "20kg", "Guide1", "PEMA1", destinations);
         List<FreeLoad> updatedFreeLoads = Arrays.asList(freeLoad1, freeLoad2);
 
         ConsigneeData updatedConsigneeData = new ConsigneeData(
@@ -216,8 +218,8 @@ public class OrderTest {
         CustomsData customsData = new CustomsData("Customs Name", "9876543210");
         ConsigneeData consigneeData = new ConsigneeData("Consignee Name", 123456789L);
 
-        Container container1 = new Container("ABC123", Measures.ST_20, false, "BL1", "PEMA1");
-        Container container2 = new Container("XYZ789", Measures.OS_20, true, "BL2", "PEMA2");
+        Container container1 = new Container("ABC123", ContainerType.ST_20, false, "BL1", "PEMA1", null);
+        Container container2 = new Container("XYZ789", ContainerType.OS_20, true, "BL2", "PEMA2", null);
         List<Container> containers = new ArrayList<>(Arrays.asList(container1, container2));
 
         Order order = new Order(randomShortString(), client, pema, port, transport,

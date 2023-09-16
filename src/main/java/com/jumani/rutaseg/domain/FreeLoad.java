@@ -1,14 +1,19 @@
 package com.jumani.rutaseg.domain;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Embeddable;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
+import jakarta.persistence.*;
 import lombok.Getter;
 
+import java.util.List;
+
 @Getter
-@Embeddable
+@Entity
+@Table(name = "free_loads")
 public class FreeLoad {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
     @Column(name = "patent")
     private String patent;
 
@@ -25,15 +30,21 @@ public class FreeLoad {
     @Column(name = "pema")
     private String pema;
 
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "free_load_destinations", foreignKey = @ForeignKey(name = "`fk_destinations-free_loads`"),
+            joinColumns = @JoinColumn(name = "id"))
+    private List<Destination> destinations;
+
     private FreeLoad() {
 
     }
 
-    public FreeLoad(String patent, FreeLoadType type, String weight, String guide, String pema) {
+    public FreeLoad(String patent, FreeLoadType type, String weight, String guide, String pema, List<Destination> destinations) {
         this.patent = patent;
         this.type = type;
         this.weight = weight;
         this.guide = guide;
         this.pema = pema;
+        this.destinations = destinations;
     }
 }
