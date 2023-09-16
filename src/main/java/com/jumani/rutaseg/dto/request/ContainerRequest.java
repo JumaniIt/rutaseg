@@ -14,7 +14,7 @@ public class ContainerRequest {
 
     private String code;
 
-    private ContainerType containerType;
+    private ContainerType type;
 
     private boolean repackage;
 

@@ -71,7 +71,7 @@ public class OrderController {
                 orderRequest.getContainers().stream()
                         .map(containerRequest -> new Container(
                                 containerRequest.getCode(),
-                                containerRequest.getContainerType(),
+                                containerRequest.getType(),
                                 containerRequest.isRepackage(),
                                 containerRequest.getBl(),
                                 containerRequest.getPema(),
@@ -167,7 +167,7 @@ public class OrderController {
                 containerRequests.stream()
                         .map(containerRequest -> new Container(
                                 containerRequest.getCode(),
-                                containerRequest.getContainerType(),
+                                containerRequest.getType(),
                                 containerRequest.isRepackage(),
                                 containerRequest.getBl(),
                                 containerRequest.getPema(),
