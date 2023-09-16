@@ -267,11 +267,40 @@ public class OrderController {
             );
 
             return orders.stream()
-                    .map(this::createOrderResponse)
+                    .map(this::createLightOrderResponse)
                     .toList();
         });
 
         return ResponseEntity.ok(result);
+    }
+
+    private OrderResponse createLightOrderResponse(Order order) {
+        return new OrderResponse(
+                order.getId(),
+                order.getCode(),
+                order.getClientId(),
+                order.getCreatedByUserId(),
+                order.isPema(),
+                order.isPort(),
+                order.isTransport(),
+                order.getArrivalDate(),
+                order.getArrivalTime(),
+                order.getOrigin(),
+                order.getTarget(),
+                order.isFreeLoad(),
+                order.getStatus(),
+                order.getCreatedAt(),
+                order.getFinishedAt(),
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                order.isReturned(),
+                order.isBilled()
+        );
     }
 
     private CustomsData createCustomsData(CustomsDataRequest customsDataRequest) {
