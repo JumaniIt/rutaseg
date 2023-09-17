@@ -14,6 +14,7 @@ import com.jumani.rutaseg.exception.NotFoundException;
 import com.jumani.rutaseg.exception.ValidationException;
 import com.jumani.rutaseg.repository.OrderRepository;
 import com.jumani.rutaseg.repository.client.ClientRepository;
+import com.jumani.rutaseg.service.order.OrderSearchService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -40,6 +41,9 @@ class OrderControllerTest {
 
     @Mock
     OrderRepository orderRepo;
+
+    @Mock
+    OrderSearchService searchService;
 
     @Mock
     private SessionInfo sessionInfo;
@@ -139,11 +143,9 @@ class OrderControllerTest {
         when(client.getUserId()).thenReturn(clientId);
         when(orderRepo.findById(orderId)).thenReturn(Optional.of(order));
 
-        OrderController orderController = new OrderController(orderRepo, clientRepo);
-
         // Act & Assert
         assertThrows(NotFoundException.class, () -> {
-            orderController.getById(orderId, session);
+            controller.getById(orderId, session);
         });
 
         // Verify

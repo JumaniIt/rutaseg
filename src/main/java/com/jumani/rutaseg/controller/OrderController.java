@@ -10,6 +10,7 @@ import com.jumani.rutaseg.exception.ValidationException;
 import com.jumani.rutaseg.handler.Session;
 import com.jumani.rutaseg.repository.OrderRepository;
 import com.jumani.rutaseg.repository.client.ClientRepository;
+import com.jumani.rutaseg.service.order.OrderSearchService;
 import com.jumani.rutaseg.util.PaginationUtil;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
@@ -32,10 +33,15 @@ import java.util.stream.Collectors;
 public class OrderController {
 
     private final OrderRepository orderRepo;
+    private final OrderSearchService orderSearchService;
     private final ClientRepository clientRepo;
 
-    public OrderController(OrderRepository orderRepo, ClientRepository clientRepo) {
+    public OrderController(OrderRepository orderRepo,
+                           OrderSearchService orderSearchService,
+                           ClientRepository clientRepo) {
+
         this.orderRepo = orderRepo;
+        this.orderSearchService = orderSearchService;
         this.clientRepo = clientRepo;
 
     }
@@ -247,39 +253,10 @@ public class OrderController {
             throw new ValidationException("invalid_time_range", "time_from cannot be after time_to");
         }
 
-        final long totalElements = orderRepo.count(
-                code,
-                pema,
-                transport,
-                port,
-                arrivalDateFrom,
-                arrivalDateTo,
-                arrivalTimeFrom,
-                arrivalTimeTo,
-                theClientId,
-                status
-        );
-
-        final PaginatedResult<OrderResponse> result = PaginationUtil.get(totalElements, pageSize, page, (offset, limit) -> {
-            List<Order> orders = orderRepo.search(
-                    code,
-                    pema,
-                    transport,
-                    port,
-                    arrivalDateFrom,
-                    arrivalDateTo,
-                    arrivalTimeFrom,
-                    arrivalTimeTo,
-                    theClientId,
-                    status,
-                    offset,
-                    limit
-            );
-
-            return orders.stream()
-                    .map(this::createLightOrderResponse)
-                    .toList();
-        });
+        final PaginatedResult<OrderResponse> result = this.orderSearchService.search(code, pema, transport, port,
+                        arrivalDateFrom, arrivalDateTo, arrivalTimeFrom, arrivalTimeTo,
+                        theClientId, status, pageSize, page)
+                .map(this::createLightOrderResponse);
 
         return ResponseEntity.ok(result);
     }
