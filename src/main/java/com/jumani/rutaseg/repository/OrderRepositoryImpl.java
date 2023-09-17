@@ -47,7 +47,7 @@ public class OrderRepositoryImpl implements OrderRepositoryExtended {
         criteriaQuery.select(root);
         criteriaQuery.where(createPredicates(builder, root, codeLike, pema, transport, port, arrivalDateFrom,
                 arrivalDateTo, arrivalTimeFrom, arrivalTimeTo, clientId, status));
-        criteriaQuery.orderBy(builder.asc(root.get(Order.Fields.id)));
+        criteriaQuery.orderBy(builder.asc(root.get(Order.Fields.arrivalDate)), builder.asc(root.get(Order.Fields.arrivalTime)));
 
         return entityManager.createQuery(criteriaQuery)
                 .setFirstResult(offset)
