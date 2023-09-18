@@ -346,6 +346,7 @@ public class OrderController {
                 .map(container -> new ContainerResponse(
                         container.getCode(),
                         container.getType(),
+                        container.getBl(),
                         container.isRepackage(),
                         container.getPema(),
                         container.getDestinations().stream().map(d -> new DestinationResponse(

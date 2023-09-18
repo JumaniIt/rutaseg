@@ -13,13 +13,10 @@ import java.util.List;
 public class ContainerResponse {
 
     private final String code;
-
     private final ContainerType type;
-
+    private final String bl;
     private final boolean repackage;
-
     private final String pema;
-
     private final List<DestinationResponse> destinations;
 
 }
