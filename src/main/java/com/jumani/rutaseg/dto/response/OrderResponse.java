@@ -33,7 +33,9 @@ public class OrderResponse {
     private final DriverDataResponse driverData;
     private final CustomsDataResponse customsData;
     private final List<ContainerResponse> containers;
+    private final int containerQty;
     private final List<FreeLoadResponse> freeLoads;
+    private final int freeLoadQty;
     private final ConsigneeDataResponse consignee;
     private final List<DocumentResponse> documents;
     private final List<CostResponse> costs;

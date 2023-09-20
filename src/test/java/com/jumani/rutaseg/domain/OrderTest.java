@@ -27,7 +27,6 @@ public class OrderTest {
         final LocalTime arrivalTime = mock(LocalTime.class);
         final Terminal origin = randomEnum(Terminal.class);
         final Terminal target = randomEnum(Terminal.class);
-        final boolean freeLoad = randomBoolean();
 
         DriverData driverData = new DriverData("John Doe", "1234567890", "chasis", "semi", "ABC Company");
         CustomsData customsData = new CustomsData("Customs Name", "9876543210");
@@ -40,7 +39,7 @@ public class OrderTest {
         ConsigneeData consigneeData = new ConsigneeData("Consignee Name", 123456789L);
 
         // Act
-        final Order order = new Order(code, client, pema, port, transport, arrivalDate, arrivalTime, origin, target, freeLoad,
+        final Order order = new Order(code, client, pema, port, transport, arrivalDate, arrivalTime, origin, target, false,
                 driverData, customsData, containers, Collections.emptyList(), consigneeData, createdByUserId);
         // Assert
         assertEquals(code, order.getCode());
@@ -51,7 +50,7 @@ public class OrderTest {
         assertEquals(arrivalTime, order.getArrivalTime());
         assertEquals(origin, order.getOrigin());
         assertEquals(target, order.getTarget());
-        assertEquals(freeLoad, order.isFreeLoad());
+        assertFalse(order.isFreeLoad());
         assertEquals(driverData, order.getDriverData());
         assertEquals(customsData, order.getCustomsData());
         assertNotNull(order.getCreatedAt());
@@ -60,6 +59,7 @@ public class OrderTest {
         assertEquals(client, order.getClient());
         assertEquals(consigneeData, order.getConsignee());
         assertEquals(containers, order.getContainers());
+        assertEquals(containers.size(), order.getContainerQty());
     }
 
     @Test
@@ -73,7 +73,6 @@ public class OrderTest {
         final LocalTime arrivalTime = mock(LocalTime.class);
         final Terminal origin = randomEnum(Terminal.class);
         final Terminal target = randomEnum(Terminal.class);
-        final boolean freeLoad = randomBoolean();
 
         long createdByUserId = randomId();
 
@@ -87,7 +86,7 @@ public class OrderTest {
         ConsigneeData consigneeData = new ConsigneeData("Consignee Name", 123456789L);
 
         // Act
-        final Order order = new Order(code, client, pema, port, transport, arrivalDate, arrivalTime, origin, target, freeLoad,
+        final Order order = new Order(code, client, pema, port, transport, arrivalDate, arrivalTime, origin, target, true,
                 driverData, customsData, Collections.emptyList(), freeLoads, consigneeData, createdByUserId);
 
         // Assert
@@ -98,7 +97,7 @@ public class OrderTest {
         assertEquals(arrivalTime, order.getArrivalTime());
         assertEquals(origin, order.getOrigin());
         assertEquals(target, order.getTarget());
-        assertEquals(freeLoad, order.isFreeLoad());
+        assertTrue(order.isFreeLoad());
         assertEquals(transport, order.isTransport());
         assertEquals(driverData, order.getDriverData());
         assertEquals(customsData, order.getCustomsData());
@@ -108,6 +107,7 @@ public class OrderTest {
         assertEquals(client, order.getClient());
         assertEquals(consigneeData, order.getConsignee());
         assertEquals(freeLoads, order.getFreeLoads());
+        assertEquals(freeLoads.size(), order.getFreeLoadQty());
     }
 
     @Test
@@ -142,7 +142,7 @@ public class OrderTest {
 
         Order order = new Order("code-1", originalClient, originalPema, originalPort, originalTransport,
                 originalArrivalDate, originalArrivalTime, originalOrigin, originalTarget, originalFreeLoad,
-                originalDriverData, originalCustomsData, originalContainers, null, originalConsigneeData, originalCreatedByUserId);
+                originalDriverData, originalCustomsData, originalContainers, Collections.emptyList(), originalConsigneeData, originalCreatedByUserId);
 
         String updatedCode = "code-2";
         Client updatedClient = new Client(new User("Jane", "password", "jane@example.com", false),
@@ -172,8 +172,7 @@ public class OrderTest {
         updatedContainers.add(new Container("XYZ789", ContainerType.OS_20, true, "BL2", "PEMA2", destinations));
 
         FreeLoad freeLoad1 = new FreeLoad("123456", FreeLoadType.SEMI, "20kg", "Guide1", "PEMA1", destinations);
-        FreeLoad freeLoad2 = new FreeLoad("123456", FreeLoadType.SEMI, "20kg", "Guide1", "PEMA1", destinations);
-        List<FreeLoad> updatedFreeLoads = Arrays.asList(freeLoad1, freeLoad2);
+        List<FreeLoad> updatedFreeLoads = List.of(freeLoad1);
 
         ConsigneeData updatedConsigneeData = new ConsigneeData(
                 "New Consignee",
@@ -200,7 +199,9 @@ public class OrderTest {
         assertEquals(updatedDriverData, order.getDriverData());
         assertEquals(updatedCustomsData, order.getCustomsData());
         assertEquals(updatedContainers, order.getContainers());
+        assertEquals(updatedContainers.size(), order.getContainerQty());
         assertEquals(updatedFreeLoads, order.getFreeLoads());
+        assertEquals(updatedFreeLoads.size(), order.getFreeLoadQty());
         assertEquals(updatedConsigneeData, order.getConsignee());
     }
 
@@ -224,7 +225,7 @@ public class OrderTest {
 
         Order order = new Order(randomShortString(), client, pema, port, transport,
                 null, null, null, null, false, driverData, customsData,
-                containers, null, consigneeData, createdByUserId);
+                containers, Collections.emptyList(), consigneeData, createdByUserId);
 
         OrderStatus newStatus = OrderStatus.DRAFT;
 

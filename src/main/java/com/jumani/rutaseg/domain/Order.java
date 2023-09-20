@@ -76,9 +76,15 @@ public class Order implements DateGen {
     @JoinColumn(name = "order_id", foreignKey = @ForeignKey(name = "`fk_containers-orders`"))
     private List<Container> containers;
 
+    @Column(name = "container_qty")
+    private int containerQty;
+
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id", foreignKey = @ForeignKey(name = "`fk_free_loads-orders`"))
     private List<FreeLoad> freeLoads;
+
+    @Column(name = "free_load_qty")
+    private int freeLoadQty;
 
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @JoinColumn(name = "id", foreignKey = @ForeignKey(name = "`fk_consignee_datas-orders`"))
@@ -138,8 +144,13 @@ public class Order implements DateGen {
         this.freeLoad = freeLoad;
         this.driverData = driverData;
         this.customsData = customsData;
+
         this.containers = containers;
+        this.containerQty = containers.size();
+
         this.freeLoads = freeLoads;
+        this.freeLoadQty = freeLoads.size();
+
         this.consignee = consignee;
 
         this.status = DRAFT;
@@ -181,8 +192,13 @@ public class Order implements DateGen {
         this.transport = transport;
         this.driverData = driverData;
         this.customsData = customsData;
+
         this.containers = containers;
+        this.containerQty = containers.size();
+
         this.freeLoads = freeLoads;
+        this.freeLoadQty = freeLoads.size();
+
         this.consignee = consignee;
     }
 

@@ -91,7 +91,9 @@ class OrderControllerTest {
                 null,
                 null,
                 Collections.emptyList(),
+                0,
                 Collections.emptyList(),
+                0,
                 null,
                 Collections.emptyList(),
                 Collections.emptyList(),
@@ -204,8 +206,8 @@ class OrderControllerTest {
 
         OrderResponse expectedOrderResponse = new OrderResponse(
                 1L, code, clientId, createdByUserId, pema, port, transport, arrivalDate, arrivalTime, origin, target, freeLoad,
-                OrderStatus.DRAFT, ZonedDateTime.now(), null, null, null, Collections.emptyList(),
-                Collections.emptyList(), null, Collections.emptyList(), Collections.emptyList(), false, false
+                OrderStatus.DRAFT, ZonedDateTime.now(), null, null, null, Collections.emptyList(), 0,
+                Collections.emptyList(), 0, null, Collections.emptyList(), Collections.emptyList(), false, false
         );
 
         // Act
