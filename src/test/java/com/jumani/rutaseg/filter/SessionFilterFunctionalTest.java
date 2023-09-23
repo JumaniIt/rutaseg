@@ -73,7 +73,7 @@ class SessionFilterFunctionalTest extends IntegrationTest {
         adminEndpoints.add(ADMIN_ENDPOINT);
 
         this.mvc = MockMvcBuilders.webAppContextSetup(context)
-                .addFilter(new ExceptionFilter("*"))
+                .addFilter(new ExceptionFilter())
                 .addFilter(sessionFilter, "/*")
                 .build();
     }

@@ -42,7 +42,6 @@ email:
 web:
   cors:
     allowed-origin-patterns: ${ALLOWED_ORIGINS_PATTERNS:*}
-    access-control-allow-origin: ${ACCESS_CONTROL_ALLOW_ORIGIN:*}
 
 server:
   port: 5000

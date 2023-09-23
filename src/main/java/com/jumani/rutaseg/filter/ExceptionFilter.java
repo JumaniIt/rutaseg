@@ -22,11 +22,9 @@ import java.util.Optional;
 public class ExceptionFilter extends OncePerRequestFilter {
 
     private final ControllerExceptionHandler exceptionHandler;
-    private final String accessControlAllowOrigin;
 
-    public ExceptionFilter(@Value("${web.cors.access-control-allow-origin}") String accessControlAllowOrigin) {
+    public ExceptionFilter() {
         this.exceptionHandler =  new ControllerExceptionHandler();
-        this.accessControlAllowOrigin = accessControlAllowOrigin;
     }
 
 
