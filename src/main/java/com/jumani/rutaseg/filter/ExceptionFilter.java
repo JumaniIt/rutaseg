@@ -5,7 +5,9 @@ import com.jumani.rutaseg.handler.ControllerExceptionHandler;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import org.apache.http.entity.ContentType;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +20,15 @@ import java.util.Optional;
 @Component
 @Order(1)
 public class ExceptionFilter extends OncePerRequestFilter {
-    private final ControllerExceptionHandler exceptionHandler = new ControllerExceptionHandler();
+
+    private final ControllerExceptionHandler exceptionHandler;
+    private final String accessControlAllowOrigin;
+
+    public ExceptionFilter(@Value("${web.cors.access-control-allow-origin}") String accessControlAllowOrigin) {
+        this.exceptionHandler =  new ControllerExceptionHandler();
+        this.accessControlAllowOrigin = accessControlAllowOrigin;
+    }
+
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -29,7 +39,7 @@ public class ExceptionFilter extends OncePerRequestFilter {
         } catch (Exception e) {
             final ResponseEntity<Error> error = exceptionHandler.handleException(e);
             HttpHeaders headers = new HttpHeaders();
-            headers.add("Access-Control-Allow-Origin", "http://localhost:3000, http://gexlog-fe-beta.s3-website.us-east-2.amazonaws.com");
+            headers.add("Access-Control-Allow-Origin", accessControlAllowOrigin);
             headers.add("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
             headers.add("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
             headers.add("Access-Control-Allow-Credentials", "true");
