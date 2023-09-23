@@ -14,6 +14,7 @@ import com.jumani.rutaseg.service.PasswordService;
 import com.jumani.rutaseg.util.PaginationUtil;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 @RestController
 @Transactional
@@ -41,6 +43,10 @@ public class UserController {
     public ResponseEntity<UserResponse> createUser(@RequestBody @Valid UserRequest userRequest, @Session SessionInfo session) {
         if (!session.admin()) {
             throw new ForbiddenException();
+        }
+
+        if (StringUtils.isBlank(userRequest.getPassword())) {
+            throw new ValidationException("empty_password", "a password must be defined");
         }
 
         if (userRepo.existsByEmail(userRequest.getEmail())) {
@@ -77,10 +83,14 @@ public class UserController {
             throw new ValidationException("user_email_exists", "user with the same email already exists");
         }
 
+        final String password = Optional.ofNullable(userRequest.getPassword())
+                .map(passwordService::encrypt)
+                .orElse(user.getPassword());
+
         // Actualizar los datos del usuario utilizando el método update
        user.update(
                 userRequest.getNickname(),
-                passwordService.encrypt(userRequest.getPassword()),
+                password,
                 userRequest.getEmail(),
                 userRequest.isAdmin()
         );

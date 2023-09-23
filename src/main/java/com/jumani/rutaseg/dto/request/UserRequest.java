@@ -17,7 +17,6 @@ public class UserRequest {
     @Email
     @NotEmpty
     private String email;
-    @NotEmpty
     private String password;
     private boolean admin;
 }
