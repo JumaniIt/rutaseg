@@ -39,7 +39,7 @@ public class ExceptionFilter extends OncePerRequestFilter {
         } catch (Exception e) {
             final ResponseEntity<Error> error = exceptionHandler.handleException(e);
             HttpHeaders headers = new HttpHeaders();
-            headers.add("Access-Control-Allow-Origin", accessControlAllowOrigin);
+            headers.add("Access-Control-Allow-Origin", request.getHeader("origin"));
             headers.add("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
             headers.add("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
             headers.add("Access-Control-Allow-Credentials", "true");
