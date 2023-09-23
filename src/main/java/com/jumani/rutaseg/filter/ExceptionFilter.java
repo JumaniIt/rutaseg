@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.http.entity.ContentType;
 import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -27,6 +28,13 @@ public class ExceptionFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
         } catch (Exception e) {
             final ResponseEntity<Error> error = exceptionHandler.handleException(e);
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("Access-Control-Allow-Origin", "http://localhost:3000, http://gexlog-fe-beta.s3-website.us-east-2.amazonaws.com");
+            headers.add("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+            headers.add("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+            headers.add("Access-Control-Allow-Credentials", "true");
+
+            headers.forEach((key, value) -> response.setHeader(key, value.get(0)));
 
             response.setStatus(error.getStatusCode().value());
             response.setContentType(ContentType.APPLICATION_JSON.getMimeType());
