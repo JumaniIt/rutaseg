@@ -5,15 +5,20 @@ import com.jumani.rutaseg.domain.Order;
 import com.jumani.rutaseg.dto.request.CostRequest;
 import com.jumani.rutaseg.dto.response.CostResponse;
 import com.jumani.rutaseg.dto.response.SessionInfo;
+import com.jumani.rutaseg.dto.result.PaginatedResult;
 import com.jumani.rutaseg.exception.ForbiddenException;
 import com.jumani.rutaseg.exception.NotFoundException;
 import com.jumani.rutaseg.handler.Session;
 import com.jumani.rutaseg.repository.OrderRepository;
+import com.jumani.rutaseg.util.PaginationUtil;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Comparator;
+import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @RestController
@@ -24,6 +29,31 @@ public class CostController {
 
     public CostController(OrderRepository orderRepo) {
         this.orderRepo = orderRepo;
+    }
+
+    @GetMapping
+    public ResponseEntity<PaginatedResult<Cost>> search(@PathVariable("orderId") long orderId,
+                                                        @RequestParam(value = "page", defaultValue = "1") int page,
+                                                        @RequestParam(value = "page_size", defaultValue = "100") int pageSize,
+                                                        @Session SessionInfo session) {
+
+        final Order order = orderRepo.findById(orderId)
+                .orElseThrow(() -> new NotFoundException(String.format("order with id [%s] not found", orderId)));
+
+        if (!session.admin() && !Objects.equals(order.getClient().getUserId(), session.userId())) {
+            throw new ForbiddenException();
+        }
+
+        final List<Cost> costs = order.getCosts();
+        final PaginatedResult<Cost> result = PaginationUtil.get(costs.size(), pageSize, page,
+                (offset, limit) -> costs.stream()
+                        .sorted(Comparator.comparing(Cost::getCreatedAt))
+                        .skip(offset)
+                        .limit(limit)
+                        .toList()
+        );
+
+        return ResponseEntity.ok(result);
     }
 
     @PostMapping
