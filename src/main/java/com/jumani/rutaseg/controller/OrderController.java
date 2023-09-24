@@ -286,6 +286,7 @@ public class OrderController {
                 null,
                 null,
                 null,
+                null,
                 order.isReturned(),
                 order.isBilled()
         );
@@ -368,18 +369,25 @@ public class OrderController {
                 ))
                 .collect(Collectors.toList());
 
+        final List<NoteResponse> noteResponses = order.getNotes().stream()
+                .map(note -> new NoteResponse(
+                        note.getId(),
+                        note.getAuthor(),
+                        note.getContent(),
+                        note.getCreatedAt()
+                )).toList();
+
         // Crear una lista de CostResponse a partir de los objetos Cost
-        List<CostResponse> costResponse = order.getCosts().stream()
+        List<CostResponse> costResponses = order.getCosts().stream()
                 .map(cost -> new CostResponse(
                         cost.getId(),
                         cost.getAmount(),
                         cost.getDescription(),
                         cost.getType(),
                         cost.getCreatedAt()
-                ))
-                .collect(Collectors.toList());
+                )).toList();
 
-        final List<FreeLoadResponse> freeLoadResponse = order.getFreeLoads().stream()
+        final List<FreeLoadResponse> freeLoadResponses = order.getFreeLoads().stream()
                 .map(fl -> new FreeLoadResponse(fl.getPatent(), fl.getType(), fl.getWeight(), fl.getGuide(), fl.getPema(),
                         fl.getDestinations().stream().map(d -> new DestinationResponse(
                                         d.getType(), d.getCode(), d.getFob(), d.getCurrency(), d.getProductDetails()))
@@ -407,11 +415,12 @@ public class OrderController {
                 customsDataResponse,
                 containerResponse,
                 order.getContainerQty(),
-                freeLoadResponse,
+                freeLoadResponses,
                 order.getFreeLoadQty(),
                 consigneeDataResponse,
                 documentResponse,
-                costResponse,
+                noteResponses,
+                costResponses,
                 order.isReturned(),
                 order.isBilled()
         );

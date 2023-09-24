@@ -38,6 +38,7 @@ public class OrderResponse {
     private final int freeLoadQty;
     private final ConsigneeDataResponse consignee;
     private final List<DocumentResponse> documents;
+    private final List<NoteResponse> notes;
     private final List<CostResponse> costs;
     private final boolean returned;
     private final boolean billed;
