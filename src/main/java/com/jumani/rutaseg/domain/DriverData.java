@@ -14,6 +14,9 @@ public class DriverData {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @OneToOne(mappedBy = "driverData", fetch = FetchType.LAZY)
+    private Order order;
+
     @Column(name = "name")
     private String name;
 
@@ -29,7 +32,7 @@ public class DriverData {
     @Column(name = "company")
     private String company;
 
-    private DriverData() {
+    public DriverData() {
     }
 
     public DriverData(String name, String phone,

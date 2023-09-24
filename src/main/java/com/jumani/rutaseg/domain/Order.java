@@ -4,6 +4,8 @@ import com.jumani.rutaseg.util.DateGen;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.experimental.FieldNameConstants;
+import org.hibernate.annotations.LazyToOne;
+import org.hibernate.annotations.LazyToOneOption;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -35,7 +37,7 @@ public class Order implements DateGen {
     private String code;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "client_id", foreignKey = @ForeignKey(name = "fk_orders_clients"))
+    @JoinColumn(name = "client_id", foreignKey = @ForeignKey(name = "fk_orders-clients"))
     private Client client;
 
     @Column(name = "pema")
@@ -65,11 +67,11 @@ public class Order implements DateGen {
     private boolean freeLoad;
 
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    @JoinColumn(name = "id", foreignKey = @ForeignKey(name = "`fk_driver-datas`"))
+    @JoinColumn(name = "driver_data_id", foreignKey = @ForeignKey(name = "fk_orders-driver_datas"))
     private DriverData driverData;
 
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    @JoinColumn(name = "id", foreignKey = @ForeignKey(name = "`fk_customs_datas-orders`"))
+    @JoinColumn(name = "customs_data_id", foreignKey = @ForeignKey(name = "fk_orders-customs_data"))
     private CustomsData customsData;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
@@ -87,7 +89,7 @@ public class Order implements DateGen {
     private int freeLoadQty;
 
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    @JoinColumn(name = "id", foreignKey = @ForeignKey(name = "`fk_consignee_datas-orders`"))
+    @JoinColumn(name = "consignee_id", foreignKey = @ForeignKey(name = "fk_orders-consignee_datas"))
     private ConsigneeData consignee;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
@@ -193,10 +195,12 @@ public class Order implements DateGen {
         this.driverData = driverData;
         this.customsData = customsData;
 
-        this.containers = containers;
+        this.containers.clear();
+        this.containers.addAll(containers);
         this.containerQty = containers.size();
 
-        this.freeLoads = freeLoads;
+        this.freeLoads.clear();
+        this.freeLoads.addAll(freeLoads);
         this.freeLoadQty = freeLoads.size();
 
         this.consignee = consignee;

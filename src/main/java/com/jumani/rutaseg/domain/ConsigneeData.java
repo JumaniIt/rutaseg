@@ -10,25 +10,27 @@ import lombok.experimental.FieldNameConstants;
 @Table(name = "consignee_datas")
 public class ConsigneeData {
 
-        @Id
-        @GeneratedValue(strategy = GenerationType.IDENTITY)
-        private Long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
+    @OneToOne(mappedBy = "consignee", fetch = FetchType.LAZY)
+    private Order order;
 
-        @Column(name = "name")
-        private String name;
+    @Column(name = "name")
+    private String name;
 
-        @Column(name = "cuit")
-        private Long cuit;
+    @Column(name = "cuit")
+    private Long cuit;
 
-        public ConsigneeData(String name, Long cuit) {
-            this.name = name;
-            this.cuit = cuit;
-        }
-
-        public ConsigneeData() {
-        }
+    public ConsigneeData(String name, Long cuit) {
+        this.name = name;
+        this.cuit = cuit;
     }
+
+    public ConsigneeData() {
+    }
+}
 
 
 

@@ -19,10 +19,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -168,7 +165,7 @@ public class OrderController {
         CustomsData customsData = customsDataRequest != null ? createCustomsData(customsDataRequest) : null;
 
         // Crear una lista de objetos Container a partir de los datos de la solicitud
-        List<Container> containers = containerRequests != null ?
+        List<Container> containers = new ArrayList<>(containerRequests != null ?
                 containerRequests.stream()
                         .map(containerRequest -> new Container(
                                 containerRequest.getCode(),
@@ -176,18 +173,18 @@ public class OrderController {
                                 containerRequest.isRepackage(),
                                 containerRequest.getBl(),
                                 containerRequest.getPema(),
-                                Optional.ofNullable(containerRequest.getDestinations()).orElse(Collections.emptyList())
+                                new ArrayList<>(Optional.ofNullable(containerRequest.getDestinations()).orElse(Collections.emptyList())
                                         .stream().map(d -> new Destination(d.getType(), d.getCode(), d.getFob(), d.getCurrency(), d.getProductDetails()
-                                        )).toList()))
-                        .collect(Collectors.toList()) : Collections.emptyList();
+                                        )).toList())))
+                        .collect(Collectors.toList()) : Collections.emptyList());
 
-        List<FreeLoad> freeLoads = Optional.ofNullable(orderRequest.getFreeLoads()).orElse(Collections.emptyList())
+        List<FreeLoad> freeLoads = new ArrayList<>(Optional.ofNullable(orderRequest.getFreeLoads()).orElse(Collections.emptyList())
                 .stream()
                 .map(flr -> new FreeLoad(flr.getPatent(), flr.getType(), flr.getWeight(), flr.getGuide(), flr.getPema(),
-                        Optional.ofNullable(flr.getDestinations()).orElse(Collections.emptyList())
+                        new ArrayList<>(Optional.ofNullable(flr.getDestinations()).orElse(Collections.emptyList())
                                 .stream().map(d -> new Destination(d.getType(), d.getCode(), d.getFob(), d.getCurrency(), d.getProductDetails()
-                                )).toList()))
-                .toList();
+                                )).toList())))
+                .toList());
 
         // Crear el objeto ConsigneeData a partir de los datos de la solicitud, si existe
         ConsigneeData consigneeData = consigneeDataRequest != null ?
@@ -199,7 +196,7 @@ public class OrderController {
         // Actualizar los atributos de la orden utilizando el método update() de la clase Order
         order.update(orderRequest.getCode(), client, pema, port, transport,
                 orderRequest.getArrivalDate(), orderRequest.getArrivalTime(),
-                orderRequest.getOrigin(), orderRequest.getTarget(), orderRequest.getFreeLoad(),
+                orderRequest.getOrigin(), orderRequest.getTarget(), orderRequest.isFreeLoad(),
                 driverData, customsData, containers, freeLoads, consigneeData);
 
         order.addSystemNote(String.format("usuario [%s] de tipo [%s] actualizó datos de solicitud", session.userId(),

@@ -14,13 +14,16 @@ public class CustomsData {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @OneToOne(mappedBy = "customsData", fetch = FetchType.LAZY)
+    private Order order;
+
     @Column(name = "name")
     private String name;
 
     @Column(name = "phone")
     private String phone;
 
-    private CustomsData() {
+    public CustomsData() {
     }
 
     public CustomsData(String name, String phone) {
