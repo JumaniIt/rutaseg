@@ -142,7 +142,7 @@ public class OrderTest {
 
         Order order = new Order("code-1", originalClient, originalPema, originalPort, originalTransport,
                 originalArrivalDate, originalArrivalTime, originalOrigin, originalTarget, originalFreeLoad,
-                originalDriverData, originalCustomsData, originalContainers, Collections.emptyList(), originalConsigneeData, originalCreatedByUserId);
+                originalDriverData, originalCustomsData, originalContainers, new ArrayList<>(), originalConsigneeData, originalCreatedByUserId);
 
         String updatedCode = "code-2";
         Client updatedClient = new Client(new User("Jane", "password", "jane@example.com", false),
