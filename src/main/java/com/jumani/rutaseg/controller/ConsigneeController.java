@@ -33,7 +33,7 @@ public class ConsigneeController {
     @PostMapping
     public ResponseEntity<Consignee> createConsignee(@PathVariable("clientId") Long clientId,
                                                      @Session SessionInfo session,
-                                                     @Valid ConsigneeRequest consigneeRequest) {
+                                                     @RequestBody @Valid ConsigneeRequest consigneeRequest) {
         Client client = clientRepository.findById(clientId)
                 .filter(c -> clientMatchesSession(c, session))
                 .orElseThrow(() -> new ValidationException("client_not_found", "client not found"));
