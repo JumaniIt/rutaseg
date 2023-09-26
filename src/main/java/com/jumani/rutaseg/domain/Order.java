@@ -56,7 +56,7 @@ public class Order implements DateGen {
     @Column(name = "origin")
     private String origin;
 
-    @Column(name = "destination")
+    @Column(name = "target")
     private String target;
 
     @Column(name = "free_load")
