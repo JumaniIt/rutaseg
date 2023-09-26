@@ -91,10 +91,10 @@ public class OrderController {
                 .toList();
 
         // Crear el objeto ConsigneeData a partir de los datos de ConsigneeData de la solicitud, si existe
-        ConsigneeData consigneeData = orderRequest.getConsigneeData() != null ?
+        ConsigneeData consigneeData = orderRequest.getConsignee() != null ?
                 new ConsigneeData(
-                        orderRequest.getConsigneeData().getName(),
-                        orderRequest.getConsigneeData().getCuit()
+                        orderRequest.getConsignee().getName(),
+                        orderRequest.getConsignee().getCuit()
                 ) : null;
 
         // Crear la instancia de Order con los datos proporcionados
@@ -158,7 +158,7 @@ public class OrderController {
         DriverDataRequest driverDataRequest = orderRequest.getDriverData();
         CustomsDataRequest customsDataRequest = orderRequest.getCustomsData();
         List<ContainerRequest> containerRequests = orderRequest.getContainers();
-        ConsigneeDataRequest consigneeDataRequest = orderRequest.getConsigneeData();
+        ConsigneeDataRequest consigneeDataRequest = orderRequest.getConsignee();
 
         // Crear objetos ArrivalData, CustomsData y DriverData a partir de los datos de la solicitud
         DriverData driverData = driverDataRequest != null ? createDriverData(driverDataRequest) : null;

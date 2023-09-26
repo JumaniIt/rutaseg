@@ -32,7 +32,7 @@ public class OrderRequest {
     private CustomsDataRequest customsData;
     private List<ContainerRequest> containers;
     private List<FreeLoadRequest> freeLoads;
-    private ConsigneeDataRequest consigneeData;
+    private ConsigneeDataRequest consignee;
 
     public boolean isFreeLoad() {
         return Optional.ofNullable(this.freeLoad).orElse(false);
