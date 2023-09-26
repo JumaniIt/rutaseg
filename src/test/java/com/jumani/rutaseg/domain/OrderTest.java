@@ -25,8 +25,8 @@ public class OrderTest {
         long createdByUserId = randomId();
         final LocalDate arrivalDate = mock(LocalDate.class);
         final LocalTime arrivalTime = mock(LocalTime.class);
-        final Terminal origin = randomEnum(Terminal.class);
-        final Terminal target = randomEnum(Terminal.class);
+        final String origin = randomShortString();
+        final String target = randomShortString();
 
         DriverData driverData = new DriverData("John Doe", "1234567890", "chasis", "semi", "ABC Company");
         CustomsData customsData = new CustomsData("Customs Name", "9876543210");
@@ -71,8 +71,8 @@ public class OrderTest {
         boolean transport = randomBoolean();
         final LocalDate arrivalDate = mock(LocalDate.class);
         final LocalTime arrivalTime = mock(LocalTime.class);
-        final Terminal origin = randomEnum(Terminal.class);
-        final Terminal target = randomEnum(Terminal.class);
+        final String origin = randomShortString();
+        final String target = randomShortString();
 
         long createdByUserId = randomId();
 
@@ -120,8 +120,8 @@ public class OrderTest {
         boolean originalTransport = true;
         final LocalDate originalArrivalDate = mock(LocalDate.class);
         final LocalTime originalArrivalTime = mock(LocalTime.class);
-        final Terminal originalOrigin = randomEnum(Terminal.class);
-        final Terminal originalTarget = randomEnum(Terminal.class);
+        final String originalOrigin = randomShortString();
+        final String originalTarget = randomShortString();
         final boolean originalFreeLoad = randomBoolean();
 
         DriverData originalDriverData = new DriverData(
@@ -153,8 +153,8 @@ public class OrderTest {
 
         final LocalDate updatedArrivalDate = mock(LocalDate.class);
         final LocalTime updatedArrivalTime = mock(LocalTime.class);
-        final Terminal updatedOrigin = randomEnum(Terminal.class);
-        final Terminal updatedTarget = randomEnum(Terminal.class);
+        final String updatedOrigin = randomShortString();
+        final String updatedTarget = randomShortString();
         final boolean updatedFreeLoad = randomBoolean();
 
         DriverData updatedDriverData = new DriverData(

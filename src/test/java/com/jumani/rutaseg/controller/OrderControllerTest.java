@@ -3,7 +3,6 @@ package com.jumani.rutaseg.controller;
 import com.jumani.rutaseg.domain.Client;
 import com.jumani.rutaseg.domain.Order;
 import com.jumani.rutaseg.domain.OrderStatus;
-import com.jumani.rutaseg.domain.Terminal;
 import com.jumani.rutaseg.dto.request.CustomsDataRequest;
 import com.jumani.rutaseg.dto.request.DriverDataRequest;
 import com.jumani.rutaseg.dto.request.OrderRequest;
@@ -63,8 +62,8 @@ class OrderControllerTest {
         boolean transport = true;
         final LocalDate arrivalDate = mock(LocalDate.class);
         final LocalTime arrivalTime = mock(LocalTime.class);
-        final Terminal origin = randomEnum(Terminal.class);
-        final Terminal target = randomEnum(Terminal.class);
+        final String origin = randomShortString();
+        final String target = randomShortString();
         final boolean freeLoad = randomBoolean();
 
         OrderStatus status = OrderStatus.DRAFT;
@@ -166,8 +165,8 @@ class OrderControllerTest {
         long clientId = randomId();
         final LocalDate arrivalDate = mock(LocalDate.class);
         final LocalTime arrivalTime = mock(LocalTime.class);
-        final Terminal origin = randomEnum(Terminal.class);
-        final Terminal target = randomEnum(Terminal.class);
+        final String origin = randomShortString();
+        final String target = randomShortString();
         final boolean freeLoad = randomBoolean();
 
         DriverDataRequest driverDataRequest = new DriverDataRequest();
@@ -328,8 +327,8 @@ class OrderControllerTest {
         long clientId = randomId();
         final LocalDate arrivalDate = mock(LocalDate.class);
         final LocalTime arrivalTime = mock(LocalTime.class);
-        final Terminal origin = randomEnum(Terminal.class);
-        final Terminal target = randomEnum(Terminal.class);
+        final String origin = randomShortString();
+        final String target = randomShortString();
         final boolean freeLoad = randomBoolean();
 
         DriverDataRequest driverDataRequest = new DriverDataRequest();

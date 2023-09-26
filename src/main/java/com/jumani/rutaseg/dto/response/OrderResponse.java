@@ -1,7 +1,6 @@
 package com.jumani.rutaseg.dto.response;
 
 import com.jumani.rutaseg.domain.OrderStatus;
-import com.jumani.rutaseg.domain.Terminal;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -24,8 +23,8 @@ public class OrderResponse {
     private final boolean transport;
     private final LocalDate arrivalDate;
     private final LocalTime arrivalTime;
-    private final Terminal origin;
-    private final Terminal target;
+    private final String origin;
+    private final String target;
     private Boolean freeLoad;
     private final OrderStatus status;
     private final ZonedDateTime createdAt;

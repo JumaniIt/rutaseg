@@ -4,8 +4,6 @@ import com.jumani.rutaseg.util.DateGen;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.experimental.FieldNameConstants;
-import org.hibernate.annotations.LazyToOne;
-import org.hibernate.annotations.LazyToOneOption;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -56,12 +54,10 @@ public class Order implements DateGen {
     private LocalTime arrivalTime;
 
     @Column(name = "origin")
-    @Enumerated(EnumType.STRING)
-    private Terminal origin;
+    private String origin;
 
     @Column(name = "destination")
-    @Enumerated(EnumType.STRING)
-    private Terminal target;
+    private String target;
 
     @Column(name = "free_load")
     private boolean freeLoad;
@@ -125,7 +121,7 @@ public class Order implements DateGen {
     public Order(String code, Client client,
                  boolean pema, boolean port, boolean transport,
                  LocalDate arrivalDate, LocalTime arrivalTime,
-                 Terminal origin, Terminal target,
+                 String origin, String target,
                  boolean freeLoad,
                  DriverData driverData,
                  CustomsData customsData,
@@ -174,7 +170,7 @@ public class Order implements DateGen {
     public void update(String code, Client client,
                        boolean pema, boolean port, boolean transport,
                        LocalDate arrivalDate, LocalTime arrivalTime,
-                       Terminal origin, Terminal target,
+                       String origin, String target,
                        boolean freeLoad,
                        DriverData driverData,
                        CustomsData customsData,

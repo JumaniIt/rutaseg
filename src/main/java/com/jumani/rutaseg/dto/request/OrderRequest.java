@@ -1,6 +1,5 @@
 package com.jumani.rutaseg.dto.request;
 
-import com.jumani.rutaseg.domain.Terminal;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
@@ -26,8 +25,8 @@ public class OrderRequest {
     private boolean transport;
     private LocalDate arrivalDate;
     private LocalTime arrivalTime;
-    private Terminal origin;
-    private Terminal target;
+    private String origin;
+    private String target;
     private Boolean freeLoad;
     private DriverDataRequest driverData;
     private CustomsDataRequest customsData;
