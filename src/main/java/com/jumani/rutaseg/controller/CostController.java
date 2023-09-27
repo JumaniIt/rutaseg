@@ -82,7 +82,7 @@ public class CostController {
 
         final Cost createdCost = updatedOrder.getCosts().stream().filter(newCost::equals).findFirst().orElseThrow();
 
-        CostResponse costResponse = createCostResponse(newCost);
+        CostResponse costResponse = createCostResponse(createdCost);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(costResponse);
     }
