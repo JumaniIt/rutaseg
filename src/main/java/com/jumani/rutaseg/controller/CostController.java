@@ -1,6 +1,7 @@
 package com.jumani.rutaseg.controller;
 
 import com.jumani.rutaseg.domain.Cost;
+import com.jumani.rutaseg.domain.Note;
 import com.jumani.rutaseg.domain.Order;
 import com.jumani.rutaseg.dto.request.CostRequest;
 import com.jumani.rutaseg.dto.response.CostResponse;
@@ -77,7 +78,9 @@ public class CostController {
         );
 
         order.updateCost(newCost);
-        orderRepo.save(order);
+        final Order updatedOrder = orderRepo.save(order);
+
+        final Cost createdCost = updatedOrder.getCosts().stream().filter(newCost::equals).findFirst().orElseThrow();
 
         CostResponse costResponse = createCostResponse(newCost);
 

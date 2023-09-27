@@ -2,6 +2,7 @@ package com.jumani.rutaseg.domain;
 
 import com.jumani.rutaseg.util.DateGen;
 import jakarta.persistence.*;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import java.time.ZonedDateTime;
@@ -10,6 +11,7 @@ import java.time.ZonedDateTime;
 @Getter
 @Setter
 @Table(name = "costs")
+@EqualsAndHashCode(exclude = "id")
 public class Cost implements DateGen {
 
     @Id
