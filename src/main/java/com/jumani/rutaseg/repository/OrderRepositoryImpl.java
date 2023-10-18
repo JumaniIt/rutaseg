@@ -4,10 +4,7 @@ import com.jumani.rutaseg.domain.Client;
 import com.jumani.rutaseg.domain.Order;
 import com.jumani.rutaseg.domain.OrderStatus;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaQuery;
-import jakarta.persistence.criteria.Predicate;
-import jakarta.persistence.criteria.Root;
+import jakarta.persistence.criteria.*;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldNameConstants;
 import org.springframework.lang.Nullable;
@@ -44,6 +41,8 @@ public class OrderRepositoryImpl implements OrderRepositoryExtended {
         final CriteriaQuery<Order> criteriaQuery = builder.createQuery(Order.class);
         final Root<Order> root = criteriaQuery.from(Order.class);
 
+        root.join(Order.Fields.client, JoinType.INNER);
+
         criteriaQuery.select(root);
         criteriaQuery.where(createPredicates(builder, root, codeLike, pema, transport, port, arrivalDateFrom,
                 arrivalDateTo, arrivalTimeFrom, arrivalTimeTo, clientId, status));
@@ -70,6 +69,8 @@ public class OrderRepositoryImpl implements OrderRepositoryExtended {
         final CriteriaBuilder builder = entityManager.getCriteriaBuilder();
         final CriteriaQuery<Long> criteriaQuery = builder.createQuery(Long.class);
         final Root<Order> root = criteriaQuery.from(Order.class);
+
+        root.join(Order.Fields.client, JoinType.INNER);
 
         criteriaQuery.select(builder.count(root));
         criteriaQuery.where(createPredicates(builder, root, codeLike, pema, transport, port, arrivalDateFrom,

@@ -5,5 +5,6 @@ public enum CostType {
     TRANSPORT,
     PORT,
     OTHER,
-    EXTRA
+    EXTRA,
+    BILL
 }

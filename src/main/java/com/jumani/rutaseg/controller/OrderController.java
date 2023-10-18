@@ -214,6 +214,7 @@ public class OrderController {
 
     @GetMapping
     public ResponseEntity<PaginatedResult<OrderResponse>> search(
+            @RequestParam(value = "sorts", required = false, defaultValue = "date:asc") String sortsParam,
             @RequestParam(value = "code", required = false) String code,
             @RequestParam(value = "pema", required = false) Boolean pema,
             @RequestParam(value = "transport", required = false) Boolean transport,
@@ -227,7 +228,10 @@ public class OrderController {
             @RequestParam(value = "page_size", required = false, defaultValue = "10") Integer pageSize,
             @RequestParam(value = "page", required = false, defaultValue = "1") Integer page,
             @Session SessionInfo session
+
     ) {
+        List<Sort> sorts = parseSortParameter(sortsParam);
+
         final Long theClientId;
         if (!session.admin()) {
             Optional<Client> clientOptional = clientRepo.findOneByUser_Id(session.userId());
@@ -255,6 +259,20 @@ public class OrderController {
                 .map(this::createLightOrderResponse);
 
         return ResponseEntity.ok(result);
+    }
+    private List<Sort> parseSortParameter(String sortsParam) {
+        if (sortsParam == null || sortsParam.isEmpty()) {
+            return Collections.singletonList(new Sort("date", true)); // Ordenación predeterminada
+        }
+
+        return Arrays.stream(sortsParam.split(","))
+                .map(sortParam -> {
+                    String[] parts = sortParam.split(":");
+                    String field = parts[0];
+                    boolean ascending = parts[1].equalsIgnoreCase("asc");
+                    return new Sort(field, ascending);
+                })
+                .collect(Collectors.toList());
     }
 
     private OrderResponse createLightOrderResponse(Order order) {
