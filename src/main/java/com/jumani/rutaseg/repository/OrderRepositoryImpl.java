@@ -3,6 +3,7 @@ package com.jumani.rutaseg.repository;
 import com.jumani.rutaseg.domain.Client;
 import com.jumani.rutaseg.domain.Order;
 import com.jumani.rutaseg.domain.OrderStatus;
+import com.jumani.rutaseg.domain.Sort;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.criteria.*;
 import lombok.RequiredArgsConstructor;
@@ -24,18 +25,23 @@ public class OrderRepositoryImpl implements OrderRepositoryExtended {
 
     private final EntityManager entityManager;
 
-    public List<Order> search(@Nullable String codeLike,
-                              @Nullable Boolean pema,
-                              @Nullable Boolean transport,
-                              @Nullable Boolean port,
-                              @Nullable LocalDate arrivalDateFrom,
-                              @Nullable LocalDate arrivalDateTo,
-                              @Nullable LocalTime arrivalTimeFrom,
-                              @Nullable LocalTime arrivalTimeTo,
-                              @Nullable Long clientId,
-                              @Nullable OrderStatus status,
-                              int offset,
-                              int limit) {
+
+
+    public List<Order> search(
+            @Nullable String codeLike,
+            @Nullable Boolean pema,
+            @Nullable Boolean transport,
+            @Nullable Boolean port,
+            @Nullable LocalDate arrivalDateFrom,
+            @Nullable LocalDate arrivalDateTo,
+            @Nullable LocalTime arrivalTimeFrom,
+            @Nullable LocalTime arrivalTimeTo,
+            @Nullable Long clientId,
+            @Nullable OrderStatus status,
+            List<Sort> sorts, // Agrega esta línea
+            int offset,
+            int limit
+    ) {
 
         final CriteriaBuilder builder = entityManager.getCriteriaBuilder();
         final CriteriaQuery<Order> criteriaQuery = builder.createQuery(Order.class);
@@ -44,9 +50,19 @@ public class OrderRepositoryImpl implements OrderRepositoryExtended {
         root.join(Order.Fields.client, JoinType.INNER);
 
         criteriaQuery.select(root);
-        criteriaQuery.where(createPredicates(builder, root, codeLike, pema, transport, port, arrivalDateFrom,
-                arrivalDateTo, arrivalTimeFrom, arrivalTimeTo, clientId, status));
-        criteriaQuery.orderBy(builder.asc(root.get(Order.Fields.arrivalDate)), builder.asc(root.get(Order.Fields.arrivalTime)));
+
+        Predicate[] predicates = createPredicates(builder, root, codeLike, pema, transport, port, arrivalDateFrom,
+                arrivalDateTo, arrivalTimeFrom, arrivalTimeTo, clientId, status);
+        criteriaQuery.where(predicates);
+
+        for (Sort sort : sorts) {
+            Expression<?> sortExpression = root.get(sort.getField());
+            if (sort.isAscending()) {
+                criteriaQuery.orderBy(builder.asc(sortExpression));
+            } else {
+                criteriaQuery.orderBy(builder.desc(sortExpression));
+            }
+        }
 
         return entityManager.createQuery(criteriaQuery)
                 .setFirstResult(offset)
@@ -73,8 +89,10 @@ public class OrderRepositoryImpl implements OrderRepositoryExtended {
         root.join(Order.Fields.client, JoinType.INNER);
 
         criteriaQuery.select(builder.count(root));
-        criteriaQuery.where(createPredicates(builder, root, codeLike, pema, transport, port, arrivalDateFrom,
-                arrivalDateTo, arrivalTimeFrom, arrivalTimeTo, clientId, status));
+
+        Predicate[] predicates = createPredicates(builder, root, codeLike, pema, transport, port, arrivalDateFrom,
+                arrivalDateTo, arrivalTimeFrom, arrivalTimeTo, clientId, status);
+        criteriaQuery.where(predicates);
 
         return entityManager.createQuery(criteriaQuery).getSingleResult();
     }

@@ -255,7 +255,7 @@ public class OrderController {
 
         final PaginatedResult<OrderResponse> result = this.orderSearchService.search(code, pema, transport, port,
                         arrivalDateFrom, arrivalDateTo, arrivalTimeFrom, arrivalTimeTo,
-                        theClientId, status, pageSize, page)
+                        theClientId, status, sorts, pageSize, page)
                 .map(this::createLightOrderResponse);
 
         return ResponseEntity.ok(result);

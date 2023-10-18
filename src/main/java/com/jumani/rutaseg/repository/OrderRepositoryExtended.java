@@ -2,6 +2,7 @@ package com.jumani.rutaseg.repository;
 
 import com.jumani.rutaseg.domain.Order;
 import com.jumani.rutaseg.domain.OrderStatus;
+import com.jumani.rutaseg.domain.Sort;
 import org.springframework.lang.Nullable;
 
 import java.time.LocalDate;
@@ -20,6 +21,7 @@ public interface OrderRepositoryExtended {
                        @Nullable LocalTime arrivalTimeTo,
                        @Nullable Long clientId,
                        @Nullable OrderStatus status,
+                       List<Sort> sorts,
                        int offset,
                        int limit);
 

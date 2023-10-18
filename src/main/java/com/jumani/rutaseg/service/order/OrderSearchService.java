@@ -2,6 +2,7 @@ package com.jumani.rutaseg.service.order;
 
 import com.jumani.rutaseg.domain.Order;
 import com.jumani.rutaseg.domain.OrderStatus;
+import com.jumani.rutaseg.domain.Sort;
 import com.jumani.rutaseg.dto.result.PaginatedResult;
 import com.jumani.rutaseg.repository.OrderRepository;
 import com.jumani.rutaseg.util.PaginationUtil;
@@ -17,13 +18,14 @@ public class OrderSearchService {
 
     private final OrderRepository orderRepo;
 
-    public final PaginatedResult<Order> search(String code, Boolean pema, Boolean transport, Boolean port,
-                                               LocalDate arrivalDateFrom, LocalDate arrivalDateTo,
-                                               LocalTime arrivalTimeFrom, LocalTime arrivalTimeTo,
-                                               Long clientId,
-                                               OrderStatus status,
-                                               int pageSize,
-                                               int page) {
+    public PaginatedResult<Order> search(String code, Boolean pema, Boolean transport, Boolean port,
+                                         LocalDate arrivalDateFrom, LocalDate arrivalDateTo,
+                                         LocalTime arrivalTimeFrom, LocalTime arrivalTimeTo,
+                                         Long clientId,
+                                         OrderStatus status,
+                                         List<Sort> sorts, // Cambiado a List<Sort>
+                                         int pageSize,
+                                         int page) {
 
         final SearchParamsKey key = new SearchParamsKey(code, pema, transport, port,
                 arrivalDateFrom, arrivalDateTo, arrivalTimeFrom, arrivalTimeTo,
@@ -32,7 +34,7 @@ public class OrderSearchService {
         if (!cache.containsKey(key)) {
             final PaginatedResult<Order> result = this.doSearch(code, pema, transport, port,
                     arrivalDateFrom, arrivalDateTo, arrivalTimeFrom, arrivalTimeTo,
-                    clientId, status, pageSize, page);
+                    clientId, status, sorts, pageSize, page); // Pasamos la lista de Sort
 
             cache.put(key, result);
             return result;
@@ -46,9 +48,9 @@ public class OrderSearchService {
                                             LocalTime arrivalTimeFrom, LocalTime arrivalTimeTo,
                                             Long clientId,
                                             OrderStatus status,
-                                            Integer pageSize,
-                                            Integer page) {
-
+                                            List<Sort> sorts, // Cambiado a List<Sort>
+                                            int pageSize,
+                                            int page) {
         final long totalElements = orderRepo.count(
                 code,
                 pema,
@@ -64,7 +66,7 @@ public class OrderSearchService {
 
         return PaginationUtil.get(totalElements, pageSize, page, (offset, limit) ->
                 orderRepo.search(
-                        code,
+                        code, // Pasamos la lista de Sort
                         pema,
                         transport,
                         port,
@@ -74,12 +76,12 @@ public class OrderSearchService {
                         arrivalTimeTo,
                         clientId,
                         status,
+                        sorts,
                         offset,
                         limit
-                )
+                                )
         );
     }
-
 
     public record SearchParamsKey(
             String code, Boolean pema, Boolean transport, Boolean port,
