@@ -225,6 +225,11 @@ public class OrderController {
             @RequestParam(value = "time_to", required = false) LocalTime arrivalTimeTo,
             @RequestParam(value = "client_id", required = false) Long clientId,
             @RequestParam(value = "status", required = false) OrderStatus status,
+            @RequestParam(value = "load_code", required = false) String loadCode,
+            @RequestParam(value = "origin", required = false) String origin,
+            @RequestParam(value = "target", required = false) String target,
+            @RequestParam(value = "consignee_cuit", required = false) String consigneeCuit,
+            @RequestParam(value = "destination_code", required = false) String destinationCode,
             @RequestParam(value = "page_size", required = false, defaultValue = "10") Integer pageSize,
             @RequestParam(value = "page", required = false, defaultValue = "1") Integer page,
             @Session SessionInfo session
@@ -255,11 +260,13 @@ public class OrderController {
 
         final PaginatedResult<OrderResponse> result = this.orderSearchService.search(code, pema, transport, port,
                         arrivalDateFrom, arrivalDateTo, arrivalTimeFrom, arrivalTimeTo,
-                        theClientId, status, sorts, pageSize, page)
+                        theClientId, status, loadCode, origin, target, consigneeCuit, destinationCode,
+                        sorts, pageSize, page)
                 .map(this::createLightOrderResponse);
 
         return ResponseEntity.ok(result);
     }
+
     private List<Sort> parseSortParameter(String sortsParam) {
         if (sortsParam == null || sortsParam.isEmpty()) {
             return Collections.singletonList(new Sort("date", true)); // Ordenación predeterminada

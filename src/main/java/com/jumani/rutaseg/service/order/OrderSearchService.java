@@ -10,7 +10,8 @@ import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
 
 @RequiredArgsConstructor
 public class OrderSearchService {
@@ -23,18 +24,23 @@ public class OrderSearchService {
                                          LocalTime arrivalTimeFrom, LocalTime arrivalTimeTo,
                                          Long clientId,
                                          OrderStatus status,
+                                         String loadCode,
+                                         String origin,
+                                         String target,
+                                         String consigneeCuit,
+                                         String destinationCode,
                                          List<Sort> sorts, // Cambiado a List<Sort>
                                          int pageSize,
                                          int page) {
 
         final SearchParamsKey key = new SearchParamsKey(code, pema, transport, port,
                 arrivalDateFrom, arrivalDateTo, arrivalTimeFrom, arrivalTimeTo,
-                clientId, status, pageSize, page);
+                clientId, status, loadCode, origin, target, consigneeCuit, destinationCode, sorts, pageSize, page);
 
         if (!cache.containsKey(key)) {
             final PaginatedResult<Order> result = this.doSearch(code, pema, transport, port,
                     arrivalDateFrom, arrivalDateTo, arrivalTimeFrom, arrivalTimeTo,
-                    clientId, status, sorts, pageSize, page); // Pasamos la lista de Sort
+                    clientId, status, loadCode, origin, target, consigneeCuit, destinationCode, sorts, pageSize, page); // Pasamos la lista de Sort
 
             cache.put(key, result);
             return result;
@@ -48,6 +54,11 @@ public class OrderSearchService {
                                             LocalTime arrivalTimeFrom, LocalTime arrivalTimeTo,
                                             Long clientId,
                                             OrderStatus status,
+                                            String loadCode,
+                                            String origin,
+                                            String target,
+                                            String consigneeCuit,
+                                            String destinationCode,
                                             List<Sort> sorts, // Cambiado a List<Sort>
                                             int pageSize,
                                             int page) {
@@ -61,8 +72,12 @@ public class OrderSearchService {
                 arrivalTimeFrom,
                 arrivalTimeTo,
                 clientId,
-                status
-        );
+                status,
+                loadCode,
+                origin,
+                target,
+                consigneeCuit,
+                destinationCode);
 
         return PaginationUtil.get(totalElements, pageSize, page, (offset, limit) ->
                 orderRepo.search(
@@ -76,10 +91,15 @@ public class OrderSearchService {
                         arrivalTimeTo,
                         clientId,
                         status,
+                        loadCode,
+                        origin,
+                        target,
+                        consigneeCuit,
+                        destinationCode,
                         sorts,
                         offset,
                         limit
-                                )
+                )
         );
     }
 
@@ -88,6 +108,12 @@ public class OrderSearchService {
             LocalDate arrivalDateFrom, LocalDate arrivalDateTo,
             LocalTime arrivalTimeFrom, LocalTime arrivalTimeTo,
             Long clientId, OrderStatus status,
+            String loadCode,
+            String origin,
+            String target,
+            String consigneeCuit,
+            String destinationCode,
+            List<Sort> sorts,
             int pageSize, int page) {
     }
 }

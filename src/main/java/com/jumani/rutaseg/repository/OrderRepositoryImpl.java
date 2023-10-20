@@ -1,9 +1,7 @@
 package com.jumani.rutaseg.repository;
 
-import com.jumani.rutaseg.domain.Client;
 import com.jumani.rutaseg.domain.Order;
-import com.jumani.rutaseg.domain.OrderStatus;
-import com.jumani.rutaseg.domain.Sort;
+import com.jumani.rutaseg.domain.*;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.criteria.*;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +14,7 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 
 @Repository
@@ -25,6 +24,8 @@ public class OrderRepositoryImpl implements OrderRepositoryExtended {
 
     private final EntityManager entityManager;
 
+    private final ContainerRepository containerRepo;
+    private final FreeLoadRepository freeLoadRepo;
 
 
     public List<Order> search(
@@ -38,6 +39,11 @@ public class OrderRepositoryImpl implements OrderRepositoryExtended {
             @Nullable LocalTime arrivalTimeTo,
             @Nullable Long clientId,
             @Nullable OrderStatus status,
+            @Nullable String loadCode,
+            @Nullable String origin,
+            @Nullable String target,
+            @Nullable String consigneeCuit,
+            @Nullable String destinationCode,
             List<Sort> sorts, // Agrega esta línea
             int offset,
             int limit
@@ -52,17 +58,32 @@ public class OrderRepositoryImpl implements OrderRepositoryExtended {
         criteriaQuery.select(root);
 
         Predicate[] predicates = createPredicates(builder, root, codeLike, pema, transport, port, arrivalDateFrom,
-                arrivalDateTo, arrivalTimeFrom, arrivalTimeTo, clientId, status);
+                arrivalDateTo, arrivalTimeFrom, arrivalTimeTo, clientId, status, loadCode, origin, target,
+                consigneeCuit, destinationCode);
         criteriaQuery.where(predicates);
 
+        final List<jakarta.persistence.criteria.Order> orders = new ArrayList<>();
         for (Sort sort : sorts) {
-            Expression<?> sortExpression = root.get(sort.getField());
-            if (sort.isAscending()) {
-                criteriaQuery.orderBy(builder.asc(sortExpression));
-            } else {
-                criteriaQuery.orderBy(builder.desc(sortExpression));
+            if (sort.field().equals("date")) {
+                if (sort.ascending()) {
+                    orders.add(builder.asc(root.get(Order.Fields.arrivalDate)));
+                } else {
+                    orders.add(builder.desc(root.get(Order.Fields.arrivalDate)));
+                }
+
+            } else if (sort.field().equals("load_code")) {
+                final Path<Object> containerCode = root.join("containers", JoinType.LEFT).get("code");
+                final Path<Object> freeLoadPatent = root.join("freeLoads", JoinType.LEFT).get("patent");
+                if (sort.ascending()) {
+                    orders.add(builder.asc(containerCode));
+                    orders.add(builder.asc(freeLoadPatent));
+                } else {
+                    orders.add(builder.desc(containerCode));
+                    orders.add(builder.desc(freeLoadPatent));
+                }
             }
         }
+        criteriaQuery.orderBy(orders);
 
         return entityManager.createQuery(criteriaQuery)
                 .setFirstResult(offset)
@@ -80,7 +101,12 @@ public class OrderRepositoryImpl implements OrderRepositoryExtended {
                       @Nullable LocalTime arrivalTimeFrom,
                       @Nullable LocalTime arrivalTimeTo,
                       @Nullable Long clientId,
-                      @Nullable OrderStatus status) {
+                      @Nullable OrderStatus status,
+                      @Nullable String loadCode,
+                      @Nullable String origin,
+                      @Nullable String target,
+                      @Nullable String consigneeCuit,
+                      @Nullable String destinationCode) {
 
         final CriteriaBuilder builder = entityManager.getCriteriaBuilder();
         final CriteriaQuery<Long> criteriaQuery = builder.createQuery(Long.class);
@@ -91,7 +117,8 @@ public class OrderRepositoryImpl implements OrderRepositoryExtended {
         criteriaQuery.select(builder.count(root));
 
         Predicate[] predicates = createPredicates(builder, root, codeLike, pema, transport, port, arrivalDateFrom,
-                arrivalDateTo, arrivalTimeFrom, arrivalTimeTo, clientId, status);
+                arrivalDateTo, arrivalTimeFrom, arrivalTimeTo, clientId, status, loadCode, origin, target,
+                consigneeCuit, destinationCode);
         criteriaQuery.where(predicates);
 
         return entityManager.createQuery(criteriaQuery).getSingleResult();
@@ -107,7 +134,12 @@ public class OrderRepositoryImpl implements OrderRepositoryExtended {
                                          @Nullable LocalTime arrivalTimeFrom,
                                          @Nullable LocalTime arrivalTimeTo,
                                          @Nullable Long clientId,
-                                         @Nullable OrderStatus status) {
+                                         @Nullable OrderStatus status,
+                                         @Nullable String loadCode,
+                                         @Nullable String origin,
+                                         @Nullable String target,
+                                         @Nullable String consigneeCuit,
+                                         @Nullable String destinationCode) {
 
         final List<Predicate> predicates = new ArrayList<>();
 
@@ -149,6 +181,34 @@ public class OrderRepositoryImpl implements OrderRepositoryExtended {
 
         if (Objects.nonNull(status)) {
             predicates.add(builder.equal(root.get(Order.Fields.status), status));
+        }
+
+        if (Objects.nonNull(origin)) {
+            predicates.add(builder.equal(root.get(Order.Fields.origin), origin));
+        }
+
+        if (Objects.nonNull(target)) {
+            predicates.add(builder.equal(root.get(Order.Fields.target), target));
+        }
+
+        if (Objects.nonNull(consigneeCuit)) {
+            predicates.add(builder.equal(root.get(Order.Fields.consignee).get(ConsigneeData.Fields.cuit), consigneeCuit));
+        }
+
+        final List<Long> orderIds = new ArrayList<>();
+
+        if (Objects.nonNull(loadCode)) {
+            orderIds.addAll(containerRepo.findByCode(loadCode).stream().map(Container::getOrderId).toList());
+            orderIds.addAll(freeLoadRepo.findByPatent(loadCode).stream().map(FreeLoad::getOrderId).toList());
+        }
+
+        if (Objects.nonNull(destinationCode)) {
+            orderIds.addAll(containerRepo.findOrderIdByDestinationCode(destinationCode));
+            orderIds.addAll(freeLoadRepo.findOrderIdByDestinationCode(destinationCode));
+        }
+
+        if (!orderIds.isEmpty()) {
+            predicates.add(root.get(Order.Fields.id).in(orderIds.stream().distinct().collect(Collectors.toList())));
         }
 
         return predicates.toArray(new Predicate[0]);

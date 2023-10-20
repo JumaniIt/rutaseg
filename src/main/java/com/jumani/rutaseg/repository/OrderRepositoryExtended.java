@@ -21,6 +21,11 @@ public interface OrderRepositoryExtended {
                        @Nullable LocalTime arrivalTimeTo,
                        @Nullable Long clientId,
                        @Nullable OrderStatus status,
+                       @Nullable String loadCode,
+                       @Nullable String origin,
+                       @Nullable String target,
+                       @Nullable String consigneeCuit,
+                       @Nullable String destinationCode,
                        List<Sort> sorts,
                        int offset,
                        int limit);
@@ -34,5 +39,10 @@ public interface OrderRepositoryExtended {
                @Nullable LocalTime arrivalTimeFrom,
                @Nullable LocalTime arrivalTimeTo,
                @Nullable Long clientId,
-               @Nullable OrderStatus status);
+               @Nullable OrderStatus status,
+               @Nullable String loadCode,
+               @Nullable String origin,
+               @Nullable String target,
+               @Nullable String consigneeCuit,
+               @Nullable String destinationCode);
 }
