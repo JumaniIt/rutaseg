@@ -7,7 +7,8 @@ import java.util.List;
 
 @Getter
 @Entity
-@Table(name = "free_loads")
+@Table(name = "free_loads", indexes = {
+        @Index(name = "IDX_FREE_LOADS_PATENT", columnList = "patent")})
 public class FreeLoad {
 
     @Id
@@ -35,7 +36,8 @@ public class FreeLoad {
 
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "free_load_destinations", foreignKey = @ForeignKey(name = "`fk_destinations-free_loads`"),
-            joinColumns = @JoinColumn(name = "id"))
+            joinColumns = @JoinColumn(name = "id"), indexes = {
+            @Index(name = "IDX_FREE_LOAD_DESTINATIONS_CODE", columnList = "code")})
     private List<Destination> destinations;
 
     private FreeLoad() {

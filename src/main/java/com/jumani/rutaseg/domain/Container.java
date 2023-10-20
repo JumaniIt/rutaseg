@@ -8,7 +8,8 @@ import java.util.List;
 
 @Getter
 @Entity
-@Table(name = "containers")
+@Table(name = "containers", indexes = {
+        @Index(name = "IDX_CONTAINERS_CODE", columnList = "code")})
 public class Container {
 
     @Id
@@ -36,7 +37,8 @@ public class Container {
 
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "container_destinations", foreignKey = @ForeignKey(name = "`fk_destinations-containers`"),
-            joinColumns = @JoinColumn(name = "id"))
+            joinColumns = @JoinColumn(name = "id"), indexes = {
+            @Index(name = "IDX_CONTAINER_DESTINATIONS_CODE", columnList = "code")})
     private List<Destination> destinations;
 
     public Container() {

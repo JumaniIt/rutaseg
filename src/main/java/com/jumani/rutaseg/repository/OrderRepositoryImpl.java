@@ -6,6 +6,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.criteria.*;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldNameConstants;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Repository;
 
@@ -195,19 +196,20 @@ public class OrderRepositoryImpl implements OrderRepositoryExtended {
             predicates.add(builder.equal(root.get(Order.Fields.consignee).get(ConsigneeData.Fields.cuit), consigneeCuit));
         }
 
+        final boolean shouldFilterIds = Objects.nonNull(loadCode) || Objects.nonNull(destinationCode);
         final List<Long> orderIds = new ArrayList<>();
-
         if (Objects.nonNull(loadCode)) {
             orderIds.addAll(containerRepo.findByCode(loadCode).stream().map(Container::getOrderId).toList());
             orderIds.addAll(freeLoadRepo.findByPatent(loadCode).stream().map(FreeLoad::getOrderId).toList());
         }
 
         if (Objects.nonNull(destinationCode)) {
-            orderIds.addAll(containerRepo.findOrderIdByDestinationCode(destinationCode));
-            orderIds.addAll(freeLoadRepo.findOrderIdByDestinationCode(destinationCode));
+            final String theDestinationCode = StringUtils.left(destinationCode, 16);
+            orderIds.addAll(containerRepo.findOrderIdByDestinationCode(theDestinationCode));
+            orderIds.addAll(freeLoadRepo.findOrderIdByDestinationCode(theDestinationCode));
         }
 
-        if (!orderIds.isEmpty()) {
+        if (shouldFilterIds) {
             predicates.add(root.get(Order.Fields.id).in(orderIds.stream().distinct().collect(Collectors.toList())));
         }
 
