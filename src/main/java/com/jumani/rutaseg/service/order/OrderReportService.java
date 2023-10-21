@@ -1,0 +1,51 @@
+package com.jumani.rutaseg.service.order;
+
+import com.jumani.rutaseg.repository.OrderRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.lang.Nullable;
+import org.springframework.stereotype.Component;
+
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
+
+@RequiredArgsConstructor
+@Component
+public class OrderReportService {
+    private final OrderRepository orderRepo;
+
+    public final byte[] generate(@Nullable Long clientId, LocalDate dateFrom, LocalDate dateTo) {
+        final List<Object[]> raw = orderRepo.getReport(clientId, dateFrom, dateTo);
+
+        return this.generateCsv(raw);
+    }
+
+    private byte[] generateCsv(List<Object[]> raw) {
+        final StringBuilder csvContent = new StringBuilder();
+        final List<String> columns = List.of(
+                "op", "fecha", "hora", "cliente", "de", "a", "c.suelta", "destinaciones", "ctr/patente",
+                "tipo", "cuit facturable"
+        );
+
+        csvContent.append(String.join(",", columns));
+        csvContent.append("\n");
+
+        for (Object[] r : raw) {
+            for (int i = 0; i < columns.size(); i++) {
+                csvContent.append(Optional.ofNullable(r[i])
+                        .map(String::valueOf)
+                        .map(s -> s.replace(",", ";"))
+                        .orElse("-"));
+
+                if (i < columns.size() - 1) {
+                    csvContent.append(",");
+                }
+            }
+
+            csvContent.append("\n");
+        }
+
+        return csvContent.toString().getBytes();
+    }
+
+}

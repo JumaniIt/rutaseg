@@ -10,10 +10,13 @@ import com.jumani.rutaseg.exception.ValidationException;
 import com.jumani.rutaseg.handler.Session;
 import com.jumani.rutaseg.repository.OrderRepository;
 import com.jumani.rutaseg.repository.client.ClientRepository;
+import com.jumani.rutaseg.service.order.OrderReportService;
 import com.jumani.rutaseg.service.order.OrderSearchService;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -31,15 +34,18 @@ public class OrderController {
     private final OrderRepository orderRepo;
     private final OrderSearchService orderSearchService;
     private final ClientRepository clientRepo;
+    private final OrderReportService orderReportService;
 
     public OrderController(OrderRepository orderRepo,
                            OrderSearchService orderSearchService,
-                           ClientRepository clientRepo) {
+                           ClientRepository clientRepo,
+                           OrderReportService orderReportService) {
 
         this.orderRepo = orderRepo;
         this.orderSearchService = orderSearchService;
         this.clientRepo = clientRepo;
 
+        this.orderReportService = orderReportService;
     }
 
     @GetMapping("/{id}")
@@ -513,5 +519,33 @@ public class OrderController {
         orderRepo.save(order);
 
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/generate-report")
+    public ResponseEntity<?> generateReport(@Valid @RequestBody OrderReportRequest request,
+                                            @Session SessionInfo session) {
+
+        if (request.getDateFrom().isAfter(request.getDateTo())) {
+            throw new ValidationException("invalid_date_range", "date_from cannot be after date_to");
+        }
+
+        final Long theClientId;
+        if (!session.admin()) {
+            Client client = clientRepo.findOneByUser_Id(session.userId()).orElseThrow(
+                    () -> new ValidationException("client_not_found", "Client for user not found")
+            );
+            theClientId = client.getId();
+
+        } else {
+            theClientId = request.getClientId();
+        }
+
+        final HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+        headers.setContentDispositionFormData("attachment", "reporte.csv");
+
+        final byte[] csvBytes = orderReportService.generate(theClientId, request.getDateFrom(), request.getDateTo());
+
+        return new ResponseEntity<>(csvBytes, headers, HttpStatus.OK);
     }
 }

@@ -3,6 +3,7 @@ package com.jumani.rutaseg.repository;
 import com.jumani.rutaseg.domain.Order;
 import com.jumani.rutaseg.domain.OrderStatus;
 import com.jumani.rutaseg.domain.Sort;
+import jakarta.persistence.Tuple;
 import org.springframework.lang.Nullable;
 
 import java.time.LocalDate;
@@ -45,4 +46,6 @@ public interface OrderRepositoryExtended {
                @Nullable String target,
                @Nullable String consigneeCuit,
                @Nullable String destinationCode);
+
+    List<Object[]> getReport(@Nullable Long clientId, LocalDate dateFrom, LocalDate dateTo);
 }

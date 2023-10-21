@@ -13,6 +13,7 @@ import com.jumani.rutaseg.exception.NotFoundException;
 import com.jumani.rutaseg.exception.ValidationException;
 import com.jumani.rutaseg.repository.OrderRepository;
 import com.jumani.rutaseg.repository.client.ClientRepository;
+import com.jumani.rutaseg.service.order.OrderReportService;
 import com.jumani.rutaseg.service.order.OrderSearchService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -43,6 +44,9 @@ class OrderControllerTest {
 
     @Mock
     OrderSearchService searchService;
+
+    @Mock
+    OrderReportService orderReportService;
 
     @Mock
     private SessionInfo sessionInfo;
