@@ -262,8 +262,8 @@ public class OrderRepositoryImpl implements OrderRepositoryExtended {
                         o.id as "op",
                         DATE_FORMAT(o.created_at, '%d/%m/%Y %H:%i') as "f.creacion",
                         cl.name as "cliente",\s
-                        DATE_FORMAT(o.arrival_date, '%d/%m/%Y') as "f.arrivo",\s
-                        left(o.arrival_time, 5) as "h.arrivo",\s
+                        DATE_FORMAT(o.arrival_date, '%d/%m/%Y') as "f.arribo",\s
+                        left(o.arrival_time, 5) as "h.arribo",\s
                         o.origin as "de",\s
                         o.target as "a",\s
                         \s
