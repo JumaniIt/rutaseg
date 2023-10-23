@@ -291,7 +291,7 @@ public class OrderRepositoryImpl implements OrderRepositoryExtended {
                 left join (select GROUP_CONCAT(code) as "codes", id from free_load_destinations group by id) fld on fld.id = fl.id
                 left join driver_datas dr on dr.id = o.driver_data_id
                                 
-                where o.arrival_date between '%s' and '%s' %s order by o.arrival_date asc;
+                where o.arrival_date between '%s' and '%s' %s order by o.id desc;
                                 
                 """, dateFrom.toString(), dateTo.toString(), clientIdWhere));
 
