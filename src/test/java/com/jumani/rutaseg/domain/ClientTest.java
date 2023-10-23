@@ -35,6 +35,22 @@ public class ClientTest {
     }
 
     @Test
+    public void initialization_WithoutCuit() {
+        String name = randomShortString();
+        String phone = randomShortString();
+
+        final User user = mock(User.class);
+
+        Client client = new Client(user, name, phone, null);
+
+        assertEquals(user, client.getUser());
+        assertEquals(name, client.getName());
+        assertEquals(phone, client.getPhone());
+        assertNull(client.getCuit());
+        assertTrue(client.getConsignees().isEmpty());
+    }
+
+    @Test
     public void initialization_WithoutUser_Ok() {
         String name = randomShortString();
         String phone = randomShortString();

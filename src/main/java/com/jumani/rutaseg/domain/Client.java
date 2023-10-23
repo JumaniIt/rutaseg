@@ -7,6 +7,7 @@ import lombok.experimental.FieldNameConstants;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Getter
@@ -44,7 +45,9 @@ public class Client {
         this.cuit = cuit;
         this.consignees = new ArrayList<>();
 
-        consignees.add(new Consignee(this.name, this.cuit));
+        if (Objects.nonNull(this.cuit)) {
+            consignees.add(new Consignee(this.name, this.cuit));
+        }
     }
 
     private Client() {
@@ -63,11 +66,12 @@ public class Client {
         consignees.add(consignee);
         return Optional.empty();
     }
+
     public void update(String name, String phone, Long cuit, User user) {
-            this.name = name;
-            this.phone = phone;
-            this.cuit = cuit;
-            this.user = user;
+        this.name = name;
+        this.phone = phone;
+        this.cuit = cuit;
+        this.user = user;
     }
 
     public Long getUserId() {
