@@ -20,6 +20,7 @@ public class OrderSearchService {
     private final OrderRepository orderRepo;
 
     public PaginatedResult<Order> search(String code, Boolean pema, Boolean transport, Boolean port,
+                                         LocalDate creationDateFrom, LocalDate creationDateTo,
                                          LocalDate arrivalDateFrom, LocalDate arrivalDateTo,
                                          LocalTime arrivalTimeFrom, LocalTime arrivalTimeTo,
                                          Long clientId,
@@ -34,12 +35,12 @@ public class OrderSearchService {
                                          int page) {
 
         final SearchParamsKey key = new SearchParamsKey(code, pema, transport, port,
-                arrivalDateFrom, arrivalDateTo, arrivalTimeFrom, arrivalTimeTo,
+                creationDateFrom, creationDateTo, arrivalDateFrom, arrivalDateTo, arrivalTimeFrom, arrivalTimeTo,
                 clientId, status, loadCode, origin, target, consigneeCuit, destinationCode, sorts, pageSize, page);
 
         if (!cache.containsKey(key)) {
             final PaginatedResult<Order> result = this.doSearch(code, pema, transport, port,
-                    arrivalDateFrom, arrivalDateTo, arrivalTimeFrom, arrivalTimeTo,
+                    creationDateFrom, creationDateTo, arrivalDateFrom, arrivalDateTo, arrivalTimeFrom, arrivalTimeTo,
                     clientId, status, loadCode, origin, target, consigneeCuit, destinationCode, sorts, pageSize, page);
 
             cache.put(key, result);
@@ -50,6 +51,7 @@ public class OrderSearchService {
     }
 
     private PaginatedResult<Order> doSearch(String code, Boolean pema, Boolean transport, Boolean port,
+                                            LocalDate creationDateFrom, LocalDate creationDateTo,
                                             LocalDate arrivalDateFrom, LocalDate arrivalDateTo,
                                             LocalTime arrivalTimeFrom, LocalTime arrivalTimeTo,
                                             Long clientId,
@@ -67,6 +69,8 @@ public class OrderSearchService {
                 pema,
                 transport,
                 port,
+                creationDateFrom,
+                creationDateTo,
                 arrivalDateFrom,
                 arrivalDateTo,
                 arrivalTimeFrom,
@@ -85,6 +89,8 @@ public class OrderSearchService {
                         pema,
                         transport,
                         port,
+                        creationDateFrom,
+                        creationDateTo,
                         arrivalDateFrom,
                         arrivalDateTo,
                         arrivalTimeFrom,
@@ -105,6 +111,7 @@ public class OrderSearchService {
 
     public record SearchParamsKey(
             String code, Boolean pema, Boolean transport, Boolean port,
+            LocalDate creationDateFrom, LocalDate creationDateTo,
             LocalDate arrivalDateFrom, LocalDate arrivalDateTo,
             LocalTime arrivalTimeFrom, LocalTime arrivalTimeTo,
             Long clientId, OrderStatus status,

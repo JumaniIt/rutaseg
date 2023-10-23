@@ -225,8 +225,10 @@ public class OrderController {
             @RequestParam(value = "pema", required = false) Boolean pema,
             @RequestParam(value = "transport", required = false) Boolean transport,
             @RequestParam(value = "port", required = false) Boolean port,
-            @RequestParam(value = "date_from", required = false) LocalDate arrivalDateFrom,
-            @RequestParam(value = "date_to", required = false) LocalDate arrivalDateTo,
+            @RequestParam(value = "creation_date_from", required = false) LocalDate creationDateFrom,
+            @RequestParam(value = "creation_date_to", required = false) LocalDate creationDateTo,
+            @RequestParam(value = "arrival_date_from", required = false) LocalDate arrivalDateFrom,
+            @RequestParam(value = "arrival_date_to", required = false) LocalDate arrivalDateTo,
             @RequestParam(value = "time_from", required = false) LocalTime arrivalTimeFrom,
             @RequestParam(value = "time_to", required = false) LocalTime arrivalTimeTo,
             @RequestParam(value = "client_id", required = false) Long clientId,
@@ -255,8 +257,12 @@ public class OrderController {
             theClientId = clientId;
         }
 
+        if (Objects.nonNull(creationDateFrom) && Objects.nonNull(creationDateTo) && creationDateFrom.isAfter(creationDateTo)) {
+            throw new ValidationException("invalid_date_range", "creation date_from cannot be after date_to");
+        }
+
         if (Objects.nonNull(arrivalDateFrom) && Objects.nonNull(arrivalDateTo) && arrivalDateFrom.isAfter(arrivalDateTo)) {
-            throw new ValidationException("invalid_date_range", "date_from cannot be after date_to");
+            throw new ValidationException("invalid_date_range", "arrival date_from cannot be after date_to");
         }
 
         if (Objects.nonNull(arrivalTimeFrom) && Objects.nonNull(arrivalTimeTo)
@@ -265,6 +271,7 @@ public class OrderController {
         }
 
         final PaginatedResult<OrderResponse> result = this.orderSearchService.search(code, pema, transport, port,
+                        creationDateFrom, creationDateTo,
                         arrivalDateFrom, arrivalDateTo, arrivalTimeFrom, arrivalTimeTo,
                         theClientId, status, loadCode, origin, target, consigneeCuit, destinationCode,
                         sorts, pageSize, page)

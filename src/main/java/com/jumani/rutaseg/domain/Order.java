@@ -8,6 +8,7 @@ import lombok.experimental.FieldNameConstants;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -19,7 +20,8 @@ import static com.jumani.rutaseg.domain.OrderStatus.DRAFT;
 @FieldNameConstants
 @Table(name = "orders", indexes = {
         @Index(name = "IDX_ORDERS_CODE", columnList = "code"),
-        @Index(name = "IDX_ORDERS_ARRIVAL_DATE_CLIENT_ID", columnList = "arrival_date, client_id")
+        @Index(name = "IDX_ORDERS_ARRIVAL_DATE_CLIENT_ID", columnList = "arrival_date, client_id"),
+        @Index(name = "IDX_ORDERS_CREATED_AT", columnList = "created_at_idx"),
 })
 public class Order implements DateGen {
 
@@ -112,6 +114,9 @@ public class Order implements DateGen {
     @Column(name = "created_at")
     private ZonedDateTime createdAt;
 
+    @Column(name = "created_at_idx")
+    private long createdAtIdx;
+
     @Column(name = "finished_at")
     private ZonedDateTime finishedAt;
 
@@ -159,6 +164,7 @@ public class Order implements DateGen {
         this.billed = false;
 
         this.createdAt = this.currentDateUTC();
+        this.createdAtIdx = this.createdAt.truncatedTo(ChronoUnit.DAYS).toEpochSecond();
         this.finishedAt = null;
         this.createdByUserId = createdByUserId;
     }

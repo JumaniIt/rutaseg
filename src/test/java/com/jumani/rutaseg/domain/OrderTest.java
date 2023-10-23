@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -60,6 +61,7 @@ public class OrderTest {
         assertEquals(consigneeData, order.getConsignee());
         assertEquals(containers, order.getContainers());
         assertEquals(containers.size(), order.getContainerQty());
+        assertEquals(order.getCreatedAt().truncatedTo(ChronoUnit.DAYS).toEpochSecond(), order.getCreatedAtIdx());
     }
 
     @Test

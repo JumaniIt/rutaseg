@@ -13,6 +13,7 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.ZoneOffset;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -23,7 +24,6 @@ import java.util.stream.Collectors;
 public class OrderRepositoryImpl implements OrderRepositoryExtended {
 
     private final EntityManager entityManager;
-
     private final ContainerRepository containerRepo;
     private final FreeLoadRepository freeLoadRepo;
 
@@ -33,6 +33,8 @@ public class OrderRepositoryImpl implements OrderRepositoryExtended {
             @Nullable Boolean pema,
             @Nullable Boolean transport,
             @Nullable Boolean port,
+            @Nullable LocalDate creationDateFrom,
+            @Nullable LocalDate creationDateTo,
             @Nullable LocalDate arrivalDateFrom,
             @Nullable LocalDate arrivalDateTo,
             @Nullable LocalTime arrivalTimeFrom,
@@ -57,9 +59,9 @@ public class OrderRepositoryImpl implements OrderRepositoryExtended {
 
         criteriaQuery.select(root);
 
-        Predicate[] predicates = createPredicates(builder, root, codeLike, pema, transport, port, arrivalDateFrom,
-                arrivalDateTo, arrivalTimeFrom, arrivalTimeTo, clientId, status, loadCode, origin, target,
-                consigneeCuit, destinationCode);
+        final Predicate[] predicates = createPredicates(builder, root, codeLike, pema, transport, port, arrivalDateFrom,
+                creationDateFrom, creationDateTo, arrivalDateTo, arrivalTimeFrom, arrivalTimeTo, clientId, status,
+                loadCode, origin, target, consigneeCuit, destinationCode);
         criteriaQuery.where(predicates);
 
         final List<jakarta.persistence.criteria.Order> orders = this.resolveOrders(builder, root, sorts);
@@ -113,6 +115,8 @@ public class OrderRepositoryImpl implements OrderRepositoryExtended {
                       @Nullable Boolean pema,
                       @Nullable Boolean transport,
                       @Nullable Boolean port,
+                      @Nullable LocalDate creationDateFrom,
+                      @Nullable LocalDate creationDateTo,
                       @Nullable LocalDate arrivalDateFrom,
                       @Nullable LocalDate arrivalDateTo,
                       @Nullable LocalTime arrivalTimeFrom,
@@ -133,9 +137,9 @@ public class OrderRepositoryImpl implements OrderRepositoryExtended {
 
         criteriaQuery.select(builder.count(root));
 
-        Predicate[] predicates = createPredicates(builder, root, codeLike, pema, transport, port, arrivalDateFrom,
-                arrivalDateTo, arrivalTimeFrom, arrivalTimeTo, clientId, status, loadCode, origin, target,
-                consigneeCuit, destinationCode);
+        final Predicate[] predicates = createPredicates(builder, root, codeLike, pema, transport, port, arrivalDateFrom,
+                creationDateFrom, creationDateTo, arrivalDateTo, arrivalTimeFrom, arrivalTimeTo, clientId, status,
+                loadCode, origin, target, consigneeCuit, destinationCode);
         criteriaQuery.where(predicates);
 
         return entityManager.createQuery(criteriaQuery).getSingleResult();
@@ -146,6 +150,8 @@ public class OrderRepositoryImpl implements OrderRepositoryExtended {
                                          @Nullable Boolean pema,
                                          @Nullable Boolean transport,
                                          @Nullable Boolean port,
+                                         @Nullable LocalDate creationDateFrom,
+                                         @Nullable LocalDate creationDateTo,
                                          @Nullable LocalDate arrivalDateFrom,
                                          @Nullable LocalDate arrivalDateTo,
                                          @Nullable LocalTime arrivalTimeFrom,
@@ -174,6 +180,16 @@ public class OrderRepositoryImpl implements OrderRepositoryExtended {
 
         if (Objects.nonNull(port)) {
             predicates.add(builder.equal(root.get(Order.Fields.port), port));
+        }
+
+        if (Objects.nonNull(creationDateFrom)) {
+            final long createdAtFromSeconds = creationDateFrom.atStartOfDay().toEpochSecond(ZoneOffset.UTC);
+            predicates.add(builder.greaterThanOrEqualTo(root.get(Order.Fields.createdAtIdx), createdAtFromSeconds));
+        }
+
+        if (Objects.nonNull(creationDateTo)) {
+            final long createdAtToSeconds = creationDateTo.atStartOfDay().toEpochSecond(ZoneOffset.UTC);
+            predicates.add(builder.lessThanOrEqualTo(root.get(Order.Fields.createdAtIdx), createdAtToSeconds));
         }
 
         if (Objects.nonNull(arrivalDateFrom)) {
