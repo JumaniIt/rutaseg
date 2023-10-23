@@ -4,7 +4,6 @@ import com.jumani.rutaseg.domain.Order;
 import com.jumani.rutaseg.domain.*;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
-import jakarta.persistence.Tuple;
 import jakarta.persistence.criteria.*;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldNameConstants;
@@ -221,43 +220,53 @@ public class OrderRepositoryImpl implements OrderRepositoryExtended {
 
     @Override
     public List<Object[]> getReport(@Nullable Long clientId, LocalDate dateFrom, LocalDate dateTo) {
-        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-
         final String clientIdWhere = Optional.ofNullable(clientId)
                 .map(id -> "and client_id = " + clientId)
                 .orElse("");
 
         Query query = entityManager.createNativeQuery(String.format("""
                 select\s
-                	o.id as "op",
-                	o.arrival_date as "fecha",\s
-                	left(o.arrival_time, 5) as "hora",\s
-                	cl.name as "cliente",\s
-                	o.origin as "de",\s
-                	o.target as "a",\s
-                   \s
-                    case o.free_load\s
-                		when 1 then "Si"
-                		else "No"
-                    end as "c.suelta",
-                   \s
-                	case o.free_load\s
-                		when 0 then ctrd.codes
-                		else ctrd.codes
-                    end as "destinaciones",
-                                
-                    case o.free_load\s
-                		when 1 then fl.patent
-                		else ctr.code
-                    end as "ctr/patente",
-                   \s
-                    case o.free_load\s
-                		when 1 then fl.type
-                		else ctr.type
-                    end as "tipo",
-                   \s
-                	co.cuit as "cuit facturable"
-                   \s
+                     	o.id as "op",
+                     	o.arrival_date as "fecha",\s
+                     	left(o.arrival_time, 5) as "hora",\s
+                     	cl.name as "cliente",\s
+                     	o.origin as "de",\s
+                     	o.target as "a",\s
+                        \s
+                         case o.free_load\s
+                     		when 1 then "Si"
+                     		else "No"
+                         end as "c.suelta",
+                        \s
+                     	case o.free_load\s
+                     		when 0 then ctrd.codes
+                     		else ctrd.codes
+                         end as "destinaciones",
+                     
+                         case o.free_load\s
+                     		when 1 then fl.patent
+                     		else ctr.code
+                         end as "ctr/patente",
+                        \s
+                         case o.free_load\s
+                     		when 1 then fl.type
+                     		else ctr.type
+                         end as "tipo",
+                        \s
+                     	co.cuit as "cuit facturable",
+                        \s
+                         dr.company as "e.tte",
+                        \s
+                     	case o.free_load\s
+                     		when 1 then "-"
+                     		else ctr.pema
+                         end as "e.pema",
+                        \s
+                        case o.port\s
+                     		when 1 then "Si"
+                     		else "No"
+                         end as "g.pto"
+                         
                 from orders o
                 join clients cl on o.client_id = cl.id
                 left join consignee_datas co on o.consignee_id = co.id
@@ -265,7 +274,10 @@ public class OrderRepositoryImpl implements OrderRepositoryExtended {
                 left join (select GROUP_CONCAT(code) as "codes", id from container_destinations group by id) ctrd on ctrd.id = ctr.id
                 left join free_loads fl on fl.order_id = o.id
                 left join (select GROUP_CONCAT(code) as "codes", id from free_load_destinations group by id) fld on fld.id = fl.id
+                left join driver_datas dr on dr.id = o.driver_data_id
+                
                 where o.arrival_date between '%s' and '%s' %s order by o.arrival_date asc;
+                
                 """, dateFrom.toString(), dateTo.toString(), clientIdWhere));
 
         return query.getResultList();

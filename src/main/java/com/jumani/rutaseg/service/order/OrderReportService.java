@@ -6,6 +6,7 @@ import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -14,18 +15,22 @@ import java.util.Optional;
 public class OrderReportService {
     private final OrderRepository orderRepo;
 
-    public final byte[] generate(@Nullable Long clientId, LocalDate dateFrom, LocalDate dateTo) {
+    public final byte[] generate(@Nullable Long clientId, LocalDate dateFrom, LocalDate dateTo, boolean admin) {
         final List<Object[]> raw = orderRepo.getReport(clientId, dateFrom, dateTo);
 
-        return this.generateCsv(raw);
+        return this.generateCsv(raw, admin);
     }
 
-    private byte[] generateCsv(List<Object[]> raw) {
+    private byte[] generateCsv(List<Object[]> raw, boolean admin) {
         final StringBuilder csvContent = new StringBuilder();
-        final List<String> columns = List.of(
+        final List<String> columns = new ArrayList<>(List.of(
                 "op", "fecha", "hora", "cliente", "de", "a", "c.suelta", "destinaciones", "ctr/patente",
                 "tipo", "cuit facturable"
-        );
+        ));
+
+        if (admin) {
+            columns.addAll(List.of("e.tte", "e.pema", "g.pto"));
+        }
 
         csvContent.append(String.join(",", columns));
         csvContent.append("\n");

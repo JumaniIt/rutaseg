@@ -544,7 +544,7 @@ public class OrderController {
         headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
         headers.setContentDispositionFormData("attachment", "reporte.csv");
 
-        final byte[] csvBytes = orderReportService.generate(theClientId, request.getDateFrom(), request.getDateTo());
+        final byte[] csvBytes = orderReportService.generate(theClientId, request.getDateFrom(), request.getDateTo(), session.admin());
 
         return new ResponseEntity<>(csvBytes, headers, HttpStatus.OK);
     }
