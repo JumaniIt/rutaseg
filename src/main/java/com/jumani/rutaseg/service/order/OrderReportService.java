@@ -25,7 +25,7 @@ public class OrderReportService {
         final StringBuilder csvContent = new StringBuilder();
         final List<String> columns = new ArrayList<>(List.of(
                 "op", "fecha", "hora", "cliente", "de", "a", "c.suelta", "destinaciones", "ctr/patente",
-                "tipo", "cuit facturable"
+                "tipo", "factura nombre", "factura cuit"
         ));
 
         if (admin) {

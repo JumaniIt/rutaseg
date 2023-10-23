@@ -267,7 +267,8 @@ public class OrderRepositoryImpl implements OrderRepositoryExtended {
                      		else ctr.type
                          end as "tipo",
                         \s
-                     	co.cuit as "cuit facturable",
+                     	co.name as "factura nombre",
+                      	co.cuit as "factura cuit",
                         \s
                          dr.company as "e.tte",
                         \s
