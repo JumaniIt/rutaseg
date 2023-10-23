@@ -18,7 +18,7 @@ public class OrderSearchServiceConfig {
     public OrderSearchService orderSearchService(OrderRepository orderRepo) {
         final Cache<OrderSearchService.SearchParamsKey, PaginatedResult<Order>> cache = CacheBuilder.newBuilder()
                 .maximumSize(100)
-                .expireAfterWrite(1, TimeUnit.MINUTES)
+                .expireAfterWrite(30, TimeUnit.SECONDS)
                 .build();
 
         return new OrderSearchService(cache.asMap(), orderRepo);

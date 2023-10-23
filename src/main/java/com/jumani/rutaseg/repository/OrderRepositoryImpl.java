@@ -13,10 +13,7 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -47,7 +44,7 @@ public class OrderRepositoryImpl implements OrderRepositoryExtended {
             @Nullable String target,
             @Nullable String consigneeCuit,
             @Nullable String destinationCode,
-            List<Sort> sorts, // Agrega esta línea
+            List<Sort> sorts,
             int offset,
             int limit
     ) {
@@ -65,33 +62,50 @@ public class OrderRepositoryImpl implements OrderRepositoryExtended {
                 consigneeCuit, destinationCode);
         criteriaQuery.where(predicates);
 
-        final List<jakarta.persistence.criteria.Order> orders = new ArrayList<>();
-        for (Sort sort : sorts) {
-            if (sort.field().equals("date")) {
-                if (sort.ascending()) {
-                    orders.add(builder.asc(root.get(Order.Fields.arrivalDate)));
-                } else {
-                    orders.add(builder.desc(root.get(Order.Fields.arrivalDate)));
-                }
-
-            } else if (sort.field().equals("load_code")) {
-                final Path<Object> containerCode = root.join("containers", JoinType.LEFT).get("code");
-                final Path<Object> freeLoadPatent = root.join("freeLoads", JoinType.LEFT).get("patent");
-                if (sort.ascending()) {
-                    orders.add(builder.asc(containerCode));
-                    orders.add(builder.asc(freeLoadPatent));
-                } else {
-                    orders.add(builder.desc(containerCode));
-                    orders.add(builder.desc(freeLoadPatent));
-                }
-            }
-        }
+        final List<jakarta.persistence.criteria.Order> orders = this.resolveOrders(builder, root, sorts);
         criteriaQuery.orderBy(orders);
 
         return entityManager.createQuery(criteriaQuery)
                 .setFirstResult(offset)
                 .setMaxResults(limit)
                 .getResultList();
+    }
+
+    private List<jakarta.persistence.criteria.Order> resolveOrders(CriteriaBuilder builder,
+                                                                   Root<Order> root,
+                                                                   List<Sort> sorts) {
+
+        final List<jakarta.persistence.criteria.Order> orders = new ArrayList<>();
+        for (Sort sort : sorts) {
+            switch (sort.field()) {
+                case "arrival_date" -> {
+                    if (sort.ascending()) {
+                        orders.add(builder.asc(root.get(Order.Fields.arrivalDate)));
+                    } else {
+                        orders.add(builder.desc(root.get(Order.Fields.arrivalDate)));
+                    }
+                }
+                case "load_code" -> {
+                    final Path<Object> containerCode = root.join("containers", JoinType.LEFT).get("code");
+                    final Path<Object> freeLoadPatent = root.join("freeLoads", JoinType.LEFT).get("patent");
+                    if (sort.ascending()) {
+                        orders.add(builder.asc(containerCode));
+                        orders.add(builder.asc(freeLoadPatent));
+                    } else {
+                        orders.add(builder.desc(containerCode));
+                        orders.add(builder.desc(freeLoadPatent));
+                    }
+                }
+                case "creation_date" -> {
+                    if (sort.ascending()) {
+                        orders.add(builder.asc(root.get(Order.Fields.id)));
+                    } else {
+                        orders.add(builder.desc(root.get(Order.Fields.id)));
+                    }
+                }
+            }
+        }
+        return orders;
     }
 
     @Override
@@ -275,9 +289,9 @@ public class OrderRepositoryImpl implements OrderRepositoryExtended {
                 left join free_loads fl on fl.order_id = o.id
                 left join (select GROUP_CONCAT(code) as "codes", id from free_load_destinations group by id) fld on fld.id = fl.id
                 left join driver_datas dr on dr.id = o.driver_data_id
-                
+                                
                 where o.arrival_date between '%s' and '%s' %s order by o.arrival_date asc;
-                
+                                
                 """, dateFrom.toString(), dateTo.toString(), clientIdWhere));
 
         return query.getResultList();

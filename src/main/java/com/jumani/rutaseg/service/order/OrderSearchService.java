@@ -29,7 +29,7 @@ public class OrderSearchService {
                                          String target,
                                          String consigneeCuit,
                                          String destinationCode,
-                                         List<Sort> sorts, // Cambiado a List<Sort>
+                                         List<Sort> sorts,
                                          int pageSize,
                                          int page) {
 
@@ -40,7 +40,7 @@ public class OrderSearchService {
         if (!cache.containsKey(key)) {
             final PaginatedResult<Order> result = this.doSearch(code, pema, transport, port,
                     arrivalDateFrom, arrivalDateTo, arrivalTimeFrom, arrivalTimeTo,
-                    clientId, status, loadCode, origin, target, consigneeCuit, destinationCode, sorts, pageSize, page); // Pasamos la lista de Sort
+                    clientId, status, loadCode, origin, target, consigneeCuit, destinationCode, sorts, pageSize, page);
 
             cache.put(key, result);
             return result;
@@ -59,7 +59,7 @@ public class OrderSearchService {
                                             String target,
                                             String consigneeCuit,
                                             String destinationCode,
-                                            List<Sort> sorts, // Cambiado a List<Sort>
+                                            List<Sort> sorts,
                                             int pageSize,
                                             int page) {
         final long totalElements = orderRepo.count(
@@ -81,7 +81,7 @@ public class OrderSearchService {
 
         return PaginationUtil.get(totalElements, pageSize, page, (offset, limit) ->
                 orderRepo.search(
-                        code, // Pasamos la lista de Sort
+                        code,
                         pema,
                         transport,
                         port,
