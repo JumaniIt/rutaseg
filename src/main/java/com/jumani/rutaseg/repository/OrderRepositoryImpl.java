@@ -59,8 +59,8 @@ public class OrderRepositoryImpl implements OrderRepositoryExtended {
 
         criteriaQuery.select(root);
 
-        final Predicate[] predicates = createPredicates(builder, root, codeLike, pema, transport, port, arrivalDateFrom,
-                creationDateFrom, creationDateTo, arrivalDateTo, arrivalTimeFrom, arrivalTimeTo, clientId, status,
+        final Predicate[] predicates = createPredicates(builder, root, codeLike, pema, transport, port,
+                creationDateFrom, creationDateTo, arrivalDateFrom, arrivalDateTo, arrivalTimeFrom, arrivalTimeTo, clientId, status,
                 loadCode, origin, target, consigneeCuit, destinationCode);
         criteriaQuery.where(predicates);
 
@@ -137,8 +137,8 @@ public class OrderRepositoryImpl implements OrderRepositoryExtended {
 
         criteriaQuery.select(builder.count(root));
 
-        final Predicate[] predicates = createPredicates(builder, root, codeLike, pema, transport, port, arrivalDateFrom,
-                creationDateFrom, creationDateTo, arrivalDateTo, arrivalTimeFrom, arrivalTimeTo, clientId, status,
+        final Predicate[] predicates = createPredicates(builder, root, codeLike, pema, transport, port,
+                creationDateFrom, creationDateTo, arrivalDateFrom, arrivalDateTo, arrivalTimeFrom, arrivalTimeTo, clientId, status,
                 loadCode, origin, target, consigneeCuit, destinationCode);
         criteriaQuery.where(predicates);
 
@@ -254,14 +254,18 @@ public class OrderRepositoryImpl implements OrderRepositoryExtended {
                 .map(id -> "and client_id = " + clientId)
                 .orElse("");
 
-        Query query = entityManager.createNativeQuery(String.format("""
+        final long createdAtFromSeconds = dateFrom.atStartOfDay().toEpochSecond(ZoneOffset.UTC);
+        final long createdAtToSeconds = dateTo.atStartOfDay().toEpochSecond(ZoneOffset.UTC);
+
+        final Query query = entityManager.createNativeQuery("""
                 select\s
-                     	o.id as "op",
-                     	o.arrival_date as "fecha",\s
-                     	left(o.arrival_time, 5) as "hora",\s
-                     	cl.name as "cliente",\s
-                     	o.origin as "de",\s
-                     	o.target as "a",\s
+                        o.id as "op",
+                        DATE_FORMAT(o.created_at, '%d/%m/%Y %H:%i') as "f.creacion",
+                        cl.name as "cliente",\s
+                        DATE_FORMAT(o.arrival_date, '%d/%m/%Y') as "f.arrivo",\s
+                        left(o.arrival_time, 5) as "h.arrivo",\s
+                        o.origin as "de",\s
+                        o.target as "a",\s
                         \s
                          case o.free_load\s
                      		when 1 then "Si"
@@ -306,10 +310,12 @@ public class OrderRepositoryImpl implements OrderRepositoryExtended {
                 left join free_loads fl on fl.order_id = o.id
                 left join (select GROUP_CONCAT(code) as "codes", id from free_load_destinations group by id) fld on fld.id = fl.id
                 left join driver_datas dr on dr.id = o.driver_data_id
+                """
+                + String.format("""
                                 
-                where o.arrival_date between '%s' and '%s' %s order by o.id desc;
+                where o.created_at_idx between '%s' and '%s' %s order by o.id desc;
                                 
-                """, dateFrom.toString(), dateTo.toString(), clientIdWhere));
+                """, createdAtFromSeconds, createdAtToSeconds, clientIdWhere));
 
         return query.getResultList();
     }
