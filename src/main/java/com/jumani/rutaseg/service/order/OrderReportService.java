@@ -2,6 +2,7 @@ package com.jumani.rutaseg.service.order;
 
 import com.jumani.rutaseg.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 
@@ -39,6 +40,7 @@ public class OrderReportService {
             for (int i = 0; i < columns.size(); i++) {
                 csvContent.append(Optional.ofNullable(r[i])
                         .map(String::valueOf)
+                        .filter(StringUtils::isNotBlank)
                         .map(s -> s.replace(",", ";"))
                         .orElse("-"));
 
