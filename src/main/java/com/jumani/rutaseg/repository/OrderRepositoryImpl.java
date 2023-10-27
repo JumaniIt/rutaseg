@@ -260,10 +260,9 @@ public class OrderRepositoryImpl implements OrderRepositoryExtended {
         final Query query = entityManager.createNativeQuery("""
                 select\s
                         o.id as "op",
-                        DATE_FORMAT(o.created_at, '%d/%m/%Y %H:%i') as "f.creacion",
                         cl.name as "cliente",\s
-                        DATE_FORMAT(o.arrival_date, '%d/%m/%Y') as "f.arribo",\s
-                        left(o.arrival_time, 5) as "h.arribo",\s
+                        DATE_FORMAT(o.arrival_date, '%d/%m/%Y') as "f.turno",\s
+                        left(o.arrival_time, 5) as "h.turno",\s
                         o.origin as "de",\s
                         o.target as "a",\s
                         \s
@@ -312,9 +311,8 @@ public class OrderRepositoryImpl implements OrderRepositoryExtended {
                 left join driver_datas dr on dr.id = o.driver_data_id
                 """
                 + String.format("""
-                                
-                where o.created_at_idx between '%s' and '%s' %s order by o.id desc;
-                                
+                where o.status != 'CANCELLED'
+                and o.created_at_idx between '%s' and '%s' %s order by o.id desc;
                 """, createdAtFromSeconds, createdAtToSeconds, clientIdWhere));
 
         return query.getResultList();

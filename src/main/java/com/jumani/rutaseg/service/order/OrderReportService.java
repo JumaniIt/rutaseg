@@ -25,7 +25,7 @@ public class OrderReportService {
     private byte[] generateCsv(List<Object[]> raw, boolean admin) {
         final StringBuilder csvContent = new StringBuilder();
         final List<String> columns = new ArrayList<>(List.of(
-                "op", "f.creacion", "cliente", "f.arribo", "h.arribo", "de", "a", "c.suelta", "destinaciones", "ctr/patente",
+                "op", "cliente", "f.turno", "h.turno", "de", "a", "c.suelta", "destinaciones", "ctr/patente",
                 "tipo", "factura nombre", "factura cuit"
         ));
 
