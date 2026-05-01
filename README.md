@@ -12,7 +12,7 @@ documents, and follow status changes.
 - Hibernate 6 / JPA (Criteria API + JPQL; one native SQL query for the CSV report)
 - PostgreSQL 14+ (works against any PG-protocol-compatible service — local Docker, RDS, Neon)
 - Flyway 9 — schema migrations in production
-- AWS S3 — document storage (pluggable: `OnDiskFileRepository` for local dev)
+- AWS S3 or Supabase Storage — document storage, switched via `FILES_PROVIDER` (pluggable: `DummyFileRepository` for local/test)
 - Spring Mail — Gmail SMTP for the internal contact form
 - BCrypt + JJWT (HS256) — auth, hand-rolled (no Spring Security on the request path)
 
@@ -41,17 +41,22 @@ schema-vs-entities mismatch fails the suite.
 | `DB_USERNAME` | prod | Database user. |
 | `DB_PASSWORD` | prod | Database password. |
 | `JWT_SECRET_KEY` | prod | HMAC-SHA256 signing key for issued JWTs. |
-| `AWS_ACCESS_KEY` | prod | IAM access key for S3 document uploads. |
-| `AWS_SECRET_KEY` | prod | IAM secret key. |
-| `AWS_REGION` | prod | AWS region of the S3 bucket. |
-| `AWS_S3_FILES_BUCKET` | prod | S3 bucket name for `Document.resource` keys. |
+| `FILES_PROVIDER` | no | Storage backend for documents in prod: `aws` (default) or `supabase`. |
+| `AWS_ACCESS_KEY` | aws | IAM access key for S3 document uploads. |
+| `AWS_SECRET_KEY` | aws | IAM secret key. |
+| `AWS_REGION` | aws | AWS region of the S3 bucket. |
+| `AWS_S3_FILES_BUCKET` | aws | S3 bucket name for `Document.resource` keys. |
+| `SUPABASE_URL` | supabase | Supabase project URL, e.g. `https://abcd1234.supabase.co`. Must be HTTPS. |
+| `SUPABASE_SERVICE_KEY` | supabase | Service-role key (backend-only, never expose to FE). |
+| `SUPABASE_BUCKET` | supabase | Private bucket name where document keys live. |
+| `SUPABASE_SIGNED_URL_TTL_SECONDS` | no | Signed-URL lifetime in seconds. Default: `259200` (3 days, matches S3). |
 | `EMAIL_USERNAME` | prod | Gmail account for SMTP. |
 | `EMAIL_PASSWORD` | prod | Gmail app password. |
 | `INTERNAL_EMAIL_TO` | no | Comma-separated recipients for `POST /internal/send-email`. Default: `email@host.com`. |
 | `KNOWN_ORIGINS` | no | Comma-separated values accepted in the `x-auth-origin` header. Default: empty. |
 | `ALLOW_ALL_ORIGINS` | no | If `true`, skip `x-auth-origin` validation. Default: `true`. |
 | `ALLOWED_ORIGINS_PATTERNS` | no | Spring CORS origin patterns. Default: `*`. |
-| `FILES_DIRECTORY` | local | Local FS root used by `OnDiskFileRepository` when AWS isn't configured. |
+| `FILES_DIRECTORY` | local | Local FS root used by `OnDiskFileRepository` when no remote provider is configured. |
 
 The server listens on **port 5000** (hardcoded in `application.yml`).
 

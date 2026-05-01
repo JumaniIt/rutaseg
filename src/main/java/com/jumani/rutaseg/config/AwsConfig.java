@@ -7,12 +7,14 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.jumani.rutaseg.repository.file.AwsFileRepository;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
 @Configuration
 @Profile("!local & !integration_test")
+@ConditionalOnProperty(name = "files.provider", havingValue = "aws", matchIfMissing = true)
 public class AwsConfig {
     
     @Value("${aws.credentials.access-key}")

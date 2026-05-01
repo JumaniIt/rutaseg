@@ -10,13 +10,21 @@ spring:
   profiles:
     active: ${SCOPE:local}
 
+files:
+  provider: ${FILES_PROVIDER:aws}
+  supabase:
+    url: ${SUPABASE_URL:}
+    service-key: ${SUPABASE_SERVICE_KEY:}
+    bucket: ${SUPABASE_BUCKET:}
+    signed-url-ttl-seconds: ${SUPABASE_SIGNED_URL_TTL_SECONDS:259200}
+
 aws:
   credentials:
-    access-key: ${AWS_ACCESS_KEY}
-    secret-key: ${AWS_SECRET_KEY}
-  region: ${AWS_REGION}
+    access-key: ${AWS_ACCESS_KEY:}
+    secret-key: ${AWS_SECRET_KEY:}
+  region: ${AWS_REGION:}
   s3:
-    files-bucket: ${AWS_S3_FILES_BUCKET}
+    files-bucket: ${AWS_S3_FILES_BUCKET:}
 
 logging:
   pattern:
