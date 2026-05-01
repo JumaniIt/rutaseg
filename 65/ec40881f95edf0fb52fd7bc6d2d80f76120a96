@@ -1,0 +1,23 @@
+src/main/resources/db/migration/V1__init.sql
+  522c4034a4423f07 41,77-79
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.3.4",
+  "base_commit_sha": "65ec40881f95edf0fb52fd7bc6d2d80f76120a96",
+  "prompts": {
+    "522c4034a4423f07": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "4ab61abd-27aa-4df8-a9d4-f1649850e55a",
+        "model": "claude-opus-4-7"
+      },
+      "human_author": "Nei",
+      "messages": [],
+      "total_additions": 4,
+      "total_deletions": 0,
+      "accepted_lines": 4,
+      "overriden_lines": 0
+    }
+  }
+}
