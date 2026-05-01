@@ -72,11 +72,11 @@ public class UserRepositoryImpl implements UserRepositoryExtended {
         }
 
         if (Objects.nonNull(nicknameLike)) {
-            predicates.add(builder.like(root.get(User.Fields.nickname), "%" + nicknameLike + "%"));
+            predicates.add(builder.like(builder.lower(root.get(User.Fields.nickname)), "%" + nicknameLike.toLowerCase() + "%"));
         }
 
         if (Objects.nonNull(emailLike)) {
-            predicates.add(builder.like(root.get(User.Fields.email), "%" + emailLike + "%"));
+            predicates.add(builder.like(builder.lower(root.get(User.Fields.email)), "%" + emailLike.toLowerCase() + "%"));
         }
 
         if (Objects.nonNull(withClient)) {

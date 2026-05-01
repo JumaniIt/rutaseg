@@ -1,15 +1,14 @@
 spring:
   datasource:
-    url: jdbc:mysql://localhost:3306/gexlog
-    username: root
-    password:
+    url: jdbc:postgresql://localhost:5432/gexlog
+    username: gexlog
+    password: gexlog
   jpa:
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.MySQL8Dialect
-    generate-ddl: true
+    generate-ddl: false
     show-sql: true
     hibernate:
-      ddl-auto: none
+      ddl-auto: update
+  flyway:
+    enabled: false
 files:
   directory: ${FILES_DIRECTORY}

@@ -167,7 +167,7 @@ public class OrderRepositoryImpl implements OrderRepositoryExtended {
         final List<Predicate> predicates = new ArrayList<>();
 
         if (Objects.nonNull(codeLike)) {
-            predicates.add(builder.like(root.get(Order.Fields.code), "%" + codeLike + "%"));
+            predicates.add(builder.like(builder.lower(root.get(Order.Fields.code)), "%" + codeLike.toLowerCase() + "%"));
         }
 
         if (Objects.nonNull(pema)) {
@@ -250,70 +250,51 @@ public class OrderRepositoryImpl implements OrderRepositoryExtended {
 
     @Override
     public List<Object[]> getReport(@Nullable Long clientId, LocalDate dateFrom, LocalDate dateTo) {
-        final String clientIdWhere = Optional.ofNullable(clientId)
-                .map(id -> "and client_id = " + clientId)
-                .orElse("");
-
         final long createdAtFromSeconds = dateFrom.atStartOfDay().toEpochSecond(ZoneOffset.UTC);
         final long createdAtToSeconds = dateTo.atStartOfDay().toEpochSecond(ZoneOffset.UTC);
 
-        final Query query = entityManager.createNativeQuery("""
-                select\s
-                        o.id as "op",
-                        cl.name as "cliente",\s
-                        DATE_FORMAT(o.arrival_date, '%d/%m/%Y') as "f.turno",\s
-                        left(o.arrival_time, 5) as "h.turno",\s
-                        o.origin as "de",\s
-                        o.target as "a",\s
-                        \s
-                         case o.free_load\s
-                     		when 1 then "Si"
-                     		else "No"
-                         end as "c.suelta",
-                        \s
-                     	case o.free_load\s
-                     		when 0 then ctrd.codes
-                     		else ctrd.codes
-                         end as "destinaciones",
-                     
-                         case o.free_load\s
-                     		when 1 then fl.patent
-                     		else ctr.code
-                         end as "ctr/patente",
-                        \s
-                         case o.free_load\s
-                     		when 1 then fl.type
-                     		else ctr.type
-                         end as "tipo",
-                        \s
-                     	co.name as "factura nombre",
-                      	co.cuit as "factura cuit",
-                        \s
-                         dr.company as "e.tte",
-                        \s
-                     	case o.free_load\s
-                     		when 1 then "-"
-                     		else ctr.pema
-                         end as "e.pema",
-                        \s
-                        case o.port\s
-                     		when 1 then "Si"
-                     		else "No"
-                         end as "g.pto"
-                         
+        final StringBuilder sql = new StringBuilder("""
+                select
+                        o.id                                                               as "op",
+                        cl.name                                                            as "cliente",
+                        to_char(o.arrival_date, 'DD/MM/YYYY')                              as "f.turno",
+                        left(cast(o.arrival_time as text), 5)                              as "h.turno",
+                        o.origin                                                           as "de",
+                        o.target                                                           as "a",
+                        case when o.free_load then 'Si' else 'No' end                      as "c.suelta",
+                        ctrd.codes                                                         as "destinaciones",
+                        case when o.free_load then fl.patent else ctr.code end             as "ctr/patente",
+                        case when o.free_load then cast(fl.type as text) else cast(ctr.type as text) end as "tipo",
+                        co.name                                                            as "factura nombre",
+                        co.cuit                                                            as "factura cuit",
+                        dr.company                                                         as "e.tte",
+                        case when o.free_load then '-' else ctr.pema end                   as "e.pema",
+                        case when o.port then 'Si' else 'No' end                           as "g.pto"
                 from orders o
-                join clients cl on o.client_id = cl.id
-                left join consignee_datas co on o.consignee_id = co.id
-                left join containers ctr on ctr.order_id = o.id
-                left join (select GROUP_CONCAT(code) as "codes", id from container_destinations group by id) ctrd on ctrd.id = ctr.id
-                left join free_loads fl on fl.order_id = o.id
-                left join (select GROUP_CONCAT(code) as "codes", id from free_load_destinations group by id) fld on fld.id = fl.id
-                left join driver_datas dr on dr.id = o.driver_data_id
-                """
-                + String.format("""
-                where o.status != 'CANCELLED'
-                and o.created_at_idx between '%s' and '%s' %s order by o.id desc;
-                """, createdAtFromSeconds, createdAtToSeconds, clientIdWhere));
+                join clients cl                            on o.client_id = cl.id
+                left join consignee_datas co               on o.consignee_id = co.id
+                left join containers ctr                   on ctr.order_id = o.id
+                left join (select string_agg(code, ',') as codes, id
+                           from container_destinations group by id) ctrd on ctrd.id = ctr.id
+                left join free_loads fl                    on fl.order_id = o.id
+                left join (select string_agg(code, ',') as codes, id
+                           from free_load_destinations group by id) fld  on fld.id = fl.id
+                left join driver_datas dr                  on dr.id = o.driver_data_id
+                where o.status <> 'CANCELLED'
+                  and o.created_at_idx between :from and :to
+                """);
+
+        if (clientId != null) {
+            sql.append(" and o.client_id = :clientId");
+        }
+        sql.append(" order by o.id desc");
+
+        final Query query = entityManager.createNativeQuery(sql.toString())
+                .setParameter("from", createdAtFromSeconds)
+                .setParameter("to", createdAtToSeconds);
+        if (clientId != null) {
+            query.setParameter("clientId", clientId);
+        }
 
         return query.getResultList();
     }
