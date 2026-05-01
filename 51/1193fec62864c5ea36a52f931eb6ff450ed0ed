@@ -1,0 +1,14 @@
+README.md
+  h_a702a5b6785ab6 58
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.3.4",
+  "base_commit_sha": "511193fec62864c5ea36a52f931eb6ff450ed0ed",
+  "prompts": {},
+  "humans": {
+    "h_a702a5b6785ab6": {
+      "author": "Nei"
+    }
+  }
+}
