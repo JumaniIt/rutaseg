@@ -1,0 +1,41 @@
+src/main/resources/application-integration_test.yml
+  522c4034a4423f07 3,11-13
+src/main/resources/db/migration/V1__init.sql
+  522c4034a4423f07 1-168
+src/main/resources/application-local.yml
+  522c4034a4423f07 3-5,7,10-12
+src/main/java/com/jumani/rutaseg/repository/OrderRepositoryImpl.java
+  522c4034a4423f07 170,256-272,274-297
+pom.xml
+  522c4034a4423f07 67-73
+README.md
+  522c4034a4423f07 1-175
+src/main/java/com/jumani/rutaseg/repository/UserRepositoryImpl.java
+  522c4034a4423f07 75,79
+src/test/java/com/jumani/rutaseg/repository/UserRepositoryImplTest.java
+  522c4034a4423f07 1-131
+src/main/resources/application.yml
+  522c4034a4423f07 9
+src/test/java/com/jumani/rutaseg/repository/OrderRepositoryImplTest.java
+  522c4034a4423f07 1-254
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.3.4",
+  "base_commit_sha": "939830e534547f094f83b0d05f327f936d61f65f",
+  "prompts": {
+    "522c4034a4423f07": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "4ab61abd-27aa-4df8-a9d4-f1649850e55a",
+        "model": "claude-opus-4-7"
+      },
+      "human_author": "Nei",
+      "messages": [],
+      "total_additions": 1074,
+      "total_deletions": 366,
+      "accepted_lines": 793,
+      "overriden_lines": 0
+    }
+  }
+}
