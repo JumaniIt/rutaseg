@@ -1,0 +1,33 @@
+src/main/java/com/jumani/rutaseg/config/AwsConfig.java
+  522c4034a4423f07 10,17
+src/test/java/com/jumani/rutaseg/repository/file/SupabaseFileRepositoryTest.java
+  522c4034a4423f07 1-302
+src/main/resources/application.yml
+  522c4034a4423f07 13-20,23-25,27
+src/main/java/com/jumani/rutaseg/config/SupabaseConfig.java
+  522c4034a4423f07 1-46
+README.md
+  522c4034a4423f07 15,44-52,59
+src/main/java/com/jumani/rutaseg/repository/file/SupabaseFileRepository.java
+  522c4034a4423f07 1-182
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.3.4",
+  "base_commit_sha": "e79cac4b6a8f1e04c5900790569f4cb9de756fd9",
+  "prompts": {
+    "522c4034a4423f07": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "4ab61abd-27aa-4df8-a9d4-f1649850e55a",
+        "model": "claude-opus-4-7"
+      },
+      "human_author": "Nei",
+      "messages": [],
+      "total_additions": 562,
+      "total_deletions": 17,
+      "accepted_lines": 555,
+      "overriden_lines": 0
+    }
+  }
+}
