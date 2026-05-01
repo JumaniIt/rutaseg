@@ -38,6 +38,7 @@ create table clients (
     name    varchar(255),
     phone   varchar(255),
     cuit    bigint,
+    constraint "uk_clients-user"  unique (user_id),
     constraint "fk_clients-users" foreign key (user_id) references users (id)
 );
 
@@ -73,6 +74,9 @@ create table orders (
     created_at         timestamp(6) with time zone,
     created_at_idx     bigint  not null,
     finished_at        timestamp(6) with time zone,
+    constraint "uk_orders-driver_data"     unique (driver_data_id),
+    constraint "uk_orders-customs_data"    unique (customs_data_id),
+    constraint "uk_orders-consignee"       unique (consignee_id),
     constraint "fk_orders-clients"         foreign key (client_id)       references clients         (id),
     constraint "fk_orders-driver_datas"    foreign key (driver_data_id)  references driver_datas    (id),
     constraint "fk_orders-customs_data"    foreign key (customs_data_id) references customs_datas   (id),
