@@ -55,7 +55,7 @@ schema-vs-entities mismatch fails the suite.
 
 The server listens on **port 5000** (hardcoded in `application.yml`).
 
-## Run locally (Neon Postgres)
+## Run locally (with Neon Postgres)
 
 The default `local` profile is configured to let Hibernate auto-create / update the schema
 on boot (Flyway is disabled in this profile), so an empty Neon database becomes ready on
